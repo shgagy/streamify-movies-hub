@@ -1,12 +1,52 @@
-// Update this page (the content is just a fallback if you fail to update the page)
 
-const Index = () => {
+import React from "react";
+import Hero from "@/components/Hero";
+import ContentSlider from "@/components/ContentSlider";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { movies, genres, getMoviesByGenre } from "@/lib/mockData";
+
+const Index: React.FC = () => {
+  // Get movies by genre for each slider
+  const getGenreMovies = (genreId: string) => {
+    return getMoviesByGenre(genreId);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-streamify-black text-white">
+      <Navbar />
+      
+      <main className="pt-16">
+        {/* Hero Section */}
+        <Hero />
+        
+        {/* Trending Movies */}
+        <ContentSlider title="Trending Now" movies={movies} />
+        
+        {/* Top Rated Movies */}
+        <ContentSlider
+          title="Top Rated Movies"
+          movies={[...movies].sort((a, b) => b.rating - a.rating)}
+          layout="backdrop"
+        />
+        
+        {/* Genre-based Recommendations */}
+        {genres.slice(0, 3).map((genre) => {
+          const genreMovies = getGenreMovies(genre.id);
+          if (genreMovies.length) {
+            return (
+              <ContentSlider 
+                key={genre.id} 
+                title={genre.name} 
+                movies={genreMovies} 
+              />
+            );
+          }
+          return null;
+        })}
+      </main>
+      
+      <Footer />
     </div>
   );
 };
