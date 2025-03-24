@@ -61,7 +61,7 @@ const Index: React.FC = () => {
         )}
         
         {/* Genre Filter */}
-        <div className="page-container mt-8 mb-4">
+        <div className="page-container mt-8 mb-4" data-section="genres">
           <h2 className="text-2xl font-bold mb-4">Browse by Genre</h2>
           <GenreFilter 
             selectedGenreId={selectedGenreId}
