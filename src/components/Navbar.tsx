@@ -1,16 +1,18 @@
 
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, Menu, X, Film, Home, Compass, Bell, User } from "lucide-react";
+import { Search, Menu, X, Film, Home, Compass, Bell, User, Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { genres } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import SearchBar from "./SearchBar";
+import { useMyList } from "@/contexts/MyListContext";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const { myList } = useMyList();
 
   // Handle scroll event to change navbar appearance
   useEffect(() => {
@@ -56,6 +58,9 @@ const Navbar = () => {
           <Link to="/tv-shows" className="nav-link">
             TV Shows
           </Link>
+          <Link to="/my-list" className="nav-link">
+            My List {myList.length > 0 && <span className="ml-1 px-1.5 py-0.5 bg-primary rounded-full text-xs">{myList.length}</span>}
+          </Link>
           <div className="group relative">
             <button className="nav-link">Genres</button>
             <div className="absolute top-full left-0 hidden group-hover:grid grid-cols-3 gap-2 p-4 bg-streamify-darkgray rounded-md shadow-lg w-[500px] animate-fade-in">
@@ -91,6 +96,18 @@ const Navbar = () => {
               aria-label="Notifications"
             >
               <Bell className="w-5 h-5" />
+            </Link>
+            <Link
+              to="/my-list"
+              className="p-2 text-white/80 hover:text-white transition-colors relative"
+              aria-label="My List"
+            >
+              <Bookmark className="w-5 h-5" />
+              {myList.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-xs flex items-center justify-center">
+                  {myList.length}
+                </span>
+              )}
             </Link>
             <Link
               to="/profile"
@@ -139,6 +156,19 @@ const Navbar = () => {
               >
                 <Film className="w-5 h-5" />
                 <span>TV Shows</span>
+              </Link>
+              <Link
+                to="/my-list"
+                className="flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <Bookmark className="w-5 h-5" />
+                <span>My List</span>
+                {myList.length > 0 && (
+                  <span className="ml-auto px-1.5 py-0.5 bg-primary rounded-full text-xs">
+                    {myList.length}
+                  </span>
+                )}
               </Link>
               <Link
                 to="/explore"

@@ -1,9 +1,10 @@
 
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play, Plus, Info, Star } from "lucide-react";
+import { Play, Plus, Check, Info, Star } from "lucide-react";
 import { Movie } from "@/lib/mockData";
 import { cn } from "@/lib/utils";
+import { useMyList } from "@/contexts/MyListContext";
 
 interface MovieCardProps {
   movie: Movie;
@@ -18,6 +19,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
+  const { addToMyList, removeFromMyList, isInMyList } = useMyList();
   
   const handleClick = () => {
     navigate(`/movie/${movie.id}`);
@@ -27,6 +29,15 @@ const MovieCard: React.FC<MovieCardProps> = ({
     sm: layout === "poster" ? "w-[150px]" : "w-[250px]",
     md: layout === "poster" ? "w-[180px]" : "w-[320px]",
     lg: layout === "poster" ? "w-[220px]" : "w-[400px]"
+  };
+  
+  const handleMyListToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isInMyList(movie.id)) {
+      removeFromMyList(movie.id);
+    } else {
+      addToMyList(movie);
+    }
   };
   
   return (
@@ -96,9 +107,13 @@ const MovieCard: React.FC<MovieCardProps> = ({
           
           <button 
             className="p-2 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all"
-            onClick={(e) => e.stopPropagation()}
+            onClick={handleMyListToggle}
           >
-            <Plus className="w-4 h-4" />
+            {isInMyList(movie.id) ? (
+              <Check className="w-4 h-4" />
+            ) : (
+              <Plus className="w-4 h-4" />
+            )}
           </button>
           
           <button 

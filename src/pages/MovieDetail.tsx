@@ -1,12 +1,13 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Play, Star, Plus, Share, ArrowLeft, Clock } from "lucide-react";
+import { Play, Star, Plus, Check, Share, ArrowLeft, Clock } from "lucide-react";
 import { getMovieById, movies, Movie } from "@/lib/mockData";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ContentSlider from "@/components/ContentSlider";
 import { Button } from "@/components/ui/button";
+import { useMyList } from "@/contexts/MyListContext";
 
 const MovieDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,6 +15,7 @@ const MovieDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
   const navigate = useNavigate();
+  const { addToMyList, removeFromMyList, isInMyList } = useMyList();
 
   useEffect(() => {
     if (id) {
@@ -39,6 +41,16 @@ const MovieDetail: React.FC = () => {
       }, 500);
     }
   }, [id]);
+
+  const handleMyListToggle = () => {
+    if (!movie) return;
+    
+    if (isInMyList(movie.id)) {
+      removeFromMyList(movie.id);
+    } else {
+      addToMyList(movie);
+    }
+  };
 
   if (loading) {
     return (
@@ -163,9 +175,19 @@ const MovieDetail: React.FC = () => {
                   <Button
                     variant="outline"
                     className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white px-6 py-3 rounded-md flex items-center space-x-2"
+                    onClick={handleMyListToggle}
                   >
-                    <Plus className="w-5 h-5" />
-                    <span>My List</span>
+                    {isInMyList(movie.id) ? (
+                      <>
+                        <Check className="w-5 h-5" />
+                        <span>In My List</span>
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-5 h-5" />
+                        <span>My List</span>
+                      </>
+                    )}
                   </Button>
 
                   <Button
