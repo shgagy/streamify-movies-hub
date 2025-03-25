@@ -1,12 +1,13 @@
 
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Search, Menu, X, Film, Home, Compass, Bell, User, Bookmark } from "lucide-react";
+import { Search, Menu, X, Film, Home, Compass, Bell, Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { genres } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import SearchBar from "./SearchBar";
 import { useMyList } from "@/contexts/MyListContext";
+import ProfileButton from "./ProfileButton";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -109,14 +110,9 @@ const Navbar = () => {
                 </span>
               )}
             </Link>
-            <Link
-              to="/profile"
-              className="p-2 text-white/80 hover:text-white transition-colors"
-              aria-label="Profile"
-            >
-              <User className="w-5 h-5" />
-            </Link>
-            <Button className="ml-2 button-primary">Sign In</Button>
+            
+            {/* Profile Button (replaces the Sign In button) */}
+            <ProfileButton />
           </div>
 
           {/* Mobile menu button */}
@@ -196,9 +192,11 @@ const Navbar = () => {
               </div>
               
               <div className="border-t border-streamify-gray my-2 pt-4 flex justify-center">
-                <Button className="w-full button-primary" onClick={() => setMobileMenuOpen(false)}>
-                  Sign In
-                </Button>
+                <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full button-primary">
+                    Sign In
+                  </Button>
+                </Link>
               </div>
             </nav>
           </div>
