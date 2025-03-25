@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { Label } from "@/components/ui/label";
 import { 
   Dialog,
@@ -36,8 +37,10 @@ const Auth: React.FC = () => {
   const [canResend, setCanResend] = useState(false);
   const [resendCounter, setResendCounter] = useState(0);
   const [signupSuccess, setSignupSuccess] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { generateVerificationCode, verifyEmail } = useAuth();
 
   // Check if user is already logged in
   useEffect(() => {
@@ -87,19 +90,16 @@ const Auth: React.FC = () => {
   }, [resendCounter]);
 
   const handleResendOTP = async () => {
-    if (!canResend && resendCounter > 0) return;
+    if (!canResend && resendCounter > 0 || !userId) return;
     
     setResendingOtp(true);
     setOtpError(null);
     
     try {
-      // Re-trigger the signup process to send a new OTP
-      const { error } = await supabase.auth.resend({
-        type: 'signup',
-        email,
-      });
-
-      if (error) throw error;
+      // Generate and send a new verification code
+      const { success, error } = await generateVerificationCode(email, userId);
+      
+      if (!success) throw new Error(error);
 
       toast({
         title: "New verification code sent",
@@ -135,14 +135,17 @@ const Auth: React.FC = () => {
           description: "You have been successfully logged in.",
         });
       } else {
-        // Sign up with OTP verification
+        // Sign up
         setSignupSuccess(false);
+        console.log("Starting signup process for email:", email);
+        
+        // Create user with Supabase (but disable auto-confirmation)
         const { error, data } = await supabase.auth.signUp({
           email,
           password,
           options: {
             data: {
-              username: username, // Store username in user metadata
+              username: username,
             },
             emailRedirectTo: window.location.origin,
           },
@@ -151,12 +154,27 @@ const Auth: React.FC = () => {
         if (error) throw error;
 
         console.log("Sign up response:", data);
+        
+        if (!data.user || !data.user.id) {
+          throw new Error("User creation failed");
+        }
+        
+        setUserId(data.user.id);
+        
+        // Generate and store verification code
+        const verificationResult = await generateVerificationCode(email, data.user.id);
+        
+        if (!verificationResult.success) {
+          throw new Error(verificationResult.error || "Failed to generate verification code");
+        }
+        
         setSignupSuccess(true);
 
         // Show OTP dialog for verification
         toast({
           title: "Verification code sent",
           description: "Please check your email (including spam/junk folder) for the verification code.",
+          duration: 10000,
         });
         setShowOTPDialog(true);
         setCanResend(false);
@@ -182,18 +200,16 @@ const Auth: React.FC = () => {
     try {
       console.log("Verifying OTP:", otpValue, "for email:", email);
       
-      // Verify the OTP code
-      const { error, data } = await supabase.auth.verifyOtp({
-        email,
-        token: otpValue,
-        type: 'signup',
-      });
+      // Verify the email with our custom verification system
+      const verificationResult = await verifyEmail(email, otpValue);
+      
+      if (!verificationResult.success) {
+        throw new Error(verificationResult.error || "Verification failed");
+      }
 
-      console.log("OTP verification response:", data, error);
-
-      if (error) throw error;
-
-      // Update the profile table with username after verification
+      console.log("Email verification successful");
+      
+      // Update the profile table with username
       const user = await supabase.auth.getUser();
       console.log("Current user after verification:", user);
       
