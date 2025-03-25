@@ -59,14 +59,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log("Starting signup process for email:", email);
       
+      // Use email verification through Supabase, but with custom data
       const { error, data } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             username,
+            verification_sent: true,
           },
-          emailRedirectTo: window.location.origin,
+          emailRedirectTo: `${window.location.origin}/auth?verification=true`,
         },
       });
 
@@ -80,6 +82,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const userId = data.user.id;
       console.log("User ID:", userId);
+      
+      // Pre-generate and store verification code for future use
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      // Set expiration time (30 minutes from now)
+      const expiresAt = new Date();
+      expiresAt.setMinutes(expiresAt.getMinutes() + 30);
+      
+      // Store the verification code
+      const { error: codeError } = await supabase
+        .from('verification_codes')
+        .insert({
+          user_id: userId,
+          email,
+          code,
+          expires_at: expiresAt.toISOString(),
+        });
+
+      if (codeError) {
+        console.error("Error storing verification code:", codeError);
+        return { success: true, userId, error: "Account created but verification code storage failed" };
+      }
       
       return { success: true, userId };
     } catch (error: any) {

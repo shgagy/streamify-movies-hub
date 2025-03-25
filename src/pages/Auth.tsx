@@ -38,6 +38,7 @@ const Auth: React.FC = () => {
   const [resendCounter, setResendCounter] = useState(0);
   const [signupSuccess, setSignupSuccess] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
+  const [showVerificationHelp, setShowVerificationHelp] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { generateVerificationCode, verifyEmail, signUp } = useAuth();
@@ -74,9 +75,10 @@ const Auth: React.FC = () => {
     if (verificationParam === 'true' && emailParam) {
       setEmail(emailParam);
       setShowOTPDialog(true);
+      setShowVerificationHelp(true);
       toast({
         title: "Enter verification code",
-        description: "Please enter the 6-digit verification code from your code storage.",
+        description: "Please enter the 6-digit verification code from your database.",
       });
     }
   }, [toast]);
@@ -116,7 +118,7 @@ const Auth: React.FC = () => {
 
       toast({
         title: "New verification email sent",
-        description: "Please check your email for the reset password link. The code is stored in the database.",
+        description: "Please check your email for a password reset link. Click it to proceed with verification.",
       });
       
       setResendCounter(60);
@@ -161,25 +163,13 @@ const Auth: React.FC = () => {
         }
         
         setUserId(userId);
-        
-        console.log("Attempting to generate verification code");
-        
-        const verificationResult = await generateVerificationCode(email, userId);
-        
-        if (!verificationResult.success) {
-          throw new Error(verificationResult.error || "Failed to generate verification code");
-        }
-        
         setSignupSuccess(true);
 
         toast({
-          title: "Check your email",
-          description: "We've sent you a password reset email. Follow the link and come back to this page to enter your verification code.",
+          title: "Account created! Check your email",
+          description: "We've sent you a confirmation email. Click the link in the email to verify your account.",
           duration: 10000,
         });
-        setShowOTPDialog(true);
-        setCanResend(false);
-        setResendCounter(60); // Set initial cooldown timer
       }
     } catch (error: any) {
       console.error("Authentication error:", error);
@@ -260,9 +250,8 @@ const Auth: React.FC = () => {
         {!isLogin && signupSuccess && (
           <Alert className="mb-6 bg-green-900 border-green-700">
             <AlertDescription className="text-white">
-              Signup successful! Check your email for instructions on how to verify your account. 
-              You'll receive a password reset email with a link. Click that link and return to this page 
-              to enter your verification code.
+              Signup successful! Check your email for a confirmation link. 
+              Click the link to verify your account.
             </AlertDescription>
           </Alert>
         )}
@@ -382,29 +371,26 @@ const Auth: React.FC = () => {
               </Alert>
             )}
             
+            {showVerificationHelp && (
+              <div className="text-center text-white/70 text-sm mt-2 bg-streamify-gray p-3 rounded-md">
+                <p className="font-bold mb-2">Your verification code is in the database!</p>
+                <p>To find your verification code:</p>
+                <ol className="text-left pl-5 mt-1 space-y-1">
+                  <li>Check the verification_codes table in your Supabase database</li>
+                  <li>Find the entry with your email</li>
+                  <li>Use the 6-digit code from the "code" column</li>
+                </ol>
+              </div>
+            )}
+            
             <div className="text-center text-white/60 text-sm mt-2">
-              Didn't receive the email or need a new code?{" "}
-              {canResend ? (
-                <button 
-                  onClick={handleResendOTP} 
-                  className="text-primary hover:underline"
-                  disabled={resendingOtp}
-                >
-                  {resendingOtp ? "Sending..." : "Resend email"}
-                </button>
-              ) : (
-                <span>Resend available in {resendCounter} seconds</span>
-              )}
-            </div>
-
-            <div className="text-center text-white/70 text-sm mt-2 bg-streamify-gray p-3 rounded-md">
-              <p>Verification Process:</p>
-              <ol className="list-decimal text-left pl-5 mt-1">
-                <li>Check your email for a password reset link</li>
-                <li>Click the link in your email</li>
-                <li>Return to this page</li>
-                <li>Enter the 6-digit code from your code storage</li>
-              </ol>
+              Need help with verification?{" "}
+              <button 
+                onClick={() => setShowVerificationHelp(!showVerificationHelp)} 
+                className="text-primary hover:underline"
+              >
+                {showVerificationHelp ? "Hide help" : "Show help"}
+              </button>
             </div>
           </div>
           
