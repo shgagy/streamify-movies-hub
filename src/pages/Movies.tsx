@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import ContentSlider from "@/components/ContentSlider";
+import MovieCard from "@/components/MovieCard";
 import GenreFilter from "@/components/GenreFilter";
 import { movies, genres, getMoviesByGenre } from "@/lib/mockData";
 
@@ -42,13 +42,23 @@ const Movies: React.FC = () => {
             />
           </div>
 
-          {/* Movies Content */}
+          {/* Movies Grid Layout */}
           <div className="mt-8">
-            <ContentSlider
-              title={selectedGenreName}
-              movies={filteredMovies}
-              layout="poster"
-            />
+            <h2 className="text-2xl font-bold mb-6">{selectedGenreName}</h2>
+            
+            {filteredMovies.length === 0 ? (
+              <div className="text-center py-10">
+                <p className="text-lg text-gray-400">No movies found for this genre.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
+                {filteredMovies.map((movie) => (
+                  <div key={movie.id} className="animate-fade-in">
+                    <MovieCard movie={movie} layout="poster" />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>
