@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useCallback } from "react";
 import { genres } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -21,14 +21,14 @@ const GenreFilter: React.FC<GenreFilterProps> = ({
   const scrollAmount = 200;
 
   // Handle scroll position to show/hide navigation arrows
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     if (!scrollContainerRef.current) return;
     
     const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
     
     setShowLeftArrow(scrollLeft > 0);
     setShowRightArrow(scrollLeft + clientWidth < scrollWidth - 10);
-  };
+  }, []);
 
   // Add scroll event listener
   useEffect(() => {
@@ -42,10 +42,10 @@ const GenreFilter: React.FC<GenreFilterProps> = ({
         scrollContainer.removeEventListener('scroll', handleScroll);
       };
     }
-  }, []);
+  }, [handleScroll]);
 
   // Scroll left/right
-  const handleScrollClick = (direction: 'left' | 'right') => {
+  const handleScrollClick = useCallback((direction: 'left' | 'right') => {
     if (!scrollContainerRef.current) return;
     
     const { scrollLeft } = scrollContainerRef.current;
@@ -57,7 +57,17 @@ const GenreFilter: React.FC<GenreFilterProps> = ({
       left: newScrollLeft,
       behavior: 'smooth'
     });
-  };
+  }, [scrollAmount]);
+
+  // Memoize the button class function to improve performance
+  const getButtonClass = useCallback((isSelected: boolean) => {
+    return cn(
+      "whitespace-nowrap transition-colors",
+      isSelected
+        ? "bg-primary text-white hover:bg-primary/90"
+        : "bg-streamify-darkgray hover:bg-streamify-gray"
+    );
+  }, []);
 
   return (
     <div className="relative">
@@ -80,12 +90,7 @@ const GenreFilter: React.FC<GenreFilterProps> = ({
           variant="outline"
           size="sm"
           onClick={() => onSelectGenre(null)}
-          className={cn(
-            "whitespace-nowrap",
-            selectedGenreId === null
-              ? "bg-primary text-white hover:bg-primary/90"
-              : "bg-streamify-darkgray hover:bg-streamify-gray"
-          )}
+          className={getButtonClass(selectedGenreId === null)}
         >
           All Genres
         </Button>
@@ -96,12 +101,7 @@ const GenreFilter: React.FC<GenreFilterProps> = ({
             variant="outline"
             size="sm"
             onClick={() => onSelectGenre(genre.id)}
-            className={cn(
-              "whitespace-nowrap transition-colors",
-              selectedGenreId === genre.id
-                ? "bg-primary text-white hover:bg-primary/90"
-                : "bg-streamify-darkgray hover:bg-streamify-gray"
-            )}
+            className={getButtonClass(selectedGenreId === genre.id)}
           >
             {genre.name}
           </Button>

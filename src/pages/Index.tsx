@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import Hero from "@/components/Hero";
 import ContentSlider from "@/components/ContentSlider";
 import Navbar from "@/components/Navbar";
@@ -17,15 +17,27 @@ const Index: React.FC = () => {
   const { myList } = useMyList();
   const navigate = useNavigate();
 
-  // Get movies by selected genre or all movies if no genre is selected
-  const filteredMovies = selectedGenreId 
-    ? getMoviesByGenre(selectedGenreId)
-    : movies;
+  // Memoize filtered movies to prevent unnecessary recalculation
+  const filteredMovies = useMemo(() => 
+    selectedGenreId ? getMoviesByGenre(selectedGenreId) : movies,
+    [selectedGenreId]
+  );
 
-  // Get movies by genre for each slider
-  const getGenreMovies = (genreId: string) => {
-    return getMoviesByGenre(genreId);
-  };
+  // Memoize genre name for display
+  const selectedGenreName = useMemo(() => 
+    selectedGenreId ? genres.find(g => g.id === selectedGenreId)?.name || "Movies" : null,
+    [selectedGenreId]
+  );
+
+  // Optimize genre selection handler
+  const handleGenreSelect = useCallback((genreId: string | null) => {
+    setSelectedGenreId(genreId);
+  }, []);
+
+  // Navigate to My List page
+  const navigateToMyList = useCallback(() => {
+    navigate("/my-list");
+  }, [navigate]);
 
   return (
     <div className="min-h-screen bg-streamify-black text-white">
@@ -48,7 +60,7 @@ const Index: React.FC = () => {
               <Button 
                 variant="ghost" 
                 className="text-white/70 hover:text-white flex items-center"
-                onClick={() => navigate("/my-list")}
+                onClick={navigateToMyList}
               >
                 See All <ArrowRight className="ml-1 w-4 h-4" />
               </Button>
@@ -65,14 +77,14 @@ const Index: React.FC = () => {
           <h2 className="text-2xl font-bold mb-4">Browse by Genre</h2>
           <GenreFilter 
             selectedGenreId={selectedGenreId}
-            onSelectGenre={setSelectedGenreId}
+            onSelectGenre={handleGenreSelect}
           />
         </div>
         
         {/* Movies filtered by selected genre */}
         {selectedGenreId ? (
           <ContentSlider 
-            title={genres.find(g => g.id === selectedGenreId)?.name || "Movies"} 
+            title={selectedGenreName || "Movies"} 
             movies={filteredMovies} 
           />
         ) : (
@@ -83,24 +95,18 @@ const Index: React.FC = () => {
             {/* Top Rated Movies */}
             <ContentSlider
               title="Top Rated Movies"
-              movies={[...movies].sort((a, b) => b.rating - a.rating)}
+              movies={useMemo(() => [...movies].sort((a, b) => b.rating - a.rating), [])}
               layout="backdrop"
             />
             
             {/* Genre-based Recommendations */}
-            {genres.slice(0, 3).map((genre) => {
-              const genreMovies = getGenreMovies(genre.id);
-              if (genreMovies.length) {
-                return (
-                  <ContentSlider 
-                    key={genre.id} 
-                    title={genre.name} 
-                    movies={genreMovies} 
-                  />
-                );
-              }
-              return null;
-            })}
+            {genres.slice(0, 3).map((genre) => (
+              <ContentSlider 
+                key={genre.id} 
+                title={genre.name} 
+                movies={getMoviesByGenre(genre.id)} 
+              />
+            ))}
           </>
         )}
       </main>

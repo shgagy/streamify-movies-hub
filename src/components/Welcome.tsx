@@ -1,43 +1,45 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+
+const LOCAL_STORAGE_KEY = "hasVisitedBefore";
 
 const Welcome: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const navigate = useNavigate();
   
   useEffect(() => {
     // Check if this is the first visit
-    const hasVisitedBefore = localStorage.getItem("hasVisitedBefore");
+    const hasVisitedBefore = localStorage.getItem(LOCAL_STORAGE_KEY);
     
     if (!hasVisitedBefore) {
       // Add a small delay for a better entrance animation
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         setIsVisible(true);
         setIsAnimating(true);
       }, 500);
       
       // Set flag in localStorage
-      localStorage.setItem("hasVisitedBefore", "true");
+      localStorage.setItem(LOCAL_STORAGE_KEY, "true");
+      
+      return () => clearTimeout(timer);
     }
   }, []);
   
-  const handleDismiss = () => {
+  const handleDismiss = useCallback(() => {
     setIsAnimating(false);
     setTimeout(() => setIsVisible(false), 300); // Wait for animation to complete
-  };
+  }, []);
   
-  const handleExploreGenres = () => {
+  const handleExploreGenres = useCallback(() => {
     handleDismiss();
     // Scroll to genre section
     const genreSection = document.querySelector('[data-section="genres"]');
     if (genreSection) {
       genreSection.scrollIntoView({ behavior: 'smooth' });
     }
-  };
+  }, [handleDismiss]);
   
   if (!isVisible) return null;
   
