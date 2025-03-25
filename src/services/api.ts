@@ -2,11 +2,16 @@
 import axios from 'axios';
 import { 
   movies, 
+  tvShows,
   genres, 
   getMovieById, 
+  getTVShowById,
   getMoviesByGenre, 
+  getTVShowsByGenre,
   searchMovies as searchMoviesHelper,
-  getFeaturedMovies
+  searchTVShows as searchTVShowsHelper,
+  getFeaturedMovies,
+  getFeaturedTVShows
 } from '@/lib/mockData';
 
 // Create an axios instance with base URL
@@ -74,6 +79,61 @@ export const searchMovies = async (query: string) => {
     return searchMoviesHelper(query);
   }
   const response = await api.get(`/movies/search?q=${query}`);
+  return response.data;
+};
+
+// TV Shows API
+export const fetchAllTVShows = async () => {
+  if (USE_MOCK_DATA) {
+    return tvShows;
+  }
+  const response = await api.get('/tv-shows');
+  return response.data;
+};
+
+export const fetchTVShowById = async (id: string) => {
+  if (USE_MOCK_DATA) {
+    const show = getTVShowById(id);
+    if (!show) {
+      throw new Error('TV Show not found');
+    }
+    return show;
+  }
+  const response = await api.get(`/tv-shows/${id}`);
+  return response.data;
+};
+
+export const fetchTVShowsByGenre = async (genreId: string) => {
+  if (USE_MOCK_DATA) {
+    return getTVShowsByGenre(genreId);
+  }
+  const response = await api.get(`/tv-shows/genre/${genreId}`);
+  return response.data;
+};
+
+export const fetchTrendingTVShows = async () => {
+  if (USE_MOCK_DATA) {
+    // For mock data, we'll consider featured TV shows as trending
+    return getFeaturedTVShows();
+  }
+  const response = await api.get('/tv-shows/trending');
+  return response.data;
+};
+
+export const fetchPopularTVShows = async () => {
+  if (USE_MOCK_DATA) {
+    // For mock data, simulate popular TV shows by taking highest rated ones
+    return [...tvShows].sort((a, b) => b.rating - a.rating).slice(0, 5);
+  }
+  const response = await api.get('/tv-shows/popular');
+  return response.data;
+};
+
+export const searchTVShows = async (query: string) => {
+  if (USE_MOCK_DATA) {
+    return searchTVShowsHelper(query);
+  }
+  const response = await api.get(`/tv-shows/search?q=${query}`);
   return response.data;
 };
 

@@ -1,4 +1,3 @@
-
 // Mock data for development purposes
 export interface Movie {
   id: string;
@@ -14,6 +13,12 @@ export interface Movie {
   director: string;
   trailerUrl?: string;
   featured?: boolean;
+}
+
+export interface TVShow extends Movie {
+  seasons: number;
+  episodes: number;
+  creator: string;
 }
 
 export interface Genre {
@@ -109,7 +114,7 @@ export const movies: Movie[] = [
     genres: ["Adventure", "Drama", "Sci-Fi"],
     cast: ["Matthew McConaughey", "Anne Hathaway", "Jessica Chastain", "Michael Caine"],
     director: "Christopher Nolan",
-    trailerUrl: "https://www.youtube.com/watch?v=zSWdZVtXT7E",
+    trailerUrl: "https://www.youtube.com/watch?v=zSWdZVHc-cE",
     featured: true,
   },
   {
@@ -189,9 +194,153 @@ export const movies: Movie[] = [
   },
 ];
 
+export const tvShows: TVShow[] = [
+  {
+    id: "tv1",
+    title: "Breaking Bad",
+    description: "A high school chemistry teacher diagnosed with inoperable lung cancer turns to manufacturing and selling methamphetamine to secure his family's future.",
+    posterUrl: "https://image.tmdb.org/t/p/original/ggFHVNu6YYI5L9pCfOacjizRGt.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/original/tsRy63Mu5cu8etL1X7ZLyf7UP1M.jpg",
+    releaseYear: 2008,
+    rating: 9.5,
+    duration: "45min",
+    genres: ["Drama", "Crime", "Thriller"],
+    cast: ["Bryan Cranston", "Aaron Paul", "Anna Gunn", "Dean Norris"],
+    director: "",
+    creator: "Vince Gilligan",
+    seasons: 5,
+    episodes: 62,
+    featured: true,
+  },
+  {
+    id: "tv2",
+    title: "Stranger Things",
+    description: "When a young boy disappears, his mother, a police chief, and his friends must confront terrifying supernatural forces in order to get him back.",
+    posterUrl: "https://image.tmdb.org/t/p/original/49WJfeN0moxb9IPfGn8AIqMGskD.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/original/56v2KjBlU4XaOv9rVYEQypROD7P.jpg",
+    releaseYear: 2016,
+    rating: 8.7,
+    duration: "50min",
+    genres: ["Drama", "Fantasy", "Horror"],
+    cast: ["Millie Bobby Brown", "Finn Wolfhard", "Winona Ryder", "David Harbour"],
+    director: "",
+    creator: "The Duffer Brothers",
+    seasons: 4,
+    episodes: 34,
+    featured: true,
+  },
+  {
+    id: "tv3",
+    title: "Game of Thrones",
+    description: "Nine noble families fight for control over the lands of Westeros, while an ancient enemy returns after being dormant for millennia.",
+    posterUrl: "https://image.tmdb.org/t/p/original/u3bZgnGQ9T01sWNhyveQz0wH0Hl.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/original/suopoADq0k8YZr4dQXcU6pToj6s.jpg",
+    releaseYear: 2011,
+    rating: 9.3,
+    duration: "60min",
+    genres: ["Action", "Adventure", "Drama"],
+    cast: ["Emilia Clarke", "Kit Harington", "Peter Dinklage", "Lena Headey"],
+    director: "",
+    creator: "David Benioff, D.B. Weiss",
+    seasons: 8,
+    episodes: 73,
+    featured: true,
+  },
+  {
+    id: "tv4",
+    title: "The Crown",
+    description: "Follows the political rivalries and romance of Queen Elizabeth II's reign and the events that shaped the second half of the twentieth century.",
+    posterUrl: "https://image.tmdb.org/t/p/original/uXkGRb1MrJMXJjSjGUuYZKvEVAX.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/original/4JKjuXlXj2tNV3vK5EDMtcKXDo0.jpg",
+    releaseYear: 2016,
+    rating: 8.7,
+    duration: "58min",
+    genres: ["Drama", "History"],
+    cast: ["Claire Foy", "Olivia Colman", "Imelda Staunton", "Matt Smith"],
+    director: "",
+    creator: "Peter Morgan",
+    seasons: 5,
+    episodes: 50,
+    featured: false,
+  },
+  {
+    id: "tv5",
+    title: "The Mandalorian",
+    description: "The travels of a lone bounty hunter in the outer reaches of the galaxy, far from the authority of the New Republic.",
+    posterUrl: "https://image.tmdb.org/t/p/original/sWgBv7LV2PRoQgkxwlibdGXKz1S.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/original/9ijMGlJKqcslswWUzTEwScm82Gs.jpg",
+    releaseYear: 2019,
+    rating: 8.8,
+    duration: "40min",
+    genres: ["Action", "Adventure", "Sci-Fi"],
+    cast: ["Pedro Pascal", "Carl Weathers", "Giancarlo Esposito", "Gina Carano"],
+    director: "",
+    creator: "Jon Favreau",
+    seasons: 3,
+    episodes: 24,
+    featured: false,
+  },
+  {
+    id: "tv6",
+    title: "Succession",
+    description: "The Roy family is known for controlling the biggest media and entertainment company in the world. However, their world changes when their father steps down from the company.",
+    posterUrl: "https://image.tmdb.org/t/p/original/5clSyRjon7U7PMveLdRzmBVnJui.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/original/xkhoEuSgWfkueSaTa8iKBMQ9zU.jpg",
+    releaseYear: 2018,
+    rating: 8.8,
+    duration: "60min",
+    genres: ["Drama"],
+    cast: ["Brian Cox", "Jeremy Strong", "Sarah Snook", "Kieran Culkin"],
+    director: "",
+    creator: "Jesse Armstrong",
+    seasons: 4,
+    episodes: 40,
+    featured: false,
+  },
+  {
+    id: "tv7",
+    title: "The Queen's Gambit",
+    description: "Orphaned at the tender age of nine, prodigious introvert Beth Harmon discovers and masters the game of chess in 1960s USA. But child stardom comes at a price.",
+    posterUrl: "https://image.tmdb.org/t/p/original/zU0htwkhNvBQdVSIKB9s6hgVeFK.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/original/34OGjFEbHj0E3lE2w0iTUVq0CBz.jpg",
+    releaseYear: 2020,
+    rating: 8.6,
+    duration: "60min",
+    genres: ["Drama"],
+    cast: ["Anya Taylor-Joy", "Thomas Brodie-Sangster", "Harry Melling", "Moses Ingram"],
+    director: "",
+    creator: "Scott Frank, Allan Scott",
+    seasons: 1,
+    episodes: 7,
+    featured: false,
+  },
+  {
+    id: "tv8",
+    title: "The Last of Us",
+    description: "After a global pandemic destroys civilization, a hardened survivor takes charge of a 14-year-old girl who may be humanity's last hope.",
+    posterUrl: "https://image.tmdb.org/t/p/original/uKvVjHNqB6vPQxm5QQ8tyCvnNiO.jpg",
+    backdropUrl: "https://image.tmdb.org/t/p/original/uDgy6hyPd82kOHh6I95FLtLnNRP.jpg",
+    releaseYear: 2023,
+    rating: 8.7,
+    duration: "60min",
+    genres: ["Action", "Adventure", "Drama"],
+    cast: ["Pedro Pascal", "Bella Ramsey", "Gabriel Luna", "Anna Torv"],
+    director: "",
+    creator: "Craig Mazin, Neil Druckmann",
+    seasons: 1,
+    episodes: 9,
+    featured: true,
+  },
+];
+
 // Helper function to get featured movies
 export const getFeaturedMovies = () => {
   return movies.filter((movie) => movie.featured);
+};
+
+// Helper function to get featured TV shows
+export const getFeaturedTVShows = () => {
+  return tvShows.filter((show) => show.featured);
 };
 
 // Helper function to get movies by genre
@@ -199,6 +348,13 @@ export const getMoviesByGenre = (genreId: string) => {
   const genreName = genres.find((g) => g.id === genreId)?.name;
   if (!genreName) return [];
   return movies.filter((movie) => movie.genres.includes(genreName));
+};
+
+// Helper function to get TV shows by genre
+export const getTVShowsByGenre = (genreId: string) => {
+  const genreName = genres.find((g) => g.id === genreId)?.name;
+  if (!genreName) return [];
+  return tvShows.filter((show) => show.genres.includes(genreName));
 };
 
 // Helper function to search movies
@@ -214,7 +370,25 @@ export const searchMovies = (query: string) => {
   );
 };
 
+// Helper function to search TV shows
+export const searchTVShows = (query: string) => {
+  const lowerCaseQuery = query.toLowerCase();
+  return tvShows.filter(
+    (show) =>
+      show.title.toLowerCase().includes(lowerCaseQuery) ||
+      show.description.toLowerCase().includes(lowerCaseQuery) ||
+      show.genres.some((genre) => genre.toLowerCase().includes(lowerCaseQuery)) ||
+      show.cast.some((actor) => actor.toLowerCase().includes(lowerCaseQuery)) ||
+      show.creator.toLowerCase().includes(lowerCaseQuery)
+  );
+};
+
 // Helper function to get movie by id
 export const getMovieById = (id: string) => {
   return movies.find((movie) => movie.id === id);
+};
+
+// Helper function to get TV show by id
+export const getTVShowById = (id: string) => {
+  return tvShows.find((show) => show.id === id);
 };
