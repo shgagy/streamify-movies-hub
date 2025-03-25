@@ -1,46 +1,41 @@
-
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Play, Star, Plus, Check, Share, ArrowLeft, Clock } from "lucide-react";
-import { getMovieById, movies, Movie } from "@/lib/mockData";
+import { Movie } from "@/lib/mockData";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ContentSlider from "@/components/ContentSlider";
 import { Button } from "@/components/ui/button";
 import { useMyList } from "@/contexts/MyListContext";
+import { fetchMovieById, fetchAllMovies } from "@/services/api";
 
 const MovieDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [movie, setMovie] = useState<Movie | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [similarMovies, setSimilarMovies] = useState<Movie[]>([]);
   const navigate = useNavigate();
   const { addToMyList, removeFromMyList, isInMyList } = useMyList();
 
-  useEffect(() => {
-    if (id) {
-      // Simulate loading
-      setLoading(true);
-      setTimeout(() => {
-        const foundMovie = getMovieById(id);
-        setMovie(foundMovie || null);
+  // Fetch movie details
+  const { data: movie, isLoading: isLoadingMovie, error } = useQuery({
+    queryKey: ['movie', id],
+    queryFn: () => fetchMovieById(id as string),
+    enabled: !!id,
+  });
 
-        // Find similar movies based on genres
-        if (foundMovie) {
-          const similar = movies
-            .filter(
-              (m) =>
-                m.id !== foundMovie.id &&
-                m.genres.some((genre) => foundMovie.genres.includes(genre))
-            )
-            .slice(0, 10);
-          setSimilarMovies(similar);
-        }
-        
-        setLoading(false);
-      }, 500);
-    }
-  }, [id]);
+  // Fetch all movies for similar movies feature
+  const { data: allMovies = [] } = useQuery({
+    queryKey: ['movies'],
+    queryFn: fetchAllMovies,
+  });
+
+  // Find similar movies based on genres
+  const similarMovies = movie 
+    ? allMovies.filter(
+        (m: Movie) => 
+          m.id !== movie.id && 
+          m.genres.some((genre: string) => movie.genres.includes(genre))
+      ).slice(0, 10)
+    : [];
 
   const handleMyListToggle = () => {
     if (!movie) return;
@@ -52,7 +47,7 @@ const MovieDetail: React.FC = () => {
     }
   };
 
-  if (loading) {
+  if (isLoadingMovie) {
     return (
       <div className="min-h-screen bg-streamify-black text-white">
         <Navbar />
@@ -66,7 +61,7 @@ const MovieDetail: React.FC = () => {
     );
   }
 
-  if (!movie) {
+  if (error || !movie) {
     return (
       <div className="min-h-screen bg-streamify-black text-white">
         <Navbar />

@@ -1,114 +1,84 @@
 
-import React, { useState, useCallback, useMemo } from "react";
-import Hero from "@/components/Hero";
-import ContentSlider from "@/components/ContentSlider";
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Hero from "@/components/Hero";
+import ContentSlider from "@/components/ContentSlider";
 import Welcome from "@/components/Welcome";
-import GenreFilter from "@/components/GenreFilter";
-import { movies, genres, getMoviesByGenre } from "@/lib/mockData";
-import { useMyList } from "@/contexts/MyListContext";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
+import { fetchTrendingMovies, fetchPopularMovies, fetchAllMovies } from "@/services/api";
 
 const Index: React.FC = () => {
-  const [selectedGenreId, setSelectedGenreId] = useState<string | null>(null);
-  const { myList } = useMyList();
-  const navigate = useNavigate();
+  // Fetch trending, popular, and all movies
+  const { data: trendingMovies = [], isLoading: loadingTrending } = useQuery({
+    queryKey: ['movies', 'trending'],
+    queryFn: fetchTrendingMovies
+  });
 
-  // Memoize filtered movies to prevent unnecessary recalculation
-  const filteredMovies = useMemo(() => 
-    selectedGenreId ? getMoviesByGenre(selectedGenreId) : movies,
-    [selectedGenreId]
-  );
+  const { data: popularMovies = [], isLoading: loadingPopular } = useQuery({
+    queryKey: ['movies', 'popular'],
+    queryFn: fetchPopularMovies
+  });
 
-  // Memoize genre name for display
-  const selectedGenreName = useMemo(() => 
-    selectedGenreId ? genres.find(g => g.id === selectedGenreId)?.name || "Movies" : null,
-    [selectedGenreId]
-  );
+  const { data: allMovies = [], isLoading: loadingAllMovies } = useQuery({
+    queryKey: ['movies'],
+    queryFn: fetchAllMovies
+  });
 
-  // Optimize genre selection handler
-  const handleGenreSelect = useCallback((genreId: string | null) => {
-    setSelectedGenreId(genreId);
-  }, []);
-
-  // Navigate to My List page
-  const navigateToMyList = useCallback(() => {
-    navigate("/my-list");
-  }, [navigate]);
+  // Create a sample of recent releases (using all movies, sorted by releaseYear)
+  const recentReleases = [...allMovies]
+    .sort((a, b) => b.releaseYear - a.releaseYear)
+    .slice(0, 10);
 
   return (
     <div className="min-h-screen bg-streamify-black text-white">
       <Navbar />
       
-      <main className="pt-16">
+      <main>
         {/* Hero Section */}
-        <Hero />
+        {!loadingAllMovies && allMovies.length > 0 && (
+          <Hero movie={allMovies[0]} />
+        )}
         
-        {/* Welcome Banner for First-time Visitors */}
-        <div className="page-container mt-8">
-          <Welcome />
-        </div>
-        
-        {/* My List (if not empty) */}
-        {myList.length > 0 && (
-          <div className="my-8">
-            <div className="page-container flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold">My List</h2>
-              <Button 
-                variant="ghost" 
-                className="text-white/70 hover:text-white flex items-center"
-                onClick={navigateToMyList}
-              >
-                See All <ArrowRight className="ml-1 w-4 h-4" />
-              </Button>
-            </div>
-            <ContentSlider 
-              title="" 
-              movies={myList} 
-            />
+        <div className="py-10">
+          {/* Welcome Message (first visit) */}
+          <div className="page-container">
+            <Welcome />
           </div>
-        )}
-        
-        {/* Genre Filter */}
-        <div className="page-container mt-8 mb-4" data-section="genres">
-          <h2 className="text-2xl font-bold mb-4">Browse by Genre</h2>
-          <GenreFilter 
-            selectedGenreId={selectedGenreId}
-            onSelectGenre={handleGenreSelect}
-          />
+          
+          {/* Content Sliders */}
+          {loadingTrending || loadingPopular || loadingAllMovies ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-pulse flex flex-col items-center">
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <p className="mt-4 text-white/60">Loading movies...</p>
+              </div>
+            </div>
+          ) : (
+            <>
+              {trendingMovies.length > 0 && (
+                <ContentSlider
+                  title="Trending Now"
+                  movies={trendingMovies}
+                />
+              )}
+              
+              {popularMovies.length > 0 && (
+                <ContentSlider
+                  title="Popular on Streamify"
+                  movies={popularMovies}
+                />
+              )}
+              
+              {recentReleases.length > 0 && (
+                <ContentSlider
+                  title="Recent Releases"
+                  movies={recentReleases}
+                />
+              )}
+            </>
+          )}
         </div>
-        
-        {/* Movies filtered by selected genre */}
-        {selectedGenreId ? (
-          <ContentSlider 
-            title={selectedGenreName || "Movies"} 
-            movies={filteredMovies} 
-          />
-        ) : (
-          <>
-            {/* Trending Movies */}
-            <ContentSlider title="Trending Now" movies={movies} />
-            
-            {/* Top Rated Movies */}
-            <ContentSlider
-              title="Top Rated Movies"
-              movies={useMemo(() => [...movies].sort((a, b) => b.rating - a.rating), [])}
-              layout="backdrop"
-            />
-            
-            {/* Genre-based Recommendations */}
-            {genres.slice(0, 3).map((genre) => (
-              <ContentSlider 
-                key={genre.id} 
-                title={genre.name} 
-                movies={getMoviesByGenre(genre.id)} 
-              />
-            ))}
-          </>
-        )}
       </main>
       
       <Footer />

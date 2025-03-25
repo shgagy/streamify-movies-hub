@@ -1,33 +1,24 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { Search as SearchIcon, Filter } from "lucide-react";
-import { searchMovies, Movie } from "@/lib/mockData";
+import { Movie } from "@/lib/mockData";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MovieCard from "@/components/MovieCard";
+import { searchMovies } from "@/services/api";
 
 const SearchResults: React.FC = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
-  const [results, setResults] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (query) {
-      setLoading(true);
-      // Simulate API call
-      setTimeout(() => {
-        const searchResults = searchMovies(query);
-        setResults(searchResults);
-        setLoading(false);
-      }, 500);
-    } else {
-      setResults([]);
-      setLoading(false);
-    }
-  }, [query]);
+  const { data: results = [], isLoading } = useQuery({
+    queryKey: ['search', query],
+    queryFn: () => searchMovies(query),
+    enabled: query.length > 0,
+  });
 
   const handleMovieClick = (movieId: string) => {
     navigate(`/movie/${movieId}`);
@@ -45,7 +36,7 @@ const SearchResults: React.FC = () => {
               {query ? `Search Results for "${query}"` : "Search Movies"}
             </h1>
             <p className="text-white/60">
-              {loading
+              {isLoading
                 ? "Searching..."
                 : results.length === 0
                 ? "No results found"
@@ -102,7 +93,7 @@ const SearchResults: React.FC = () => {
           </div>
 
           {/* Loading State */}
-          {loading && (
+          {isLoading && (
             <div className="flex justify-center py-12">
               <div className="animate-pulse flex flex-col items-center">
                 <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
@@ -112,7 +103,7 @@ const SearchResults: React.FC = () => {
           )}
 
           {/* No Results */}
-          {!loading && results.length === 0 && (
+          {!isLoading && results.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12">
               <SearchIcon className="w-16 h-16 text-white/20 mb-4" />
               <h2 className="text-2xl font-bold mb-2">No results found</h2>
@@ -129,9 +120,9 @@ const SearchResults: React.FC = () => {
           )}
 
           {/* Results Grid */}
-          {!loading && results.length > 0 && (
+          {!isLoading && results.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-              {results.map((movie) => (
+              {results.map((movie: Movie) => (
                 <div
                   key={movie.id}
                   onClick={() => handleMovieClick(movie.id)}
