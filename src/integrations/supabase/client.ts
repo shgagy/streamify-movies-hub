@@ -14,7 +14,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     persistSession: true,
     autoRefreshToken: true,
     storageKey: 'streamify-auth',
-    detectSessionInUrl: true,
+    detectSessionInUrl: false, // Set to false to prevent automatic redirects after email confirmations
     flowType: 'pkce',
   }
 });

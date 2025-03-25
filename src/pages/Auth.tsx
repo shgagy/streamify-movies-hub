@@ -39,7 +39,7 @@ const Auth: React.FC = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { generateVerificationCode, verifyEmail } = useAuth();
+  const { generateVerificationCode, verifyEmail, signUp } = useAuth();
 
   useEffect(() => {
     const checkSession = async () => {
@@ -62,6 +62,21 @@ const Auth: React.FC = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const verificationParam = params.get('verification');
+    const emailParam = params.get('email');
+    
+    if (verificationParam === 'true' && emailParam) {
+      setEmail(emailParam);
+      setShowOTPDialog(true);
+      toast({
+        title: "Verification email sent",
+        description: "Please enter the 6-digit code from the email we just sent you.",
+      });
+    }
+  }, [toast]);
 
   useEffect(() => {
     let interval: number | undefined;
@@ -131,33 +146,22 @@ const Auth: React.FC = () => {
         setSignupSuccess(false);
         console.log("Starting signup process for email:", email);
         
-        const { error, data } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              username: username,
-            },
-            emailRedirectTo: window.location.origin,
-          },
-        });
-
-        if (error) throw error;
-
-        console.log("Sign up response:", data);
+        const signupResult = await signUp(email, password, username);
         
-        if (!data.user || !data.user.id) {
-          throw new Error("User creation failed");
+        if (!signupResult.success) {
+          throw new Error(signupResult.error || "Account creation failed");
         }
         
-        setUserId(data.user.id);
+        const userId = signupResult.userId;
+        if (!userId) {
+          throw new Error("Failed to get user ID after signup");
+        }
         
-        console.log("User ID:", data.user.id);
+        setUserId(userId);
+        
         console.log("Attempting to generate verification code");
         
-        const verificationResult = await generateVerificationCode(email, data.user.id);
-        
-        console.log("Verification code generation result:", verificationResult);
+        const verificationResult = await generateVerificationCode(email, userId);
         
         if (!verificationResult.success) {
           throw new Error(verificationResult.error || "Failed to generate verification code");
@@ -202,22 +206,16 @@ const Auth: React.FC = () => {
 
       console.log("Email verification successful");
       
-      const user = await supabase.auth.getUser();
-      console.log("Current user after verification:", user);
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       
-      if (user.data.user) {
-        const { error: profileError } = await supabase
-          .from("profiles")
-          .update({ username })
-          .eq("id", user.data.user.id);
-          
-        if (profileError) {
-          console.error("Error updating profile:", profileError);
-        } else {
-          console.log("Profile updated successfully");
-        }
+      if (signInError) {
+        console.error("Error signing in after verification:", signInError);
+        throw new Error("Verification successful, but couldn't sign you in automatically. Please sign in manually.");
       }
-
+      
       toast({
         title: "Account verified!",
         description: "Your account has been successfully verified.",
