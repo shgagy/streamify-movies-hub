@@ -8,7 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -79,9 +78,14 @@ const Auth: React.FC = () => {
 
         toast({
           title: "Account created!",
-          description: "Please check your email to verify your account.",
-          duration: 10000,
+          description: "You've successfully created an account.",
+          duration: 5000,
         });
+        
+        // Auto-redirect after signup
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
       }
     } catch (err: any) {
       console.error("Authentication error:", err);
@@ -89,11 +93,6 @@ const Auth: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const toggleAuthMode = () => {
-    setIsLogin(!isLogin);
-    setError(null);
   };
 
   return (
@@ -121,7 +120,7 @@ const Auth: React.FC = () => {
           {!isLogin && signupSuccess && (
             <Alert className="mb-6 bg-green-900 border-green-700">
               <AlertDescription className="text-white">
-                Signup successful! Please check your email to verify your account.
+                Signup successful! Redirecting you to the home page...
               </AlertDescription>
             </Alert>
           )}
@@ -162,6 +161,10 @@ const Auth: React.FC = () => {
                   >
                     {loading ? "Signing in..." : "Sign In"}
                   </Button>
+                  
+                  <div className="text-sm text-gray-400 text-center mt-4">
+                    <p>Demo: email: demo@example.com, password: password123</p>
+                  </div>
                 </form>
               </CardContent>
             </Card>

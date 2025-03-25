@@ -9,7 +9,6 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 
 type ProfileData = {
   username: string;
@@ -33,34 +32,13 @@ const Profile: React.FC = () => {
     }
     
     if (user) {
-      fetchProfile();
+      // Load profile data from localStorage
+      setProfileData({
+        username: user.username || "",
+        avatar_url: null,
+      });
     }
   }, [user, userLoading, navigate]);
-
-  const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("username, avatar_url")
-        .eq("id", user?.id)
-        .single();
-      
-      if (error) throw error;
-      
-      if (data) {
-        setProfileData({
-          username: data.username || "",
-          avatar_url: data.avatar_url,
-        });
-      }
-    } catch (error: any) {
-      console.error("Error fetching profile:", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const updateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,15 +49,13 @@ const Profile: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          username: profileData.username,
-          updated_at: new Date().toISOString(), // Convert Date to ISO string format
-        })
-        .eq("id", user.id);
+      // Update the mock user in localStorage
+      const mockUser = {
+        ...user,
+        username: profileData.username
+      };
       
-      if (error) throw error;
+      localStorage.setItem("mock-auth-user", JSON.stringify(mockUser));
       
       toast({
         title: "Profile updated",

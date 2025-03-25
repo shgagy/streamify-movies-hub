@@ -1,8 +1,17 @@
 
 import React, { createContext, useState, useEffect, useContext } from "react";
-import { Session, User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+
+// Mock types to replace Supabase types
+export type User = {
+  id: string;
+  email: string;
+  username?: string;
+};
+
+export type Session = {
+  user: User;
+};
 
 type AuthContextType = {
   session: Session | null;
@@ -24,83 +33,93 @@ const AuthContext = createContext<AuthContextType>({
 
 export const useAuth = () => useContext(AuthContext);
 
+// Demo user credentials for testing
+const DEMO_USER = {
+  email: "demo@example.com",
+  password: "password123",
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [userLoading, setUserLoading] = useState(true);
 
+  // Check for saved user in localStorage on initial load
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log("Auth state changed:", event);
-        setSession(session);
-        setUser(session?.user ?? null);
-        setUserLoading(false);
+    const savedUser = localStorage.getItem("mock-auth-user");
+    if (savedUser) {
+      try {
+        const parsedUser = JSON.parse(savedUser) as User;
+        setUser(parsedUser);
+        setSession({ user: parsedUser });
+      } catch (error) {
+        console.error("Error parsing saved user:", error);
+        localStorage.removeItem("mock-auth-user");
       }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setUserLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
+    }
+    setUserLoading(false);
   }, []);
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    localStorage.removeItem("mock-auth-user");
+    setUser(null);
+    setSession(null);
+    toast.success("You have been signed out");
   };
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { error, data } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      // Demo authentication - only works with the demo account
+      if (email === DEMO_USER.email && password === DEMO_USER.password) {
+        const mockUser: User = {
+          id: "demo-user-id",
+          email: DEMO_USER.email,
+          username: "Demo User",
+        };
 
-      if (error) {
-        console.error("Login error:", error);
-        return { success: false, error: error.message };
+        setUser(mockUser);
+        setSession({ user: mockUser });
+        localStorage.setItem("mock-auth-user", JSON.stringify(mockUser));
+        
+        return { success: true };
       }
 
+      // For development, allow any email/password combo to work
+      const mockUser: User = {
+        id: `user-${Date.now()}`,
+        email: email,
+        username: email.split('@')[0],
+      };
+
+      setUser(mockUser);
+      setSession({ user: mockUser });
+      localStorage.setItem("mock-auth-user", JSON.stringify(mockUser));
+      
       return { success: true };
     } catch (error: any) {
       console.error("Login error:", error);
-      return { success: false, error: error.message };
+      return { success: false, error: error.message || "An error occurred during sign in" };
     }
   };
 
   const signUp = async (email: string, password: string, username: string) => {
     try {
-      console.log("Starting signup process for email:", email);
-      
-      const { error, data } = await supabase.auth.signUp({
+      // Create a new mock user
+      const mockUser: User = {
+        id: `user-${Date.now()}`,
         email,
-        password,
-        options: {
-          data: {
-            username,
-          },
-          emailRedirectTo: `${window.location.origin}/auth`,
-        },
-      });
+        username,
+      };
 
-      if (error) throw error;
-
-      console.log("Sign up response:", data);
+      setUser(mockUser);
+      setSession({ user: mockUser });
+      localStorage.setItem("mock-auth-user", JSON.stringify(mockUser));
       
-      if (!data.user) {
-        throw new Error("User creation failed");
-      }
-      
-      toast.success("Account created! Please check your email to verify your account.");
+      toast.success("Account created successfully!");
       return { success: true };
     } catch (error: any) {
       console.error("Signup error:", error);
-      return { success: false, error: error.message };
+      return { success: false, error: error.message || "An error occurred during sign up" };
     }
   };
 

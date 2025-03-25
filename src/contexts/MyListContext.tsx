@@ -3,7 +3,6 @@ import React, { createContext, useState, useContext, useEffect } from "react";
 import { Movie } from "@/lib/mockData";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 
 interface MyListContextType {
   myList: Movie[];
@@ -20,7 +19,7 @@ export const MyListProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  // Fetch the user's list from Supabase when the user is logged in
+  // Fetch the user's list from localStorage when the user is logged in
   useEffect(() => {
     const fetchMyList = async () => {
       if (!user) {
@@ -31,24 +30,14 @@ export const MyListProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
       setLoading(true);
       try {
-        const { data, error } = await supabase
-          .from('my_list')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('added_at', { ascending: false });
-
-        if (error) {
-          throw error;
-        }
-
-        // Convert Supabase data to Movie objects
-        if (data) {
-          const moviesFromDb = data.map((item) => {
-            const movieData = JSON.parse(item.content_id);
-            return movieData;
-          });
-          
-          setMyList(moviesFromDb);
+        const storageKey = `streamify-mylist-${user.id}`;
+        const savedList = localStorage.getItem(storageKey);
+        
+        if (savedList) {
+          const parsedList = JSON.parse(savedList);
+          setMyList(parsedList);
+        } else {
+          setMyList([]);
         }
       } catch (error) {
         console.error("Error fetching my list:", error);
@@ -59,28 +48,14 @@ export const MyListProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     };
 
     fetchMyList();
-    
-    // Set up realtime subscription for updates to my_list
-    const myListSubscription = supabase
-      .channel('my_list_changes')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'my_list',
-          filter: user ? `user_id=eq.${user.id}` : undefined
-        }, 
-        () => {
-          // Refresh the list when changes are detected
-          fetchMyList();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(myListSubscription);
-    };
   }, [user]);
+
+  const saveList = (updatedList: Movie[]) => {
+    if (user) {
+      const storageKey = `streamify-mylist-${user.id}`;
+      localStorage.setItem(storageKey, JSON.stringify(updatedList));
+    }
+  };
 
   const addToMyList = async (movie: Movie) => {
     if (!user) {
@@ -94,21 +69,9 @@ export const MyListProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
     
     try {
-      // Insert into Supabase
-      const { error } = await supabase
-        .from('my_list')
-        .insert({
-          user_id: user.id,
-          content_id: JSON.stringify(movie),
-          content_type: 'movie'
-        });
-
-      if (error) {
-        throw error;
-      }
-
-      // Optimistically update the UI
-      setMyList((prevList) => [movie, ...prevList]);
+      const updatedList = [movie, ...myList];
+      setMyList(updatedList);
+      saveList(updatedList);
       toast.success("Added to My List");
     } catch (error) {
       console.error("Error adding to my list:", error);
@@ -123,19 +86,9 @@ export const MyListProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
 
     try {
-      // Delete from Supabase
-      const { error } = await supabase
-        .from('my_list')
-        .delete()
-        .eq('user_id', user.id)
-        .like('content_id', `%"id":"${movieId}"%`);
-
-      if (error) {
-        throw error;
-      }
-
-      // Optimistically update the UI
-      setMyList((prevList) => prevList.filter((movie) => movie.id !== movieId));
+      const updatedList = myList.filter((movie) => movie.id !== movieId);
+      setMyList(updatedList);
+      saveList(updatedList);
       toast.success("Removed from My List");
     } catch (error) {
       console.error("Error removing from my list:", error);
