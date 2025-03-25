@@ -24,6 +24,9 @@ const Welcome: React.FC = () => {
       localStorage.setItem(LOCAL_STORAGE_KEY, "true");
       
       return () => clearTimeout(timer);
+    } else {
+      // We need to set isVisible to false explicitly when hasVisitedBefore is true
+      setIsVisible(false);
     }
   }, []);
   
@@ -41,40 +44,43 @@ const Welcome: React.FC = () => {
     }
   }, [handleDismiss]);
   
-  if (!isVisible) return null;
-  
+  // Instead of an early return, render null conditionally
   return (
-    <div 
-      className={`bg-gradient-to-r from-primary/20 to-primary/5 rounded-lg p-6 mb-8 relative 
-        shadow-lg transition-all duration-300 ${isAnimating ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-4'}`}
-    >
-      <button 
-        onClick={handleDismiss}
-        className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-white/20 transition-colors"
-        aria-label="Dismiss"
-      >
-        <X className="w-5 h-5" />
-      </button>
-      
-      <h2 className="text-2xl font-bold mb-3">Welcome to Streamify!</h2>
-      <p className="mb-4 text-white/80">
-        Your personal streaming platform with all your favorite movies and shows.
-        Browse by genre, create your watchlist, and enjoy seamless streaming.
-      </p>
-      
-      <div className="flex flex-wrap gap-3">
-        <Button onClick={handleDismiss} className="bg-primary hover:bg-primary/90">
-          Get Started
-        </Button>
-        <Button 
-          variant="outline" 
-          className="bg-white/10 border-0 hover:bg-white/20" 
-          onClick={handleExploreGenres}
+    <>
+      {isVisible && (
+        <div 
+          className={`bg-gradient-to-r from-primary/20 to-primary/5 rounded-lg p-6 mb-8 relative 
+            shadow-lg transition-all duration-300 ${isAnimating ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform -translate-y-4'}`}
         >
-          Explore Genres
-        </Button>
-      </div>
-    </div>
+          <button 
+            onClick={handleDismiss}
+            className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-white/20 transition-colors"
+            aria-label="Dismiss"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          
+          <h2 className="text-2xl font-bold mb-3">Welcome to Streamify!</h2>
+          <p className="mb-4 text-white/80">
+            Your personal streaming platform with all your favorite movies and shows.
+            Browse by genre, create your watchlist, and enjoy seamless streaming.
+          </p>
+          
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={handleDismiss} className="bg-primary hover:bg-primary/90">
+              Get Started
+            </Button>
+            <Button 
+              variant="outline" 
+              className="bg-white/10 border-0 hover:bg-white/20" 
+              onClick={handleExploreGenres}
+            >
+              Explore Genres
+            </Button>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
