@@ -6,15 +6,19 @@ import { cn } from "@/lib/utils";
 import { genres } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import SearchBar from "./SearchBar";
-import { useMyList } from "@/contexts/MyListContext";
+// Remove the useMyList import if we need to conditionally render myList features
 import ProfileButton from "./ProfileButton";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const { myList } = useMyList();
-
+  
+  // Create a conditional approach to handle myList count
+  const { user } = useAuth();
+  const [myListCount, setMyListCount] = useState(0);
+  
   // Handle scroll event to change navbar appearance
   useEffect(() => {
     const handleScroll = () => {
@@ -28,6 +32,28 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Effect to get myList count from localStorage if user is logged in
+  useEffect(() => {
+    if (user) {
+      try {
+        const storageKey = `streamify-mylist-${user.id}`;
+        const savedList = localStorage.getItem(storageKey);
+        
+        if (savedList) {
+          const parsedList = JSON.parse(savedList);
+          setMyListCount(parsedList.length);
+        } else {
+          setMyListCount(0);
+        }
+      } catch (error) {
+        console.error("Error fetching my list count:", error);
+        setMyListCount(0);
+      }
+    } else {
+      setMyListCount(0);
+    }
+  }, [user]);
 
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
   const toggleSearch = () => setSearchOpen(!searchOpen);
@@ -60,7 +86,7 @@ const Navbar = () => {
             TV Shows
           </Link>
           <Link to="/my-list" className="nav-link">
-            My List {myList.length > 0 && <span className="ml-1 px-1.5 py-0.5 bg-primary rounded-full text-xs">{myList.length}</span>}
+            My List {myListCount > 0 && <span className="ml-1 px-1.5 py-0.5 bg-primary rounded-full text-xs">{myListCount}</span>}
           </Link>
           <div className="group relative">
             <button className="nav-link">Genres</button>
@@ -104,9 +130,9 @@ const Navbar = () => {
               aria-label="My List"
             >
               <Bookmark className="w-5 h-5" />
-              {myList.length > 0 && (
+              {myListCount > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-xs flex items-center justify-center">
-                  {myList.length}
+                  {myListCount}
                 </span>
               )}
             </Link>
@@ -160,9 +186,9 @@ const Navbar = () => {
               >
                 <Bookmark className="w-5 h-5" />
                 <span>My List</span>
-                {myList.length > 0 && (
+                {myListCount > 0 && (
                   <span className="ml-auto px-1.5 py-0.5 bg-primary rounded-full text-xs">
-                    {myList.length}
+                    {myListCount}
                   </span>
                 )}
               </Link>

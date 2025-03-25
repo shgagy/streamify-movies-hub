@@ -1,18 +1,50 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { BookmarkX, Loader2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MovieCard from "@/components/MovieCard";
-import { useMyList } from "@/contexts/MyListContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { Movie } from "@/lib/mockData";
 
 const MyList: React.FC = () => {
-  const { myList, loading } = useMyList();
+  const [myList, setMyList] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(true);
   const { user, userLoading } = useAuth();
   const navigate = useNavigate();
+
+  // Fetch the user's list from localStorage when the user is logged in
+  useEffect(() => {
+    const fetchMyList = async () => {
+      if (!user) {
+        setMyList([]);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const storageKey = `streamify-mylist-${user.id}`;
+        const savedList = localStorage.getItem(storageKey);
+        
+        if (savedList) {
+          const parsedList = JSON.parse(savedList);
+          setMyList(parsedList);
+        } else {
+          setMyList([]);
+        }
+      } catch (error) {
+        console.error("Error fetching my list:", error);
+        setMyList([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMyList();
+  }, [user]);
 
   // Redirect to auth page if not logged in
   if (!userLoading && !user) {

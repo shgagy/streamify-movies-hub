@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Play, Star, Plus, Check, Share, ArrowLeft, Clock } from "lucide-react";
@@ -7,13 +7,15 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ContentSlider from "@/components/ContentSlider";
 import { Button } from "@/components/ui/button";
-import { useMyList } from "@/contexts/MyListContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { fetchMovieById, fetchAllMovies } from "@/services/api";
+import { toast } from "sonner";
 
 const MovieDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { addToMyList, removeFromMyList, isInMyList } = useMyList();
+  const { user } = useAuth();
+  const [isInMyList, setIsInMyList] = useState(false);
 
   // Fetch movie details
   const { data: movie, isLoading: isLoadingMovie, error } = useQuery({
@@ -28,6 +30,28 @@ const MovieDetail: React.FC = () => {
     queryFn: fetchAllMovies,
   });
 
+  // Check if the movie is in the user's list
+  useEffect(() => {
+    if (user && movie) {
+      try {
+        const storageKey = `streamify-mylist-${user.id}`;
+        const savedList = localStorage.getItem(storageKey);
+        
+        if (savedList) {
+          const parsedList = JSON.parse(savedList);
+          setIsInMyList(parsedList.some((item: Movie) => item.id === movie.id));
+        } else {
+          setIsInMyList(false);
+        }
+      } catch (error) {
+        console.error("Error checking my list:", error);
+        setIsInMyList(false);
+      }
+    } else {
+      setIsInMyList(false);
+    }
+  }, [user, movie]);
+
   // Find similar movies based on genres
   const similarMovies = movie 
     ? allMovies.filter(
@@ -37,10 +61,67 @@ const MovieDetail: React.FC = () => {
       ).slice(0, 10)
     : [];
 
+  const addToMyList = (movie: Movie) => {
+    if (!user) {
+      toast.error("Please sign in to add to your list");
+      return;
+    }
+    
+    try {
+      const storageKey = `streamify-mylist-${user.id}`;
+      const savedList = localStorage.getItem(storageKey);
+      let myList: Movie[] = [];
+      
+      if (savedList) {
+        myList = JSON.parse(savedList);
+      }
+      
+      // Check if movie is already in the list
+      if (myList.some(item => item.id === movie.id)) {
+        toast("This movie is already in your list");
+        return;
+      }
+      
+      const updatedList = [movie, ...myList];
+      localStorage.setItem(storageKey, JSON.stringify(updatedList));
+      setIsInMyList(true);
+      toast.success("Added to My List");
+    } catch (error) {
+      console.error("Error adding to my list:", error);
+      toast.error("Failed to add to your list");
+    }
+  };
+
+  const removeFromMyList = (movieId: string) => {
+    if (!user) {
+      toast.error("Please sign in to modify your list");
+      return;
+    }
+    
+    try {
+      const storageKey = `streamify-mylist-${user.id}`;
+      const savedList = localStorage.getItem(storageKey);
+      
+      if (!savedList) {
+        return;
+      }
+      
+      const myList = JSON.parse(savedList);
+      const updatedList = myList.filter((item: Movie) => item.id !== movieId);
+      
+      localStorage.setItem(storageKey, JSON.stringify(updatedList));
+      setIsInMyList(false);
+      toast.success("Removed from My List");
+    } catch (error) {
+      console.error("Error removing from my list:", error);
+      toast.error("Failed to remove from your list");
+    }
+  };
+
   const handleMyListToggle = () => {
     if (!movie) return;
     
-    if (isInMyList(movie.id)) {
+    if (isInMyList) {
       removeFromMyList(movie.id);
     } else {
       addToMyList(movie);
@@ -172,7 +253,7 @@ const MovieDetail: React.FC = () => {
                     className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white px-6 py-3 rounded-md flex items-center space-x-2"
                     onClick={handleMyListToggle}
                   >
-                    {isInMyList(movie.id) ? (
+                    {isInMyList ? (
                       <>
                         <Check className="w-5 h-5" />
                         <span>In My List</span>
