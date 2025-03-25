@@ -41,10 +41,8 @@ export const MyListProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           throw error;
         }
 
-        // Convert Supabase data to Movie objects by pulling from mockData
-        // In a real app, we would store more movie data or fetch it from an API
+        // Convert Supabase data to Movie objects
         if (data) {
-          // For now, we'll assume our mockData has all the movies we need
           const moviesFromDb = data.map((item) => {
             const movieData = JSON.parse(item.content_id);
             return movieData;
@@ -102,7 +100,7 @@ export const MyListProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         .insert({
           user_id: user.id,
           content_id: JSON.stringify(movie),
-          content_type: 'movie' // Assuming it's a movie for now
+          content_type: 'movie'
         });
 
       if (error) {
