@@ -75,7 +75,7 @@ const Profile: React.FC = () => {
         .from("profiles")
         .update({
           username: profileData.username,
-          updated_at: new Date(),
+          updated_at: new Date().toISOString(), // Convert Date to ISO string format
         })
         .eq("id", user.id);
       
