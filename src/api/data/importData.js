@@ -16,6 +16,30 @@ mongoose.connect(process.env.MONGO_URI, {
 .then(() => console.log('MongoDB Connected'))
 .catch(err => console.log(err));
 
+// Format genres data
+const formattedGenres = genres.map(genre => ({
+  id: genre.id,
+  name: genre.name
+}));
+
+// Format movies data with proper schema
+const formattedMovies = movies.map(movie => ({
+  id: movie.id,
+  title: movie.title,
+  description: movie.description,
+  releaseYear: movie.releaseYear,
+  duration: movie.duration,
+  rating: movie.rating,
+  genres: movie.genres,
+  director: movie.director,
+  cast: movie.cast,
+  posterUrl: movie.posterUrl,
+  backdropUrl: movie.backdropUrl,
+  trailerUrl: movie.trailerUrl || '',
+  trending: movie.trending || false,
+  popular: movie.popular || false
+}));
+
 // Import data function
 const importData = async () => {
   try {
@@ -24,11 +48,11 @@ const importData = async () => {
     await Genre.deleteMany();
     
     // Import genres
-    await Genre.insertMany(genres);
+    await Genre.insertMany(formattedGenres);
     console.log('Genres imported successfully');
     
     // Import movies
-    await Movie.insertMany(movies);
+    await Movie.insertMany(formattedMovies);
     console.log('Movies imported successfully');
     
     console.log('Data import completed');
