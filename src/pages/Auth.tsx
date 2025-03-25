@@ -1,16 +1,18 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Film } from "lucide-react";
+import { Film, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Label } from "@/components/ui/label";
 
 const Auth: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLogin, setIsLogin] = useState(true);
@@ -60,12 +62,31 @@ const Auth: React.FC = () => {
         });
       } else {
         // Sign up
-        const { error } = await supabase.auth.signUp({
+        const { error: signUpError } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            data: {
+              username: username, // Store username in user metadata
+            },
+          },
         });
 
-        if (error) throw error;
+        if (signUpError) throw signUpError;
+
+        // Update the profile table with username
+        // This is a fallback in case the trigger doesn't work
+        // or if we need to update additional fields
+        const user = await supabase.auth.getUser();
+        if (user.data.user) {
+          const { error: profileError } = await supabase
+            .from("profiles")
+            .update({ username })
+            .eq("id", user.data.user.id);
+            
+          if (profileError) console.error("Error updating profile:", profileError);
+        }
+        
         toast({
           title: "Account created!",
           description: "Please check your email to confirm your account.",
@@ -103,9 +124,9 @@ const Auth: React.FC = () => {
 
         <form onSubmit={handleAuth} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-white mb-1">
+            <Label htmlFor="email" className="block text-sm font-medium text-white mb-1">
               Email
-            </label>
+            </Label>
             <Input
               id="email"
               type="email"
@@ -118,9 +139,9 @@ const Auth: React.FC = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-white mb-1">
+            <Label htmlFor="password" className="block text-sm font-medium text-white mb-1">
               Password
-            </label>
+            </Label>
             <Input
               id="password"
               type="password"
@@ -131,6 +152,23 @@ const Auth: React.FC = () => {
               className="bg-streamify-gray border-streamify-gray text-white"
             />
           </div>
+
+          {!isLogin && (
+            <div>
+              <Label htmlFor="username" className="block text-sm font-medium text-white mb-1">
+                Username
+              </Label>
+              <Input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+                placeholder="Your display name"
+                className="bg-streamify-gray border-streamify-gray text-white"
+              />
+            </div>
+          )}
 
           <Button
             type="submit"
