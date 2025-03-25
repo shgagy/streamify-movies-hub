@@ -62,6 +62,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const expiresAt = new Date();
       expiresAt.setMinutes(expiresAt.getMinutes() + 30);
       
+      console.log("Attempting to store verification code for:", email, "user ID:", userId);
+      
       // Store the verification code in the database
       const { error } = await supabase
         .from('verification_codes')
@@ -77,6 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: error.message };
       }
       
+      console.log("Verification code stored successfully");
       return { success: true };
     } catch (error: any) {
       console.error("Error generating verification code:", error);

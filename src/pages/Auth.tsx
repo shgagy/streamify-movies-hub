@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Film, User } from "lucide-react";
@@ -42,7 +41,6 @@ const Auth: React.FC = () => {
   const { toast } = useToast();
   const { generateVerificationCode, verifyEmail } = useAuth();
 
-  // Check if user is already logged in
   useEffect(() => {
     const checkSession = async () => {
       const { data } = await supabase.auth.getSession();
@@ -53,7 +51,6 @@ const Auth: React.FC = () => {
     
     checkSession();
     
-    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log("Auth state changed:", event);
@@ -66,7 +63,6 @@ const Auth: React.FC = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // Handle resend cooldown
   useEffect(() => {
     let interval: number | undefined;
     
@@ -96,7 +92,6 @@ const Auth: React.FC = () => {
     setOtpError(null);
     
     try {
-      // Generate and send a new verification code
       const { success, error } = await generateVerificationCode(email, userId);
       
       if (!success) throw new Error(error);
@@ -106,7 +101,6 @@ const Auth: React.FC = () => {
         description: "Please check your email for the new verification code. Also check your spam/junk folder.",
       });
       
-      // Set cooldown timer (60 seconds)
       setResendCounter(60);
     } catch (error: any) {
       console.error("Resend error:", error);
@@ -123,7 +117,6 @@ const Auth: React.FC = () => {
 
     try {
       if (isLogin) {
-        // Sign in
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -135,11 +128,9 @@ const Auth: React.FC = () => {
           description: "You have been successfully logged in.",
         });
       } else {
-        // Sign up
         setSignupSuccess(false);
         console.log("Starting signup process for email:", email);
         
-        // Create user with Supabase (but disable auto-confirmation)
         const { error, data } = await supabase.auth.signUp({
           email,
           password,
@@ -161,8 +152,12 @@ const Auth: React.FC = () => {
         
         setUserId(data.user.id);
         
-        // Generate and store verification code
+        console.log("User ID:", data.user.id);
+        console.log("Attempting to generate verification code");
+        
         const verificationResult = await generateVerificationCode(email, data.user.id);
+        
+        console.log("Verification code generation result:", verificationResult);
         
         if (!verificationResult.success) {
           throw new Error(verificationResult.error || "Failed to generate verification code");
@@ -170,7 +165,6 @@ const Auth: React.FC = () => {
         
         setSignupSuccess(true);
 
-        // Show OTP dialog for verification
         toast({
           title: "Verification code sent",
           description: "Please check your email (including spam/junk folder) for the verification code.",
@@ -200,7 +194,6 @@ const Auth: React.FC = () => {
     try {
       console.log("Verifying OTP:", otpValue, "for email:", email);
       
-      // Verify the email with our custom verification system
       const verificationResult = await verifyEmail(email, otpValue);
       
       if (!verificationResult.success) {
@@ -209,7 +202,6 @@ const Auth: React.FC = () => {
 
       console.log("Email verification successful");
       
-      // Update the profile table with username
       const user = await supabase.auth.getUser();
       console.log("Current user after verification:", user);
       
@@ -226,14 +218,12 @@ const Auth: React.FC = () => {
         }
       }
 
-      // Show success message and close the dialog
       toast({
         title: "Account verified!",
         description: "Your account has been successfully verified.",
       });
       setShowOTPDialog(false);
       
-      // Navigate to homepage after successful verification
       navigate("/");
     } catch (error: any) {
       console.error("OTP verification error:", error);
@@ -355,7 +345,6 @@ const Auth: React.FC = () => {
         </div>
       </div>
 
-      {/* OTP Verification Dialog */}
       <Dialog open={showOTPDialog} onOpenChange={(open) => {
         if (!open && !verifyingOtp) setShowOTPDialog(false);
       }}>
