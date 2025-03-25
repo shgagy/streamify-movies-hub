@@ -32,6 +32,9 @@ const Auth: React.FC = () => {
   const [otpValue, setOtpValue] = useState("");
   const [otpError, setOtpError] = useState<string | null>(null);
   const [verifyingOtp, setVerifyingOtp] = useState(false);
+  const [resendingOtp, setResendingOtp] = useState(false);
+  const [canResend, setCanResend] = useState(false);
+  const [resendCounter, setResendCounter] = useState(0);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -57,6 +60,58 @@ const Auth: React.FC = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // Handle resend cooldown
+  useEffect(() => {
+    let interval: number | undefined;
+    
+    if (resendCounter > 0) {
+      setCanResend(false);
+      interval = window.setInterval(() => {
+        setResendCounter((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setCanResend(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [resendCounter]);
+
+  const handleResendOTP = async () => {
+    if (!canResend && resendCounter > 0) return;
+    
+    setResendingOtp(true);
+    setOtpError(null);
+    
+    try {
+      // Re-trigger the signup process to send a new OTP
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "New verification code sent",
+        description: "Please check your email for the new verification code.",
+      });
+      
+      // Set cooldown timer (60 seconds)
+      setResendCounter(60);
+    } catch (error: any) {
+      setOtpError(error.message);
+    } finally {
+      setResendingOtp(false);
+    }
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,14 +146,19 @@ const Auth: React.FC = () => {
 
         if (error) throw error;
 
+        console.log("Sign up response:", data);
+
         // Show OTP dialog for verification
         toast({
           title: "Verification code sent",
           description: "Please check your email for the verification code.",
         });
         setShowOTPDialog(true);
+        setCanResend(false);
+        setResendCounter(60); // Set initial cooldown timer
       }
     } catch (error: any) {
+      console.error("Authentication error:", error);
       setError(error.message);
     } finally {
       setLoading(false);
@@ -115,24 +175,34 @@ const Auth: React.FC = () => {
     setOtpError(null);
 
     try {
+      console.log("Verifying OTP:", otpValue, "for email:", email);
+      
       // Verify the OTP code
-      const { error } = await supabase.auth.verifyOtp({
+      const { error, data } = await supabase.auth.verifyOtp({
         email,
         token: otpValue,
         type: 'signup',
       });
 
+      console.log("OTP verification response:", data, error);
+
       if (error) throw error;
 
       // Update the profile table with username after verification
       const user = await supabase.auth.getUser();
+      console.log("Current user after verification:", user);
+      
       if (user.data.user) {
         const { error: profileError } = await supabase
           .from("profiles")
           .update({ username })
           .eq("id", user.data.user.id);
           
-        if (profileError) console.error("Error updating profile:", profileError);
+        if (profileError) {
+          console.error("Error updating profile:", profileError);
+        } else {
+          console.log("Profile updated successfully");
+        }
       }
 
       // Show success message and close the dialog
@@ -145,6 +215,7 @@ const Auth: React.FC = () => {
       // Navigate to homepage after successful verification
       navigate("/");
     } catch (error: any) {
+      console.error("OTP verification error:", error);
       setOtpError(error.message);
     } finally {
       setVerifyingOtp(false);
@@ -289,6 +360,21 @@ const Auth: React.FC = () => {
                 <AlertDescription>{otpError}</AlertDescription>
               </Alert>
             )}
+            
+            <div className="text-center text-white/60 text-sm mt-2">
+              Didn't receive a code?{" "}
+              {canResend ? (
+                <button 
+                  onClick={handleResendOTP} 
+                  className="text-primary hover:underline"
+                  disabled={resendingOtp}
+                >
+                  {resendingOtp ? "Sending..." : "Resend code"}
+                </button>
+              ) : (
+                <span>Resend available in {resendCounter} seconds</span>
+              )}
+            </div>
           </div>
           
           <div className="flex justify-between">
