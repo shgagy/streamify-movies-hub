@@ -35,6 +35,7 @@ const Auth: React.FC = () => {
   const [resendingOtp, setResendingOtp] = useState(false);
   const [canResend, setCanResend] = useState(false);
   const [resendCounter, setResendCounter] = useState(0);
+  const [signupSuccess, setSignupSuccess] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -52,6 +53,7 @@ const Auth: React.FC = () => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log("Auth state changed:", event);
         if (session) {
           navigate("/");
         }
@@ -101,12 +103,13 @@ const Auth: React.FC = () => {
 
       toast({
         title: "New verification code sent",
-        description: "Please check your email for the new verification code.",
+        description: "Please check your email for the new verification code. Also check your spam/junk folder.",
       });
       
       // Set cooldown timer (60 seconds)
       setResendCounter(60);
     } catch (error: any) {
+      console.error("Resend error:", error);
       setOtpError(error.message);
     } finally {
       setResendingOtp(false);
@@ -133,6 +136,7 @@ const Auth: React.FC = () => {
         });
       } else {
         // Sign up with OTP verification
+        setSignupSuccess(false);
         const { error, data } = await supabase.auth.signUp({
           email,
           password,
@@ -147,11 +151,12 @@ const Auth: React.FC = () => {
         if (error) throw error;
 
         console.log("Sign up response:", data);
+        setSignupSuccess(true);
 
         // Show OTP dialog for verification
         toast({
           title: "Verification code sent",
-          description: "Please check your email for the verification code.",
+          description: "Please check your email (including spam/junk folder) for the verification code.",
         });
         setShowOTPDialog(true);
         setCanResend(false);
@@ -242,6 +247,15 @@ const Auth: React.FC = () => {
         {error && (
           <Alert variant="destructive" className="mb-6">
             <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {!isLogin && signupSuccess && (
+          <Alert className="mb-6 bg-green-900 border-green-700">
+            <AlertDescription className="text-white">
+              Signup successful! Please check your email for the verification code. 
+              If you don't see it, check your spam or junk folder.
+            </AlertDescription>
           </Alert>
         )}
 
@@ -374,6 +388,16 @@ const Auth: React.FC = () => {
               ) : (
                 <span>Resend available in {resendCounter} seconds</span>
               )}
+            </div>
+
+            <div className="text-center text-white/70 text-sm mt-2 bg-streamify-gray p-3 rounded-md">
+              <p>Troubleshooting tips:</p>
+              <ul className="list-disc text-left pl-5 mt-1">
+                <li>Check your spam or junk folder</li>
+                <li>Verify your email address is correct</li>
+                <li>Try using a different email provider</li>
+                <li>Whitelist emails from Supabase/noreply@mail.app.supabase.io</li>
+              </ul>
             </div>
           </div>
           
