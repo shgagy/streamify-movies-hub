@@ -59,6 +59,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log("Starting signup process for email:", email);
       
+      // Generate a verification code
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      
       // Use email verification through Supabase, but with custom data
       const { error, data } = await supabase.auth.signUp({
         email,
@@ -66,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         options: {
           data: {
             username,
-            verification_sent: true,
+            verification_code: code, // Store code in user metadata
           },
           emailRedirectTo: `${window.location.origin}/auth?verification=true`,
         },
@@ -82,9 +85,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const userId = data.user.id;
       console.log("User ID:", userId);
-      
-      // Pre-generate and store verification code for future use
-      const code = Math.floor(100000 + Math.random() * 900000).toString();
       
       // Set expiration time (30 minutes from now)
       const expiresAt = new Date();
@@ -104,6 +104,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.error("Error storing verification code:", codeError);
         return { success: true, userId, error: "Account created but verification code storage failed" };
       }
+      
+      // Now manually send an email with the verification code
+      const { error: emailError } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?email=${encodeURIComponent(email)}&verification=true`,
+      });
+
+      if (emailError) {
+        console.error("Error sending verification email:", emailError);
+        return { success: false, error: emailError.message };
+      }
+
+      console.log("Verification code email sent successfully");
       
       return { success: true, userId };
     } catch (error: any) {
@@ -139,7 +151,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       
       // Send email using Supabase's built-in email functionality
-      // We'll use a password reset email, but customize the flow for our verification
+      // The email will include instructions to check the Supabase database for the verification code
       const { error: emailError } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth?email=${encodeURIComponent(email)}&verification=true`,
       });

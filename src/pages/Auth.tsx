@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Film } from "lucide-react";
@@ -66,19 +65,17 @@ const Auth: React.FC = () => {
   }, [navigate]);
 
   useEffect(() => {
-    // Check URL parameters for verification flow
     const params = new URLSearchParams(window.location.search);
     const verificationParam = params.get('verification');
     const emailParam = params.get('email');
     
-    // If coming from the verification link in email
     if (verificationParam === 'true' && emailParam) {
       setEmail(emailParam);
       setShowOTPDialog(true);
       setShowVerificationHelp(true);
       toast({
         title: "Enter verification code",
-        description: "Please enter the 6-digit verification code from your database.",
+        description: "Please enter the 6-digit verification code from the database.",
       });
     }
   }, [toast]);
@@ -118,7 +115,7 @@ const Auth: React.FC = () => {
 
       toast({
         title: "New verification email sent",
-        description: "Please check your email for a password reset link. Click it to proceed with verification.",
+        description: "Please check your email for a password reset link. After clicking it, check the verification_codes table in Supabase for your code.",
       });
       
       setResendCounter(60);
@@ -166,8 +163,8 @@ const Auth: React.FC = () => {
         setSignupSuccess(true);
 
         toast({
-          title: "Account created! Check your email",
-          description: "We've sent you a confirmation email. Click the link in the email to verify your account.",
+          title: "Account created!",
+          description: "Check your email for a verification message. After clicking the link, find your verification code in the Supabase verification_codes table.",
           duration: 10000,
         });
       }
@@ -250,8 +247,9 @@ const Auth: React.FC = () => {
         {!isLogin && signupSuccess && (
           <Alert className="mb-6 bg-green-900 border-green-700">
             <AlertDescription className="text-white">
-              Signup successful! Check your email for a confirmation link. 
-              Click the link to verify your account.
+              Signup successful! Check your email for a verification link. 
+              After clicking it, you'll need to enter your verification code.
+              The code can be found in the verification_codes table in Supabase.
             </AlertDescription>
           </Alert>
         )}
@@ -428,3 +426,4 @@ const Auth: React.FC = () => {
 };
 
 export default Auth;
+
