@@ -114,16 +114,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: false, error: error.message };
       }
       
-      // Send a custom email with the verification code
-      // Here we're using Supabase's built-in email, but in production you might
-      // want to set up a custom email service or serverless function
-      const { error: otpError } = await supabase.auth.resetPasswordForEmail(email, {
+      // Send email using Supabase's built-in email functionality
+      // We'll use a password reset email, but customize the flow for our verification
+      const { error: emailError } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth?email=${encodeURIComponent(email)}&verification=true`,
       });
 
-      if (otpError) {
-        console.error("Error sending verification email:", otpError);
-        return { success: false, error: otpError.message };
+      if (emailError) {
+        console.error("Error sending verification email:", emailError);
+        return { success: false, error: emailError.message };
       }
       
       console.log("Verification code stored successfully and email sent");
@@ -162,17 +161,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .update({ used: true })
         .eq('id', data.id);
 
-      // Since we're using our own verification system, we'll handle the sign-in process
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password: code, // You would need to replace this with the actual password
-      });
+      // Get the user by email to find the ID
+      const { data: userData, error: userError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', data.user_id)
+        .single();
 
-      if (signInError) {
-        console.error("Error signing in after verification:", signInError);
-        // We'll continue anyway since our verification has succeeded
+      if (userError) {
+        console.error("Error getting user profile:", userError);
+        return { success: false, error: userError.message };
       }
 
+      console.log("Verification successful for user ID:", data.user_id);
+      
       return { success: true };
     } catch (error: any) {
       console.error("Error verifying email:", error);

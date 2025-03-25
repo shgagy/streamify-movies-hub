@@ -1,6 +1,7 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Film, User } from "lucide-react";
+import { Film } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -64,16 +65,18 @@ const Auth: React.FC = () => {
   }, [navigate]);
 
   useEffect(() => {
+    // Check URL parameters for verification flow
     const params = new URLSearchParams(window.location.search);
     const verificationParam = params.get('verification');
     const emailParam = params.get('email');
     
+    // If coming from the verification link in email
     if (verificationParam === 'true' && emailParam) {
       setEmail(emailParam);
       setShowOTPDialog(true);
       toast({
-        title: "Verification email sent",
-        description: "Please enter the 6-digit code from the email we just sent you.",
+        title: "Enter verification code",
+        description: "Please enter the 6-digit verification code from your code storage.",
       });
     }
   }, [toast]);
@@ -112,8 +115,8 @@ const Auth: React.FC = () => {
       if (!success) throw new Error(error);
 
       toast({
-        title: "New verification code sent",
-        description: "Please check your email for the new verification code. Also check your spam/junk folder.",
+        title: "New verification email sent",
+        description: "Please check your email for the reset password link. The code is stored in the database.",
       });
       
       setResendCounter(60);
@@ -170,8 +173,8 @@ const Auth: React.FC = () => {
         setSignupSuccess(true);
 
         toast({
-          title: "Verification code sent",
-          description: "Please check your email (including spam/junk folder) for the verification code.",
+          title: "Check your email",
+          description: "We've sent you a password reset email. Follow the link and come back to this page to enter your verification code.",
           duration: 10000,
         });
         setShowOTPDialog(true);
@@ -257,8 +260,9 @@ const Auth: React.FC = () => {
         {!isLogin && signupSuccess && (
           <Alert className="mb-6 bg-green-900 border-green-700">
             <AlertDescription className="text-white">
-              Signup successful! Please check your email for the verification code. 
-              If you don't see it, check your spam or junk folder.
+              Signup successful! Check your email for instructions on how to verify your account. 
+              You'll receive a password reset email with a link. Click that link and return to this page 
+              to enter your verification code.
             </AlertDescription>
           </Alert>
         )}
@@ -350,7 +354,7 @@ const Auth: React.FC = () => {
           <DialogHeader>
             <DialogTitle className="text-white">Email Verification</DialogTitle>
             <DialogDescription className="text-white/60">
-              Enter the 6-digit verification code sent to {email}
+              Enter the 6-digit verification code for {email}
             </DialogDescription>
           </DialogHeader>
           
@@ -379,14 +383,14 @@ const Auth: React.FC = () => {
             )}
             
             <div className="text-center text-white/60 text-sm mt-2">
-              Didn't receive a code?{" "}
+              Didn't receive the email or need a new code?{" "}
               {canResend ? (
                 <button 
                   onClick={handleResendOTP} 
                   className="text-primary hover:underline"
                   disabled={resendingOtp}
                 >
-                  {resendingOtp ? "Sending..." : "Resend code"}
+                  {resendingOtp ? "Sending..." : "Resend email"}
                 </button>
               ) : (
                 <span>Resend available in {resendCounter} seconds</span>
@@ -394,13 +398,13 @@ const Auth: React.FC = () => {
             </div>
 
             <div className="text-center text-white/70 text-sm mt-2 bg-streamify-gray p-3 rounded-md">
-              <p>Troubleshooting tips:</p>
-              <ul className="list-disc text-left pl-5 mt-1">
-                <li>Check your spam or junk folder</li>
-                <li>Verify your email address is correct</li>
-                <li>Try using a different email provider</li>
-                <li>Whitelist emails from Supabase/noreply@mail.app.supabase.io</li>
-              </ul>
+              <p>Verification Process:</p>
+              <ol className="list-decimal text-left pl-5 mt-1">
+                <li>Check your email for a password reset link</li>
+                <li>Click the link in your email</li>
+                <li>Return to this page</li>
+                <li>Enter the 6-digit code from your code storage</li>
+              </ol>
             </div>
           </div>
           
