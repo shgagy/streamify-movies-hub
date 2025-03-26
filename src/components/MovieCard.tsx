@@ -45,7 +45,7 @@ const MovieCard: React.FC<MovieCardProps> = ({
       className={cn(
         "relative group overflow-hidden rounded-md transition-all duration-300",
         sizeClasses[size],
-        isHovered ? "ring-2 ring-primary shadow-lg scale-105 z-10" : "shadow"
+        isHovered ? "ring-2 ring-primary shadow-lg" : "shadow"
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -71,14 +71,20 @@ const MovieCard: React.FC<MovieCardProps> = ({
         />
         
         {/* Rating */}
-        <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-md text-sm flex items-center">
+        <div className={cn(
+          "absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-md text-sm flex items-center transition-opacity duration-300",
+          isHovered && "opacity-0"
+        )}>
           <Star className="w-3 h-3 text-yellow-500 mr-1" fill="currentColor" />
           <span>{movie.rating.toFixed(1)}</span>
         </div>
       </div>
       
       {/* Content */}
-      <div className="p-3 bg-streamify-darkgray">
+      <div className={cn(
+        "p-3 bg-streamify-darkgray transition-opacity duration-300",
+        isHovered && "opacity-0"
+      )}>
         <h3 className="font-medium line-clamp-1">{movie.title}</h3>
         <div className="text-sm text-white/60 mt-1">
           <span>{movie.releaseYear}</span>
