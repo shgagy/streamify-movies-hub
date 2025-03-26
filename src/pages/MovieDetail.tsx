@@ -193,6 +193,16 @@ const MovieDetail: React.FC = () => {
                 </div>
               )}
 
+              {!isMdUp && (
+                <div className="w-32 overflow-hidden rounded-md shadow-lg animate-fade-in mb-4">
+                  <img
+                    src={movie.posterUrl}
+                    alt={movie.title}
+                    className="w-full h-auto"
+                  />
+                </div>
+              )}
+
               <div className="max-w-xl md:max-w-[55%] animate-fade-in overflow-hidden">
                 <div className="flex flex-wrap gap-1.5 md:gap-2 mb-2 md:mb-3 justify-center md:justify-start">
                   {movie.genres.slice(0, isMdUp ? 3 : 2).map((genre, index) => (
