@@ -87,7 +87,7 @@ const Navbar = () => {
             TV Shows
           </Link>
           <Link to="/my-list" className="nav-link">
-            My List {myListCount > 0 && <span className="ml-1 px-1.5 py-0.5 bg-primary rounded-full text-xs">{myListCount}</span>}
+            My List
           </Link>
           <div className="group relative">
             <button className="nav-link">Genres</button>
@@ -131,7 +131,6 @@ const Navbar = () => {
               aria-label="My List"
             >
               <Bookmark className="w-5 h-5" />
-              {/* Removed the notification indicator badge */}
             </Link>
             
             {/* Profile Button */}
@@ -183,11 +182,7 @@ const Navbar = () => {
               >
                 <Bookmark className="w-5 h-5" />
                 <span>My List</span>
-                {myListCount > 0 && (
-                  <span className="ml-auto px-1.5 py-0.5 bg-primary rounded-full text-xs">
-                    {myListCount}
-                  </span>
-                )}
+                {/* Also removed the count badge from mobile menu */}
               </Link>
               <Link
                 to="/explore"
