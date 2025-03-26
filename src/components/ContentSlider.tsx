@@ -81,6 +81,10 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
 
   return (
     <div className="relative h-[60vh] w-full overflow-hidden my-12">
+      <div className="page-container mb-2">
+        <h2 className="text-2xl font-bold animate-fade-in">{title}</h2>
+      </div>
+      
       <div className="carousel-container w-full h-full" ref={setCarouselRef}>
         {movies.map((movie, index) => (
           <div 
@@ -91,7 +95,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           >
             {/* Background Image with Gradient Overlay */}
             <div className="absolute inset-0 z-0">
-              <div className="absolute inset-0 bg-gradient-to-t from-streamify-black via-streamify-black/70 to-transparent z-10" />
+              <div className="absolute inset-0 bg-gradient-to-b from-streamify-black via-streamify-black/70 to-transparent z-10" />
               <div className="absolute inset-0 bg-gradient-to-r from-streamify-black/80 to-transparent z-10" />
               <img 
                 src={movie.backdropUrl} 
