@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Play, Plus, Info } from "lucide-react";
@@ -49,22 +48,18 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   };
 
   const scrollToSlide = useCallback((index: number) => {
-    // Update the active index without scrolling the viewport
     setActiveIndex(index);
     console.log(`Scrolled to slide ${index}`);
   }, []);
 
-  // Set up auto carousel functionality - runs on component mount
   useEffect(() => {
     if (!autoPlay) return;
     
-    // Auto advance slides every 8 seconds or custom interval
     const autoPlayInterval = setInterval(() => {
       const nextIndex = (activeIndex + 1) % movies.length;
       scrollToSlide(nextIndex);
     }, interval);
     
-    // Clear interval on component unmount
     return () => clearInterval(autoPlayInterval);
   }, [activeIndex, movies.length, scrollToSlide, autoPlay, interval]);
 
@@ -80,7 +75,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   }
 
   return (
-    <div className="relative h-[60vh] w-full overflow-hidden my-12">
+    <div className="relative h-[80vh] w-full overflow-hidden my-16">
       <div className="page-container mb-2">
         <h2 className="text-2xl font-bold animate-fade-in">{title}</h2>
       </div>
@@ -93,13 +88,9 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
               index === activeIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
             }`}
           >
-            {/* Background Image with Gradient Overlay */}
             <div className="absolute inset-0 z-0">
-              {/* Top gradient */}
               <div className="absolute inset-0 bg-gradient-to-b from-streamify-black via-streamify-black/70 to-transparent z-10" />
-              {/* Side gradient */}
               <div className="absolute inset-0 bg-gradient-to-r from-streamify-black/80 to-transparent z-10" />
-              {/* Bottom gradient */}
               <div className="absolute inset-0 bg-gradient-to-t from-streamify-black via-streamify-black/70 to-transparent z-10" />
               <img 
                 src={movie.backdropUrl} 
@@ -108,11 +99,10 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
               />
             </div>
             
-            {/* Content */}
             <div className="relative z-20 flex flex-col justify-end h-full">
-              <div className="page-container pb-16 md:pb-24">
+              <div className="page-container pb-20 md:pb-28">
                 <div className="max-w-2xl animate-fade-in">
-                  <h1 className="font-bold mb-4 leading-tight text-2xl md:text-2xl">
+                  <h1 className="font-bold mb-4 leading-tight text-3xl md:text-4xl">
                     {movie.title}
                   </h1>
                   
@@ -124,28 +114,28 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
                     <span>{movie.duration}</span>
                   </div>
                   
-                  <p className="text-white/90 mb-8 line-clamp-3 md:line-clamp-none">
+                  <p className="text-white/90 mb-8 line-clamp-3 md:line-clamp-4 text-base md:text-lg">
                     {movie.description}
                   </p>
                   
                   <div className="flex flex-wrap gap-4 items-center">
-                    <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md flex items-center space-x-2" onClick={() => handlePlayClick(Number(movie.id))}>
+                    <Button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 h-auto rounded-md flex items-center space-x-2" onClick={() => handlePlayClick(Number(movie.id))}>
                       <Play className="w-5 h-5" />
                       <span>Play Now</span>
                     </Button>
                     
-                    <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white px-6 py-3 rounded-md flex items-center space-x-2" onClick={() => handleInfoClick(Number(movie.id))}>
+                    <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white px-8 py-4 h-auto rounded-md flex items-center space-x-2" onClick={() => handleInfoClick(Number(movie.id))}>
                       <Info className="w-5 h-5" />
                       <span>More Info</span>
                     </Button>
                     
-                    <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white p-3 rounded-full" onClick={() => handleAddToList(movie)}>
+                    <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white p-4 h-auto rounded-full" onClick={() => handleAddToList(movie)}>
                       <Plus className="w-5 h-5" />
                     </Button>
                     
                     <div className="flex flex-wrap gap-2 ml-1">
                       {movie.genres.slice(0, 3).map((genre, index) => (
-                        <span key={index} className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-xs md:text-sm">
+                        <span key={index} className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm md:text-base">
                           {genre}
                         </span>
                       ))}
@@ -158,17 +148,16 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
         ))}
       </div>
 
-      {/* Dot Navigation Controls */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex items-center gap-4">
-        <div className="flex items-center gap-2">
+      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-30 flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {movies.map((_, index) => (
             <button 
               key={index} 
               onClick={() => scrollToSlide(index)} 
               className={`transition-all duration-300 ${
                 index === activeIndex 
-                  ? "bg-primary w-8 h-2.5 rounded-full" 
-                  : "bg-white/30 hover:bg-white/50 w-2.5 h-2.5 rounded-full"
+                  ? "bg-primary w-10 h-3 rounded-full" 
+                  : "bg-white/30 hover:bg-white/50 w-3 h-3 rounded-full"
               }`} 
               aria-label={`Go to slide ${index + 1}`} 
             />
