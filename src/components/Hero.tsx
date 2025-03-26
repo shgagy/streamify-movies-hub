@@ -85,7 +85,7 @@ const Hero: React.FC<HeroProps> = ({ movies }) => {
                   <div className="flex flex-wrap gap-4 items-center">
                     <Button 
                       className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md flex items-center space-x-2"
-                      onClick={() => handlePlayClick(movie.id)}
+                      onClick={() => handlePlayClick(Number(movie.id))}
                     >
                       <Play className="w-5 h-5" />
                       <span>Play Now</span>
@@ -94,7 +94,7 @@ const Hero: React.FC<HeroProps> = ({ movies }) => {
                     <Button 
                       variant="outline"
                       className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white px-6 py-3 rounded-md flex items-center space-x-2"
-                      onClick={() => handleInfoClick(movie.id)}
+                      onClick={() => handleInfoClick(Number(movie.id))}
                     >
                       <Info className="w-5 h-5" />
                       <span>More Info</span>
