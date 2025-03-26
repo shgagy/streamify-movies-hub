@@ -36,6 +36,9 @@ const SeriesDetail: React.FC = () => {
   });
 
   useEffect(() => {
+    // Log to debug
+    console.log("SeriesDetail - TV Show ID:", id);
+    
     if (user && tvShow) {
       try {
         const storageKey = `streamify-mylist-${user.id}`;
@@ -131,6 +134,7 @@ const SeriesDetail: React.FC = () => {
   }
 
   if (error || !tvShow) {
+    console.error("Error loading TV show:", error);
     return <div className="min-h-screen bg-streamify-black text-white">
         <Navbar />
         <div className="flex flex-col items-center justify-center h-screen">

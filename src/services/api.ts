@@ -43,10 +43,13 @@ export const fetchAllTVShows = async () => {
 };
 
 export const fetchTVShowById = async (id: string) => {
+  console.log("Fetching TV Show by ID:", id, "Available shows:", mockTvShows.map(t => t.id));
   const tvShow = mockTvShows.find(t => t.id === id);
   if (!tvShow) {
+    console.error("TV Show not found with ID:", id);
     throw new Error('TV Show not found');
   }
+  console.log("Found TV Show:", tvShow.title);
   return tvShow;
 };
 
