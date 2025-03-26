@@ -111,13 +111,12 @@ const Index: React.FC = () => {
                 />
               )}
               
-              {/* Featured Movies with special layout */}
+              {/* Featured Movies */}
               {featuredMoviesForSlider.length > 0 && (
                 <ContentSlider
                   title="Featured Movies"
                   movies={featuredMoviesForSlider}
                   layout="backdrop"
-                  featured={true}
                 />
               )}
               
