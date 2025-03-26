@@ -19,7 +19,7 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ movies }) => {
   const navigate = useNavigate();
   const { addToMyList, isInMyList } = useMyList();
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 50 });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 30 });
   const [activeIndex, setActiveIndex] = useState(0);
   
   // Get current movie based on index
@@ -42,7 +42,6 @@ const Hero: React.FC<HeroProps> = ({ movies }) => {
   const scrollToSlide = (index: number) => {
     if (emblaApi) {
       emblaApi.scrollTo(index);
-      setActiveIndex(index);
     }
   };
   
