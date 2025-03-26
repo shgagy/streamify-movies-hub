@@ -5,8 +5,23 @@ import { Float, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 import { Movie } from "@/lib/mockData";
 
+// Local placeholder image path 
+const LOCAL_PLACEHOLDER = "/movie-placeholder.jpg";
+
 // 3D Movie Card component
-export const MovieItem = ({ movie, index, active, totalItems, onClick }) => {
+export const MovieItem = ({ 
+  movie, 
+  index, 
+  active, 
+  totalItems, 
+  onClick 
+}: { 
+  movie: Movie; 
+  index: number; 
+  active: boolean; 
+  totalItems: number; 
+  onClick: () => void;
+}) => {
   const mesh = useRef<THREE.Mesh>(null);
   const radius = 4;
   const theta = (index / totalItems) * Math.PI * 2;
@@ -61,20 +76,41 @@ export const MovieItem = ({ movie, index, active, totalItems, onClick }) => {
     return texture;
   }, [movie.title, movie.releaseYear]);
   
-  // Use a path to local placeholder image if the image can't be loaded
-  const placeholderUrl = "/movie-placeholder.jpg";
-  const imageToLoad = movie.posterUrl || movie.backdropUrl || placeholderUrl;
+  // Use fallback URL if remote image fails
+  const textureRef = useRef<THREE.Texture | null>(null);
   
-  // Fix: Use useTexture correctly - it can accept an onError callback but as options
-  const texture = useTexture(imageToLoad, {
-    onError: () => {
-      console.warn(`Failed to load texture for ${movie.title}, using fallback`);
-      return fallbackTexture;
+  // First try the movie poster, if that fails try backdrop, if that fails use local placeholder
+  const imageUrl = movie.posterUrl || movie.backdropUrl || LOCAL_PLACEHOLDER;
+  
+  try {
+    // Load texture manually to handle errors properly
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.crossOrigin = '';
+    
+    // Only load if we don't already have it
+    if (!textureRef.current) {
+      textureLoader.load(
+        imageUrl,
+        // On load success
+        (loadedTexture) => {
+          textureRef.current = loadedTexture;
+        },
+        // On progress
+        undefined,
+        // On error
+        (error) => {
+          console.warn(`Failed to load texture for ${movie.title}, using fallback`, error);
+          textureRef.current = fallbackTexture;
+        }
+      );
     }
-  });
+  } catch (error) {
+    console.error('Error in texture loading:', error);
+    textureRef.current = fallbackTexture;
+  }
   
-  // Use fallback if there was an error loading the texture
-  const finalTexture = texture || fallbackTexture;
+  // Use fallback until texture is loaded
+  const finalTexture = textureRef.current || fallbackTexture;
   
   // Rotation for active item
   useFrame(() => {
@@ -102,7 +138,15 @@ export const MovieItem = ({ movie, index, active, totalItems, onClick }) => {
 };
 
 // 3D Carousel component
-export const Carousel3D = ({ movies, activeIndex, setActiveIndex }) => {
+export const Carousel3D = ({ 
+  movies, 
+  activeIndex, 
+  setActiveIndex 
+}: { 
+  movies: Movie[]; 
+  activeIndex: number; 
+  setActiveIndex: (index: number) => void;
+}) => {
   const groupRef = useRef<THREE.Group>(null);
   
   useFrame(() => {
@@ -112,7 +156,7 @@ export const Carousel3D = ({ movies, activeIndex, setActiveIndex }) => {
     }
   });
 
-  const handleClick = (index) => {
+  const handleClick = (index: number) => {
     setActiveIndex(index);
   };
 

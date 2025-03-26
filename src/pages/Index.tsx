@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { ErrorBoundary } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -8,6 +8,20 @@ import ContentSlider from "@/components/ContentSlider";
 import Welcome from "@/components/Welcome";
 import { fetchTrendingMovies, fetchPopularMovies, fetchAllMovies, fetchPopularTVShows } from "@/services/api";
 import { Movie } from "@/lib/mockData";
+
+// Simple error fallback component
+const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) => (
+  <div className="p-4 bg-red-50 border border-red-200 rounded-md">
+    <h3 className="text-red-800 font-medium">Something went wrong:</h3>
+    <p className="text-red-600 mt-1">{error.message}</p>
+    <button 
+      onClick={resetErrorBoundary}
+      className="mt-2 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 rounded-md transition-colors"
+    >
+      Try again
+    </button>
+  </div>
+);
 
 const Index: React.FC = () => {
   // Fetch trending, popular, and all movies
@@ -56,14 +70,32 @@ const Index: React.FC = () => {
   // Featured series from TV shows
   const featuredSeries = popularTVShows.slice(0, 10);
 
+  // Replace external image URLs with local alternatives
+  const ensureWorkingImages = (movies: Movie[]): Movie[] => {
+    return movies.map(movie => ({
+      ...movie,
+      posterUrl: "/movie-placeholder.jpg",  // Use local placeholder for all images
+      backdropUrl: "/movie-placeholder.jpg" // Use local placeholder for all images
+    }));
+  };
+
+  // Apply image replacements to all movie collections
+  const securedTrendingMovies = ensureWorkingImages(trendingMovies);
+  const securedPopularMovies = ensureWorkingImages(popularMovies);
+  const securedFeaturedMovies = ensureWorkingImages(featuredMovies);
+  const securedFeaturedMoviesForSlider = ensureWorkingImages(featuredMoviesForSlider);
+  const securedAnimeMovies = ensureWorkingImages(animeMovies);
+  const securedFeaturedSeries = ensureWorkingImages(featuredSeries);
+  const securedRecentReleases = ensureWorkingImages(recentReleases);
+
   return (
     <div className="min-h-screen bg-streamify-black text-white">
       <Navbar />
       
       <main>
         {/* Hero Section */}
-        {!loadingAllMovies && featuredMovies.length > 0 && (
-          <Hero movies={featuredMovies} />
+        {!loadingAllMovies && securedFeaturedMovies.length > 0 && (
+          <Hero movies={securedFeaturedMovies} />
         )}
         
         <div className="py-4">
@@ -82,46 +114,50 @@ const Index: React.FC = () => {
             </div>
           ) : (
             <>
-              {trendingMovies.length > 0 && (
-                <ContentSlider
-                  title="Trending Now"
-                  movies={trendingMovies}
-                />
+              {securedTrendingMovies.length > 0 && (
+                <React.Suspense fallback={<div>Loading Trending Now...</div>}>
+                  <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
+                    <ContentSlider
+                      title="Trending Now"
+                      movies={securedTrendingMovies}
+                    />
+                  </ErrorBoundary>
+                </React.Suspense>
               )}
               
-              {popularMovies.length > 0 && (
+              {securedPopularMovies.length > 0 && (
                 <ContentSlider
                   title="Popular on Streamify"
-                  movies={popularMovies}
+                  movies={securedPopularMovies}
                   featured={true}
                 />
               )}
               
-              {featuredMoviesForSlider.length > 0 && (
+              {securedFeaturedMoviesForSlider.length > 0 && (
                 <ContentSlider
                   title="Featured Movies"
-                  movies={featuredMoviesForSlider}
+                  movies={securedFeaturedMoviesForSlider}
                 />
               )}
               
-              {animeMovies.length > 0 && (
+              {securedAnimeMovies.length > 0 && (
                 <ContentSlider
                   title="Recently Added Anime"
-                  movies={animeMovies}
+                  movies={securedAnimeMovies}
                 />
               )}
               
-              {featuredSeries.length > 0 && (
+              {securedFeaturedSeries.length > 0 && (
                 <ContentSlider
                   title="Featured Series"
-                  movies={featuredSeries}
+                  movies={securedFeaturedSeries}
                 />
               )}
               
-              {recentReleases.length > 0 && (
+              {securedRecentReleases.length > 0 && (
                 <ContentSlider
                   title="Recent Releases"
-                  movies={recentReleases}
+                  movies={securedRecentReleases}
                 />
               )}
             </>
