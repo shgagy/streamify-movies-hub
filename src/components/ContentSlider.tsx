@@ -39,9 +39,13 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   const scrollToSlide = useCallback((index: number) => {
     if (!sliderRef.current) return;
     
-    // Ensure index is within bounds
-    const boundedIndex = Math.max(0, Math.min(index, totalSlides - 1));
-    setActiveIndex(boundedIndex);
+    // Ensure index is within bounds - for wide screens, we need to limit the maximum index
+    // to prevent scrolling beyond content boundaries
+    const maxSafeIndex = isMdUp 
+      ? Math.max(0, Math.min(index, totalSlides - 2)) 
+      : Math.max(0, Math.min(index, totalSlides - 1));
+    
+    setActiveIndex(maxSafeIndex);
     
     // Calculate the element width including gap
     const itemElement = sliderRef.current.querySelector('.flex-none');
@@ -51,7 +55,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     const gapWidth = 16; // Our fixed gap between items
     
     // Calculate scroll position based on index
-    const scrollPos = boundedIndex * (itemWidth + gapWidth) * itemsPerPage;
+    const scrollPos = maxSafeIndex * (itemWidth + gapWidth) * itemsPerPage;
     
     // Perform the smooth scroll
     sliderRef.current.scrollTo({
@@ -59,8 +63,8 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
       behavior: 'smooth'
     });
     
-    console.log(`Scrolled to slide ${boundedIndex} for "${title}" slider, total slides: ${totalSlides}`);
-  }, [itemsPerPage, title, totalSlides]);
+    console.log(`Scrolled to slide ${maxSafeIndex} for "${title}" slider, total slides: ${totalSlides}`);
+  }, [itemsPerPage, title, totalSlides, isMdUp]);
 
   // Calculate the total number of slides
   const calculateTotalSlides = useCallback(() => {
@@ -139,17 +143,22 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     if (!autoPlay || totalSlides <= 1) return;
     
     const autoPlayTimer = setInterval(() => {
-      const nextIndex = (activeIndex + 1) % totalSlides;
+      // For wide screens, we want to avoid going to the last slide
+      const maxIndex = isMdUp ? totalSlides - 2 : totalSlides - 1;
+      const nextIndex = activeIndex < maxIndex ? activeIndex + 1 : 0;
       scrollToSlide(nextIndex);
     }, interval);
     
     return () => clearInterval(autoPlayTimer);
-  }, [activeIndex, autoPlay, interval, scrollToSlide, totalSlides]);
+  }, [activeIndex, autoPlay, interval, scrollToSlide, totalSlides, isMdUp]);
 
   // Handle manual dot navigation
   const handleDotClick = (index: number) => {
     scrollToSlide(index);
   };
+
+  // Calculate visible dots based on screen size
+  const visibleDotCount = isMdUp ? Math.max(0, totalSlides - 1) : totalSlides;
 
   return (
     <div className="my-8">
@@ -199,11 +208,11 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             ))}
           </div>
 
-          {/* Dot Navigation */}
-          {totalSlides > 1 && (
+          {/* Dot Navigation - Adjusted to not show the last dot on wide screens */}
+          {visibleDotCount > 1 && (
             <div className="flex justify-center mt-4">
               <div className="flex items-center gap-2">
-                {Array.from({ length: totalSlides }).map((_, index) => (
+                {Array.from({ length: visibleDotCount }).map((_, index) => (
                   <button
                     key={index}
                     onClick={() => handleDotClick(index)}
