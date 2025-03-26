@@ -152,14 +152,6 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     return () => clearInterval(autoPlayTimer);
   }, [activeIndex, autoPlay, interval, scrollToSlide, totalSlides, isMdUp]);
 
-  // Handle manual dot navigation
-  const handleDotClick = (index: number) => {
-    scrollToSlide(index);
-  };
-
-  // Calculate visible dots based on screen size
-  const visibleDotCount = isMdUp ? Math.max(0, totalSlides - 1) : totalSlides;
-
   return (
     <div className="my-8">
       <div className="page-container">
@@ -207,26 +199,6 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
               </div>
             ))}
           </div>
-
-          {/* Dot Navigation - Adjusted to not show the last dot on wide screens */}
-          {visibleDotCount > 1 && (
-            <div className="flex justify-center mt-4">
-              <div className="flex items-center gap-2">
-                {Array.from({ length: visibleDotCount }).map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleDotClick(index)}
-                    className={`transition-all duration-300 ${
-                      index === activeIndex
-                        ? "bg-primary w-8 h-2.5 rounded-full"
-                        : "bg-white/30 hover:bg-white/50 w-2.5 h-2.5 rounded-full"
-                    }`}
-                    aria-label={`Go to slide ${index + 1}`}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     </div>
