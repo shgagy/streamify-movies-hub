@@ -1,3 +1,4 @@
+
 import React, { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Movie } from "@/lib/mockData";
@@ -83,10 +84,15 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
                 className={cn(
                   "flex-none animate-fade-in",
                   layout === "backdrop" ? "first:pl-0 last:pr-8" : "",
-                  isMdUp ? "w-auto" : "w-[28.5%]"
+                  isMdUp ? "w-auto" : ""
                 )}
                 style={{
-                  minWidth: isMdUp ? (layout === "poster" ? "180px" : "320px") : (layout === "poster" ? "110px" : "200px")
+                  minWidth: isMdUp 
+                    ? (layout === "poster" ? "180px" : "320px") 
+                    : (layout === "poster" ? "28%" : "70%"),
+                  maxWidth: isMdUp
+                    ? (layout === "poster" ? "220px" : "400px")
+                    : (layout === "poster" ? "28%" : "70%")
                 }}
               >
                 <MovieCard movie={movie} layout={layout} size={isMdUp ? "md" : "sm"} />
