@@ -7,6 +7,7 @@ import Hero from "@/components/Hero";
 import ContentSlider from "@/components/ContentSlider";
 import Welcome from "@/components/Welcome";
 import { fetchTrendingMovies, fetchPopularMovies, fetchAllMovies } from "@/services/api";
+import { Movie } from "@/lib/mockData";
 
 const Index: React.FC = () => {
   // Fetch trending, popular, and all movies
@@ -27,7 +28,7 @@ const Index: React.FC = () => {
 
   // Create a sample of recent releases (using all movies, sorted by releaseYear)
   const recentReleases = [...allMovies]
-    .sort((a, b) => b.releaseYear - a.releaseYear)
+    .sort((a: Movie, b: Movie) => b.releaseYear - a.releaseYear)
     .slice(0, 10);
 
   return (

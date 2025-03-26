@@ -16,7 +16,7 @@ const MyList: React.FC = () => {
   const { user, userLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Fetch the user's list from MongoDB when the user is logged in
+  // Fetch the user's list when the user is logged in
   useEffect(() => {
     const fetchList = async () => {
       if (!user) {

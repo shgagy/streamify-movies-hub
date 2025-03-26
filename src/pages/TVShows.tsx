@@ -7,7 +7,6 @@ import MovieCard from "@/components/MovieCard";
 import GenreFilter from "@/components/GenreFilter";
 import { fetchAllTVShows, fetchTVShowsByGenre, fetchAllGenres } from "@/services/api";
 import { TVShow } from "@/lib/mockData";
-import { TVShowDocument } from "@/services/mongodb/models/types";
 
 const TVShows: React.FC = () => {
   const [selectedGenreId, setSelectedGenreId] = useState<string | null>(null);
@@ -67,9 +66,9 @@ const TVShows: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-                {tvShows.map((tvShow: TVShowDocument) => (
+                {tvShows.map((tvShow: TVShow) => (
                   <div key={tvShow.id} className="animate-fade-in">
-                    <MovieCard movie={tvShow as unknown as TVShow} layout="poster" />
+                    <MovieCard movie={tvShow} layout="poster" />
                   </div>
                 ))}
               </div>
