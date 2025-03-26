@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -165,7 +166,7 @@ const MovieDetail: React.FC = () => {
           <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-gradient-to-t from-streamify-black via-streamify-black/90 to-transparent z-10" />
             <div className="absolute inset-0 bg-gradient-to-r from-streamify-black/90 to-transparent z-10" />
-            <div className="absolute inset-0 bg-gradient-to-b from-streamify-black to-transparent/0 z-20 h-24" />
+            <div className="absolute inset-0 bg-gradient-to-b from-streamify-black to-transparent/0 z-20 h-36" />
             <img
               src={movie.backdropUrl}
               alt={movie.title}
@@ -180,10 +181,10 @@ const MovieDetail: React.FC = () => {
             <ArrowLeft className="w-6 h-6" />
           </button>
 
-          <div className="relative z-20 flex items-end h-full page-container pb-16 pt-20">
-            <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-center md:items-start w-full max-w-full overflow-hidden mt-4 md:mt-8">
+          <div className="relative z-20 flex items-end h-full page-container pb-16 pt-36">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-center md:items-start w-full max-w-full overflow-hidden mt-8 md:mt-10">
               {isMdUp && (
-                <div className="w-40 md:w-56 overflow-hidden rounded-md shadow-lg animate-fade-in shrink-0">
+                <div className="w-36 md:w-48 overflow-hidden rounded-md shadow-lg animate-fade-in shrink-0">
                   <img
                     src={movie.posterUrl}
                     alt={movie.title}
@@ -204,7 +205,7 @@ const MovieDetail: React.FC = () => {
                   ))}
                 </div>
 
-                <h1 className="text-2xl md:text-3xl font-bold mb-2 md:mb-3 text-center md:text-left truncate">
+                <h1 className="text-xl md:text-2xl font-bold mb-2 md:mb-3 text-center md:text-left truncate">
                   {movie.title}
                 </h1>
 
@@ -220,7 +221,7 @@ const MovieDetail: React.FC = () => {
                   </span>
                 </div>
 
-                <p className="text-white/90 mb-4 md:mb-5 text-center md:text-left text-sm line-clamp-3 md:line-clamp-2">
+                <p className="text-white/90 mb-4 md:mb-5 text-center md:text-left text-xs md:text-sm line-clamp-3 md:line-clamp-2">
                   {movie.description}
                 </p>
 
@@ -228,12 +229,12 @@ const MovieDetail: React.FC = () => {
                   <>
                     <div className="mb-2 md:mb-3">
                       <p className="text-white/60 mb-0.5 text-xs">Director:</p>
-                      <p className="font-medium truncate text-sm">{movie.director}</p>
+                      <p className="font-medium truncate text-xs">{movie.director}</p>
                     </div>
 
                     <div className="mb-4 md:mb-6">
                       <p className="text-white/60 mb-0.5 text-xs">Cast:</p>
-                      <p className="font-medium line-clamp-1 text-sm">{movie.cast.join(", ")}</p>
+                      <p className="font-medium line-clamp-1 text-xs">{movie.cast.join(", ")}</p>
                     </div>
                   </>
                 )}
