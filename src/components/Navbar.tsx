@@ -8,8 +8,14 @@ import { Button } from "@/components/ui/button";
 import SearchBar from "./SearchBar";
 import ProfileButton from "./ProfileButton";
 import { useAuth } from "@/contexts/AuthContext";
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -60,10 +66,31 @@ const Navbar = () => {
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
   const toggleSearch = () => setSearchOpen(!searchOpen);
 
-  // Helper function to determine if a link is active
-  const isActive = (path: string) => {
+  // Check if path is active
+  const isActive = (path) => {
     return location.pathname === path;
   };
+
+  // Custom nav link with animation
+  const NavLink = ({ to, children }) => (
+    <Link 
+      to={to} 
+      className={cn(
+        "nav-link flex flex-col items-center justify-center transition-all duration-300 px-4 py-1 mx-1 relative",
+        isActive(to) && "font-medium text-white"
+      )}
+    >
+      {children}
+      <span 
+        className={cn(
+          "absolute bottom-0 left-1/2 transform -translate-x-1/2 h-1.5 w-1.5 rounded-full transition-all duration-300",
+          isActive(to) 
+            ? "bg-primary scale-100" 
+            : "bg-transparent scale-0"
+        )}
+      />
+    </Link>
+  );
 
   return (
     <header
@@ -85,70 +112,25 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1">
-          <NavigationMenu>
+          <div className="relative px-2 py-1 bg-streamify-darkgray/60 backdrop-blur-sm rounded-full flex items-center">
+            <NavLink to="/">Home</NavLink>
+            <NavLink to="/movies">Movies</NavLink>
+            <NavLink to="/tv-shows">TV Shows</NavLink>
+            <NavLink to="/my-list">
+              My List {myListCount > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 bg-primary rounded-full text-xs absolute -top-1 -right-1">
+                  {myListCount}
+                </span>
+              )}
+            </NavLink>
+          </div>
+
+          <NavigationMenu className="ml-2">
             <NavigationMenuList>
               <NavigationMenuItem>
-                <Link to="/" className={cn(
-                  "nav-link flex items-center",
-                  isActive("/") && "text-primary"
-                )}>
-                  <span>Home</span>
-                  {isActive("/") && (
-                    <span className="ml-2 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-                  )}
-                </Link>
-              </NavigationMenuItem>
-              
-              <NavigationMenuItem>
-                <Link to="/movies" className={cn(
-                  "nav-link flex items-center",
-                  isActive("/movies") && "text-primary"
-                )}>
-                  <span>Movies</span>
-                  {isActive("/movies") && (
-                    <span className="ml-2 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-                  )}
-                </Link>
-              </NavigationMenuItem>
-              
-              <NavigationMenuItem>
-                <Link to="/tv-shows" className={cn(
-                  "nav-link flex items-center",
-                  isActive("/tv-shows") && "text-primary"
-                )}>
-                  <span>TV Shows</span>
-                  {isActive("/tv-shows") && (
-                    <span className="ml-2 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-                  )}
-                </Link>
-              </NavigationMenuItem>
-              
-              <NavigationMenuItem>
-                <Link to="/my-list" className={cn(
-                  "nav-link flex items-center",
-                  isActive("/my-list") && "text-primary"
-                )}>
-                  <span>My List</span>
-                  {myListCount > 0 && (
-                    <span className="ml-1 px-1.5 py-0.5 bg-primary rounded-full text-xs">{myListCount}</span>
-                  )}
-                  {isActive("/my-list") && (
-                    <span className="ml-2 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-                  )}
-                </Link>
-              </NavigationMenuItem>
-              
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className={cn(
-                  "bg-transparent hover:bg-transparent focus:bg-transparent",
-                  isActive("/genre") && "text-primary"
-                )}>
-                  Genres {isActive("/genre") && (
-                    <span className="ml-2 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
-                  )}
-                </NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-streamify-darkgray/60 text-white/80">Genres</NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <div className="grid grid-cols-3 gap-2 p-4 w-[500px] bg-streamify-darkgray">
+                  <div className="grid grid-cols-3 gap-2 p-4 w-[500px] bg-streamify-darkgray rounded-md animate-fade-in">
                     {genres.map((genre) => (
                       <Link
                         key={genre.id}
@@ -180,23 +162,14 @@ const Navbar = () => {
           <div className="hidden md:flex items-center ml-4">
             <Link
               to="/notifications"
-              className={cn(
-                "p-2 text-white/80 hover:text-white transition-colors relative",
-                isActive("/notifications") && "text-primary"
-              )}
+              className="p-2 text-white/80 hover:text-white transition-colors"
               aria-label="Notifications"
             >
               <Bell className="w-5 h-5" />
-              {isActive("/notifications") && (
-                <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full"></span>
-              )}
             </Link>
             <Link
               to="/my-list"
-              className={cn(
-                "p-2 text-white/80 hover:text-white transition-colors relative",
-                isActive("/my-list") && "text-primary"
-              )}
+              className="p-2 text-white/80 hover:text-white transition-colors relative"
               aria-label="My List"
             >
               <Bookmark className="w-5 h-5" />
@@ -204,9 +177,6 @@ const Navbar = () => {
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-xs flex items-center justify-center">
                   {myListCount}
                 </span>
-              )}
-              {isActive("/my-list") && (
-                <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full"></span>
               )}
             </Link>
             
@@ -230,78 +200,48 @@ const Navbar = () => {
             <nav className="flex flex-col p-5 space-y-4">
               <Link
                 to="/"
-                className={cn(
-                  "flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md",
-                  isActive("/") && "bg-streamify-gray"
-                )}
+                className="flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Home className="w-5 h-5" />
                 <span>Home</span>
-                {isActive("/") && (
-                  <span className="ml-auto w-2 h-2 bg-primary rounded-full"></span>
-                )}
               </Link>
               <Link
                 to="/movies"
-                className={cn(
-                  "flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md",
-                  isActive("/movies") && "bg-streamify-gray"
-                )}
+                className="flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Film className="w-5 h-5" />
                 <span>Movies</span>
-                {isActive("/movies") && (
-                  <span className="ml-auto w-2 h-2 bg-primary rounded-full"></span>
-                )}
               </Link>
               <Link
                 to="/tv-shows"
-                className={cn(
-                  "flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md",
-                  isActive("/tv-shows") && "bg-streamify-gray"
-                )}
+                className="flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Film className="w-5 h-5" />
                 <span>TV Shows</span>
-                {isActive("/tv-shows") && (
-                  <span className="ml-auto w-2 h-2 bg-primary rounded-full"></span>
-                )}
               </Link>
               <Link
                 to="/my-list"
-                className={cn(
-                  "flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md",
-                  isActive("/my-list") && "bg-streamify-gray"
-                )}
+                className="flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Bookmark className="w-5 h-5" />
                 <span>My List</span>
                 {myListCount > 0 && (
-                  <span className="ml-1 px-1.5 py-0.5 bg-primary rounded-full text-xs">
+                  <span className="ml-auto px-1.5 py-0.5 bg-primary rounded-full text-xs">
                     {myListCount}
                   </span>
-                )}
-                {isActive("/my-list") && (
-                  <span className="ml-auto w-2 h-2 bg-primary rounded-full"></span>
                 )}
               </Link>
               <Link
                 to="/explore"
-                className={cn(
-                  "flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md",
-                  isActive("/explore") && "bg-streamify-gray"
-                )}
+                className="flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Compass className="w-5 h-5" />
                 <span>Explore</span>
-                {isActive("/explore") && (
-                  <span className="ml-auto w-2 h-2 bg-primary rounded-full"></span>
-                )}
               </Link>
               
               <div className="border-t border-streamify-gray my-2 pt-2">
@@ -311,16 +251,10 @@ const Navbar = () => {
                     <Link
                       key={genre.id}
                       to={`/genre/${genre.id}`}
-                      className={cn(
-                        "px-3 py-2 hover:bg-streamify-gray rounded-md transition-colors flex items-center justify-between",
-                        location.pathname === `/genre/${genre.id}` && "bg-streamify-gray"
-                      )}
+                      className="px-3 py-2 hover:bg-streamify-gray rounded-md transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <span>{genre.name}</span>
-                      {location.pathname === `/genre/${genre.id}` && (
-                        <span className="w-2 h-2 bg-primary rounded-full"></span>
-                      )}
+                      {genre.name}
                     </Link>
                   ))}
                 </div>
