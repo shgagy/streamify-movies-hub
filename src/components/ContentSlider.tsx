@@ -12,7 +12,6 @@ interface ContentSliderProps {
   layout?: "poster" | "backdrop";
   autoPlay?: boolean;
   interval?: number;
-  useDotNavigation?: boolean;
   showArrows?: boolean;
 }
 
@@ -22,7 +21,6 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   layout = "poster",
   autoPlay = false,
   interval = 8000,
-  useDotNavigation = false, // Default changed to false
   showArrows = false,
 }) => {
   const { isMdUp, width } = useResponsive();
@@ -237,26 +235,6 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             </button>
           )}
         </div>
-        
-        {/* Dot Navigation - Only shown when useDotNavigation is true */}
-        {useDotNavigation && totalSlides > 0 && (
-          <div className="flex justify-center mt-4">
-            <div className="flex items-center gap-2">
-              {Array.from({ length: totalSlides }).map((_, index) => (
-                <button 
-                  key={index} 
-                  onClick={() => scrollToSlide(index)} 
-                  className={`transition-all duration-300 ${
-                    index === activeIndex 
-                      ? "bg-primary w-8 h-2.5 rounded-full" 
-                      : "bg-white/30 hover:bg-white/50 w-2.5 h-2.5 rounded-full"
-                  }`} 
-                  aria-label={`Go to slide ${index + 1}`} 
-                />
-              ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
