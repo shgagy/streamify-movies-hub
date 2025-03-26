@@ -10,12 +10,14 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { fetchMovieById, fetchAllMovies } from "@/services/api";
 import { toast } from "sonner";
+import { useResponsive } from "@/hooks/useResponsive";
 
 const MovieDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isInMyList, setIsInMyList] = useState(false);
+  const { isMdUp } = useResponsive();
 
   // Fetch movie details
   const { data: movie, isLoading: isLoadingMovie, error } = useQuery({
@@ -163,7 +165,7 @@ const MovieDetail: React.FC = () => {
     <div className="min-h-screen bg-streamify-black text-white">
       <Navbar />
 
-      <main className="pt-16">
+      <main className="pt-20">
         {/* Hero Section with Movie Details */}
         <div className="relative h-[80vh] w-full overflow-hidden">
           {/* Background Image with Gradient Overlay */}
@@ -180,41 +182,43 @@ const MovieDetail: React.FC = () => {
           {/* Back Button */}
           <button
             onClick={() => navigate(-1)}
-            className="absolute top-4 left-4 z-30 p-2 bg-black/50 backdrop-blur-sm rounded-full hover:bg-black/70 transition-colors"
+            className="absolute top-8 left-4 z-30 p-2 bg-black/50 backdrop-blur-sm rounded-full hover:bg-black/70 transition-colors"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
 
           {/* Content */}
-          <div className="relative z-20 flex items-end h-full page-container pb-16">
-            <div className="flex flex-col md:flex-row gap-8 items-start">
-              {/* Movie Poster */}
-              <div className="hidden md:block w-64 overflow-hidden rounded-md shadow-lg animate-fade-in">
-                <img
-                  src={movie.posterUrl}
-                  alt={movie.title}
-                  className="w-full h-auto"
-                />
-              </div>
+          <div className="relative z-20 flex items-end h-full page-container pb-16 pt-8">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center md:items-start w-full">
+              {/* Movie Poster - Only show on medium screens and up */}
+              {isMdUp && (
+                <div className="w-48 md:w-64 overflow-hidden rounded-md shadow-lg animate-fade-in shrink-0">
+                  <img
+                    src={movie.posterUrl}
+                    alt={movie.title}
+                    className="w-full h-auto"
+                  />
+                </div>
+              )}
 
-              {/* Movie Info */}
+              {/* Movie Info - More compact on mobile */}
               <div className="max-w-2xl animate-fade-in">
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {movie.genres.map((genre, index) => (
+                <div className="flex flex-wrap gap-2 mb-3 md:mb-4 justify-center md:justify-start">
+                  {movie.genres.slice(0, isMdUp ? 5 : 3).map((genre, index) => (
                     <span
                       key={index}
-                      className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-sm"
+                      className="px-2 md:px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-xs md:text-sm"
                     >
                       {genre}
                     </span>
                   ))}
                 </div>
 
-                <h1 className="text-4xl md:text-5xl font-bold mb-4">
+                <h1 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4 text-center md:text-left">
                   {movie.title}
                 </h1>
 
-                <div className="flex items-center text-sm mb-6 text-white/80">
+                <div className="flex items-center text-sm mb-4 md:mb-6 text-white/80 justify-center md:justify-start">
                   <span className="mr-4">{movie.releaseYear}</span>
                   <span className="mr-4 flex items-center">
                     <Star className="w-4 h-4 text-yellow-500 mr-1" fill="currentColor" />
@@ -226,41 +230,45 @@ const MovieDetail: React.FC = () => {
                   </span>
                 </div>
 
-                <p className="text-white/90 mb-8">
+                <p className="text-white/90 mb-6 text-center md:text-left line-clamp-3 md:line-clamp-none">
                   {movie.description}
                 </p>
 
-                <div className="mb-4">
-                  <p className="text-white/60 mb-1">Director:</p>
-                  <p className="font-medium">{movie.director}</p>
-                </div>
+                {isMdUp && (
+                  <>
+                    <div className="mb-3 md:mb-4">
+                      <p className="text-white/60 mb-1">Director:</p>
+                      <p className="font-medium">{movie.director}</p>
+                    </div>
 
-                <div className="mb-8">
-                  <p className="text-white/60 mb-1">Cast:</p>
-                  <p className="font-medium">{movie.cast.join(", ")}</p>
-                </div>
+                    <div className="mb-6 md:mb-8">
+                      <p className="text-white/60 mb-1">Cast:</p>
+                      <p className="font-medium">{movie.cast.join(", ")}</p>
+                    </div>
+                  </>
+                )}
 
-                <div className="flex flex-wrap gap-4">
+                <div className="flex flex-wrap gap-3 md:gap-4 justify-center md:justify-start">
                   <Button
-                    className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md flex items-center space-x-2"
+                    className="bg-primary hover:bg-primary/90 text-white px-4 md:px-6 py-2 md:py-3 rounded-md flex items-center space-x-2"
                   >
-                    <Play className="w-5 h-5" />
+                    <Play className="w-4 h-4 md:w-5 md:h-5" />
                     <span>Play</span>
                   </Button>
 
                   <Button
                     variant="outline"
-                    className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white px-6 py-3 rounded-md flex items-center space-x-2"
+                    className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white px-4 md:px-6 py-2 md:py-3 rounded-md flex items-center space-x-2"
                     onClick={handleMyListToggle}
                   >
                     {isInMyList ? (
                       <>
-                        <Check className="w-5 h-5" />
+                        <Check className="w-4 h-4 md:w-5 md:h-5" />
                         <span>In My List</span>
                       </>
                     ) : (
                       <>
-                        <Plus className="w-5 h-5" />
+                        <Plus className="w-4 h-4 md:w-5 md:h-5" />
                         <span>My List</span>
                       </>
                     )}
@@ -268,9 +276,9 @@ const MovieDetail: React.FC = () => {
 
                   <Button
                     variant="outline"
-                    className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white p-3 rounded-full"
+                    className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white p-2 md:p-3 rounded-full"
                   >
-                    <Share className="w-5 h-5" />
+                    <Share className="w-4 h-4 md:w-5 md:h-5" />
                   </Button>
                 </div>
               </div>
@@ -280,8 +288,8 @@ const MovieDetail: React.FC = () => {
 
         {/* Movie Trailer Section */}
         {movie.trailerUrl && (
-          <div className="py-16 page-container">
-            <h2 className="text-2xl font-bold mb-6">Trailer</h2>
+          <div className="py-10 md:py-16 page-container">
+            <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Trailer</h2>
             <div className="aspect-video rounded-lg overflow-hidden bg-streamify-gray">
               <iframe
                 width="100%"
