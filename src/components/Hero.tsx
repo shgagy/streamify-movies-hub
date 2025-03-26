@@ -1,16 +1,14 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play, Plus, Info, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, Plus, Info } from "lucide-react";
 import { Movie } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import { useMyList } from "@/contexts/MyListContext";
 import { 
   Carousel,
   CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext
+  CarouselItem
 } from "@/components/ui/carousel";
 
 interface HeroProps {
@@ -126,7 +124,7 @@ const Hero: React.FC<HeroProps> = ({ movies }) => {
         ))}
       </CarouselContent>
 
-      {/* Custom Navigation Controls */}
+      {/* Dot Navigation Controls */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex items-center gap-4">
         <div className="flex items-center gap-2">
           {movies.map((_, index) => (
@@ -143,10 +141,6 @@ const Hero: React.FC<HeroProps> = ({ movies }) => {
           ))}
         </div>
       </div>
-      
-      {/* Previous/Next Buttons */}
-      <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/10 hover:bg-white/20 backdrop-blur-sm border-0 h-12 w-12 md:h-16 md:w-16" />
-      <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/10 hover:bg-white/20 backdrop-blur-sm border-0 h-12 w-12 md:h-16 md:w-16" />
     </Carousel>
   );
 };
