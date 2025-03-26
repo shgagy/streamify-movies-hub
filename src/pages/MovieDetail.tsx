@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Play, Star, Plus, Check, Share, ArrowLeft, Clock } from "lucide-react";
+import { Play, Star, Plus, Check, Share, Clock } from "lucide-react";
 import { Movie } from "@/lib/mockData";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -11,6 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { fetchMovieById, fetchAllMovies } from "@/services/api";
 import { toast } from "sonner";
 import { useResponsive } from "@/hooks/useResponsive";
+
 const MovieDetail: React.FC = () => {
   const {
     id
@@ -40,6 +41,7 @@ const MovieDetail: React.FC = () => {
     queryKey: ['movies'],
     queryFn: fetchAllMovies
   });
+
   useEffect(() => {
     if (user && movie) {
       try {
@@ -59,7 +61,9 @@ const MovieDetail: React.FC = () => {
       setIsInMyList(false);
     }
   }, [user, movie]);
+
   const similarMovies = movie ? allMovies.filter((m: Movie) => m.id !== movie.id && m.genres.some((genre: string) => movie.genres.includes(genre))).slice(0, 10) : [];
+
   const addToMyList = (movie: Movie) => {
     if (!user) {
       toast.error("Please sign in to add to your list");
@@ -85,6 +89,7 @@ const MovieDetail: React.FC = () => {
       toast.error("Failed to add to your list");
     }
   };
+
   const removeFromMyList = (movieId: string) => {
     if (!user) {
       toast.error("Please sign in to modify your list");
@@ -106,6 +111,7 @@ const MovieDetail: React.FC = () => {
       toast.error("Failed to remove from your list");
     }
   };
+
   const handleMyListToggle = () => {
     if (!movie) return;
     if (isInMyList) {
@@ -114,6 +120,7 @@ const MovieDetail: React.FC = () => {
       addToMyList(movie);
     }
   };
+
   if (isLoadingMovie) {
     return <div className="min-h-screen bg-streamify-black text-white">
         <Navbar />
@@ -125,6 +132,7 @@ const MovieDetail: React.FC = () => {
         </div>
       </div>;
   }
+
   if (error || !movie) {
     return <div className="min-h-screen bg-streamify-black text-white">
         <Navbar />
@@ -139,6 +147,7 @@ const MovieDetail: React.FC = () => {
         </div>
       </div>;
   }
+
   return <div className="min-h-screen bg-streamify-black text-white">
       <Navbar />
 
@@ -150,10 +159,6 @@ const MovieDetail: React.FC = () => {
             <div className="absolute inset-0 bg-gradient-to-b from-streamify-black to-transparent/0 z-20 h-36" />
             <img src={movie.backdropUrl} alt={movie.title} className="w-full h-full object-cover object-center" />
           </div>
-
-          <button onClick={() => navigate(-1)} className="absolute top-16 left-4 z-30 p-2 bg-black/50 backdrop-blur-sm rounded-full hover:bg-black/70 transition-colors">
-            <ArrowLeft className="w-6 h-6" />
-          </button>
 
           <div className="relative z-20 flex items-end h-full page-container pb-16 pt-36">
             <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-center md:items-start w-full max-w-full overflow-hidden mt-8 md:mt-10">
@@ -242,4 +247,5 @@ const MovieDetail: React.FC = () => {
       <Footer />
     </div>;
 };
+
 export default MovieDetail;
