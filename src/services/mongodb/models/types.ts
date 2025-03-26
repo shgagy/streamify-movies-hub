@@ -40,7 +40,7 @@ export interface TVShowDocument extends Document {
   rating: number;
   genres: string[];
   creator: string;
-  director: string; // Added this field to match TVShow interface
+  director: string; // Required field to match TVShow interface
   cast: string[];
   trailerUrl?: string;
   
@@ -55,14 +55,16 @@ export interface TVShowDocument extends Document {
   featured?: boolean;
 }
 
+export interface UserListItem {
+  id: string;
+  type: 'movie' | 'tvshow';
+  addedAt: Date;
+}
+
 export interface UserListDocument extends Document {
   _id?: ObjectId;
   userId: string;
-  items: Array<{
-    id: string;
-    type: 'movie' | 'tvshow';
-    addedAt: Date;
-  }>;
+  items: UserListItem[];
 }
 
 export interface UserDocument extends Document {

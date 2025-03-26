@@ -76,6 +76,7 @@ async function insertTVShows() {
     rating: show.rating,
     genres: show.genres,
     creator: show.creator,
+    director: show.director || '', // Ensure the director field is provided
     cast: show.cast,
     trailerUrl: show.trailerUrl,
     // UI-specific fields

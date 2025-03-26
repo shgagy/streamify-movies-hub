@@ -1,5 +1,4 @@
 
-import { ObjectId } from 'mongodb';
 import { DatabaseService } from '../dbService';
 import { UserDocument } from '../models/types';
 
@@ -18,17 +17,18 @@ class UserService {
     return this.userDb.findOne({ email });
   }
 
-  async createUser(user: Omit<UserDocument, '_id'>): Promise<string | null> {
-    const now = new Date();
-    
-    // Make sure we have all required fields
-    if (!user.id || !user.email) {
-      throw new Error('User id and email are required');
+  async createUser(userData: { id: string; email: string; name?: string; imageUrl?: string }): Promise<string | null> {
+    // Validate required fields
+    if (!userData.id || !userData.email) {
+      throw new Error("User id and email are required");
     }
     
-    // Ensure all required properties are present
+    const now = new Date();
     const newUser: UserDocument = {
-      ...user,
+      id: userData.id,
+      email: userData.email,
+      name: userData.name,
+      imageUrl: userData.imageUrl,
       createdAt: now,
       updatedAt: now
     };
@@ -36,17 +36,17 @@ class UserService {
     return this.userDb.insertOne(newUser);
   }
 
-  async updateUser(id: string, update: Partial<UserDocument>): Promise<boolean> {
-    const updateData = {
-      ...update,
-      updatedAt: new Date()
-    };
-    
-    return this.userDb.updateOne({ id }, { $set: updateData });
-  }
-
-  async deleteUser(id: string): Promise<boolean> {
-    return this.userDb.deleteOne({ id });
+  async updateUser(id: string, updateData: Partial<UserDocument>): Promise<boolean> {
+    const now = new Date();
+    return this.userDb.updateOne(
+      { id },
+      { 
+        $set: { 
+          ...updateData,
+          updatedAt: now 
+        } 
+      }
+    );
   }
 }
 

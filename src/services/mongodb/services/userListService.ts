@@ -1,7 +1,7 @@
 
 import { ObjectId } from 'mongodb';
 import { DatabaseService } from '../dbService';
-import { UserListDocument, MovieDocument, TVShowDocument } from '../models/types';
+import { UserListDocument, MovieDocument, TVShowDocument, UserListItem } from '../models/types';
 import { movieService } from './movieService';
 import { tvShowService } from './tvShowService';
 
@@ -28,7 +28,7 @@ class UserListService {
       }
       
       // Add to existing list
-      const newItem = { 
+      const newItem: UserListItem = { 
         id: itemId, 
         type: itemType, 
         addedAt: new Date() 
