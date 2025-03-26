@@ -30,13 +30,16 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [forceRender, setForceRender] = useState(0);
 
   // Calculate how many items to show at once based on layout and screen size
   const itemsPerPage = isMdUp 
     ? (layout === "poster" ? 5 : 3) 
     : (layout === "poster" ? 3 : 1);
 
-  const totalSlides = Math.max(Math.ceil(movies.length / itemsPerPage) || 1, 1);
+  // Force at least 1 slide, even with empty movie lists
+  const totalMovies = movies.length || 1;
+  const totalSlides = Math.max(Math.ceil(totalMovies / itemsPerPage), 1);
 
   const scrollToSlide = useCallback((index: number) => {
     if (!sliderRef.current) return;
@@ -92,6 +95,16 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     
     // Force recalculation of active index on mount and resize
     const handleResize = () => {
+      // Force component to re-render on resize to correctly calculate itemsPerPage
+      setForceRender(prev => prev + 1);
+      
+      // Reset to the first slide when resizing to avoid out-of-bounds issues
+      setActiveIndex(0);
+      if (sliderRef.current) {
+        sliderRef.current.scrollLeft = 0;
+      }
+      
+      // Update dot navigation state
       handleScroll();
     };
     
@@ -102,7 +115,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [movies.length, itemsPerPage]); // Re-run when movies or itemsPerPage changes
+  }, [movies.length, itemsPerPage, forceRender]); // Re-run when movies, itemsPerPage, or forceRender changes
 
   // Auto-play functionality
   useEffect(() => {
@@ -115,6 +128,11 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     
     return () => clearInterval(autoPlayTimer);
   }, [activeIndex, autoPlay, interval, scrollToSlide, totalSlides]);
+
+  // Debugging effect to help track dot navigation state
+  useEffect(() => {
+    console.log(`${title} slider: ${totalSlides} total slides, ${activeIndex} active index, ${itemsPerPage} items per page`);
+  }, [title, totalSlides, activeIndex, itemsPerPage, forceRender]);
 
   return (
     <div className="my-8">
@@ -192,11 +210,11 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           )}
         </div>
         
-        {/* Dot Navigation Controls - only shown if useDotNavigation is true */}
-        {useDotNavigation && totalSlides > 1 && (
+        {/* Dot Navigation Controls - always shown if enabled regardless of totalSlides */}
+        {useDotNavigation && (
           <div className="flex justify-center mt-4">
             <div className="flex items-center gap-2">
-              {Array.from({ length: totalSlides }).map((_, index) => (
+              {Array.from({ length: Math.max(totalSlides, 1) }).map((_, index) => (
                 <button 
                   key={index} 
                   onClick={() => scrollToSlide(index)} 
