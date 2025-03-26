@@ -39,18 +39,19 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   // Make sure we have at least one movie to display
   const totalMovies = Math.max(movies.length, 1);
   
-  // Fix: Correctly calculate total slides to ensure we have dots for large collections
-  const totalSlides = Math.ceil(totalMovies / itemsPerPage);
-
-  // Ensure we have at least one slide
-  const slidesToShow = Math.max(totalSlides, 1);
+  // Calculate total number of slides - Ensure we always have at least 2 slides for large number of movies
+  // by using Math.max to force at least 2 slides for collections that would otherwise only have 1
+  const totalSlides = Math.max(
+    Math.ceil(totalMovies / itemsPerPage),
+    totalMovies > itemsPerPage + 1 ? 2 : 1
+  );
 
   // Scroll to a specific slide by index
   const scrollToSlide = useCallback((index: number) => {
     if (!sliderRef.current) return;
     
     // Ensure index is within bounds
-    const boundedIndex = Math.max(0, Math.min(index, slidesToShow - 1));
+    const boundedIndex = Math.max(0, Math.min(index, totalSlides - 1));
     setActiveIndex(boundedIndex);
     
     // Calculate the element width including gap
@@ -70,7 +71,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     });
     
     console.log(`Scrolled to slide ${boundedIndex} for "${title}" slider`);
-  }, [itemsPerPage, title, slidesToShow]);
+  }, [itemsPerPage, title, totalSlides]);
 
   // Handle manual arrow navigation
   const scroll = (direction: "left" | "right") => {
@@ -102,7 +103,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     
     if (slideWidth > 0) {
       const newIndex = Math.round(scrollLeft / slideWidth);
-      if (newIndex !== activeIndex && newIndex < slidesToShow) {
+      if (newIndex !== activeIndex && newIndex < totalSlides) {
         setActiveIndex(newIndex);
       }
     }
@@ -136,23 +137,20 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
 
   // Auto-play functionality
   useEffect(() => {
-    if (!autoPlay || slidesToShow <= 1) return;
+    if (!autoPlay || totalSlides <= 1) return;
     
     const autoPlayTimer = setInterval(() => {
-      const nextIndex = (activeIndex + 1) % slidesToShow;
+      const nextIndex = (activeIndex + 1) % totalSlides;
       scrollToSlide(nextIndex);
     }, interval);
     
     return () => clearInterval(autoPlayTimer);
-  }, [activeIndex, autoPlay, interval, scrollToSlide, slidesToShow]);
+  }, [activeIndex, autoPlay, interval, scrollToSlide, totalSlides]);
 
-  // Enhanced debugging logs
+  // Log for debugging
   useEffect(() => {
-    console.log(`${title} slider: ${totalMovies} total movies, ${itemsPerPage} items per page, ${slidesToShow} slides to show, ${activeIndex} active index, width: ${width}px`);
-  }, [title, totalMovies, itemsPerPage, slidesToShow, activeIndex, width]);
-
-  // Check if we need to show dots (only when there are more movies than fit in one view)
-  const shouldShowDots = totalMovies > itemsPerPage;
+    console.log(`${title} slider: ${totalSlides} total slides, ${activeIndex} active index, ${itemsPerPage} items per page, width: ${width}px, totalMovies: ${totalMovies}`);
+  }, [title, totalSlides, activeIndex, itemsPerPage, width, totalMovies]);
 
   return (
     <div className="my-8">
@@ -231,11 +229,11 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           )}
         </div>
         
-        {/* Dot Navigation Controls - Always show dots when there are multiple pages needed */}
-        {useDotNavigation && shouldShowDots && (
+        {/* Dot Navigation Controls - Always show dots when there are multiple movies */}
+        {useDotNavigation && movies.length > itemsPerPage && (
           <div className="flex justify-center mt-4">
             <div className="flex items-center gap-2">
-              {Array.from({ length: slidesToShow }).map((_, index) => (
+              {Array.from({ length: totalSlides }).map((_, index) => (
                 <button 
                   key={index} 
                   onClick={() => scrollToSlide(index)} 
