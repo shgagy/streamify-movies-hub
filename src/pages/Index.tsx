@@ -70,12 +70,12 @@ const Index: React.FC = () => {
   // Featured series from TV shows
   const featuredSeries = popularTVShows.slice(0, 10);
 
-  // Replace external image URLs with local alternatives
+  // Replace external image URLs with local alternatives - ALWAYS use local placeholder
   const ensureWorkingImages = (movies: Movie[]): Movie[] => {
     return movies.map(movie => ({
       ...movie,
-      posterUrl: "/movie-placeholder.jpg",  // Use local placeholder for all images
-      backdropUrl: "/movie-placeholder.jpg" // Use local placeholder for all images
+      posterUrl: "/movie-placeholder.jpg",  // Always use local placeholder
+      backdropUrl: "/movie-placeholder.jpg" // Always use local placeholder
     }));
   };
 

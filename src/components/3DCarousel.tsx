@@ -1,7 +1,7 @@
 
-import React, { useRef, useMemo } from "react";
+import React, { useRef, useMemo, useState } from "react";
 import { useFrame } from "@react-three/fiber";
-import { Float, useTexture } from "@react-three/drei";
+import { Float } from "@react-three/drei";
 import * as THREE from "three";
 import { Movie } from "@/lib/mockData";
 
@@ -27,6 +27,10 @@ export const MovieItem = ({
   const theta = (index / totalItems) * Math.PI * 2;
   const x = radius * Math.sin(theta);
   const z = radius * Math.cos(theta);
+  
+  // State to track if texture is loaded
+  const [textureLoaded, setTextureLoaded] = useState(false);
+  const [texture, setTexture] = useState<THREE.Texture | null>(null);
   
   // Create a fallback texture
   const fallbackTexture = useMemo(() => {
@@ -76,41 +80,33 @@ export const MovieItem = ({
     return texture;
   }, [movie.title, movie.releaseYear]);
   
-  // Use fallback URL if remote image fails
-  const textureRef = useRef<THREE.Texture | null>(null);
-  
-  // First try the movie poster, if that fails try backdrop, if that fails use local placeholder
-  const imageUrl = movie.posterUrl || movie.backdropUrl || LOCAL_PLACEHOLDER;
-  
-  try {
-    // Load texture manually to handle errors properly
+  // Load texture only once on component mount
+  useMemo(() => {
+    // Always use local placeholder instead of remote URLs
     const textureLoader = new THREE.TextureLoader();
-    textureLoader.crossOrigin = '';
     
-    // Only load if we don't already have it
-    if (!textureRef.current) {
-      textureLoader.load(
-        imageUrl,
-        // On load success
-        (loadedTexture) => {
-          textureRef.current = loadedTexture;
-        },
-        // On progress
-        undefined,
-        // On error
-        (error) => {
-          console.warn(`Failed to load texture for ${movie.title}, using fallback`, error);
-          textureRef.current = fallbackTexture;
-        }
-      );
-    }
-  } catch (error) {
-    console.error('Error in texture loading:', error);
-    textureRef.current = fallbackTexture;
-  }
-  
-  // Use fallback until texture is loaded
-  const finalTexture = textureRef.current || fallbackTexture;
+    textureLoader.load(
+      LOCAL_PLACEHOLDER,
+      (loadedTexture) => {
+        loadedTexture.colorSpace = THREE.SRGBColorSpace;
+        setTexture(loadedTexture);
+        setTextureLoaded(true);
+      },
+      undefined,
+      (error) => {
+        console.warn(`Failed to load texture for ${movie.title}, using fallback`, error);
+        setTexture(fallbackTexture);
+        setTextureLoaded(true);
+      }
+    );
+    
+    // Return cleanup function
+    return () => {
+      if (texture) {
+        texture.dispose();
+      }
+    };
+  }, [movie.id, fallbackTexture]);
   
   // Rotation for active item
   useFrame(() => {
@@ -131,7 +127,7 @@ export const MovieItem = ({
         scale={active ? 1.2 : 0.8}
       >
         <boxGeometry args={[1.5, 2, 0.1]} />
-        <meshStandardMaterial map={finalTexture} />
+        <meshStandardMaterial map={textureLoaded ? texture || fallbackTexture : fallbackTexture} />
       </mesh>
     </Float>
   );
