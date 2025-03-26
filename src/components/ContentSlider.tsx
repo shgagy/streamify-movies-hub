@@ -89,10 +89,10 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
                 style={{
                   minWidth: isMdUp 
                     ? (layout === "poster" ? "180px" : "320px") 
-                    : (layout === "poster" ? "28%" : "70%"),
+                    : (layout === "poster" ? "24%" : "65%"),
                   maxWidth: isMdUp
                     ? (layout === "poster" ? "220px" : "400px")
-                    : (layout === "poster" ? "28%" : "70%")
+                    : (layout === "poster" ? "24%" : "65%")
                 }}
               >
                 <MovieCard movie={movie} layout={layout} size={isMdUp ? "md" : "sm"} />
