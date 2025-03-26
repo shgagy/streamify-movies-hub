@@ -86,7 +86,7 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Trending Now"
                   movies={trendingMovies}
-                  useDotNavigation={true}
+                  useDotNavigation={false}
                   autoPlay={false}
                   showArrows={true}
                 />
@@ -96,7 +96,7 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Popular on Streamify"
                   movies={popularMovies}
-                  useDotNavigation={true}
+                  useDotNavigation={false}
                   autoPlay={false}
                   showArrows={true}
                 />
@@ -107,7 +107,7 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Recently Added Anime"
                   movies={animeMovies}
-                  useDotNavigation={true}
+                  useDotNavigation={false}
                   autoPlay={false}
                   showArrows={true}
                 />
@@ -118,21 +118,20 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Featured Series"
                   movies={featuredSeries}
-                  useDotNavigation={true}
+                  useDotNavigation={false}
                   autoPlay={false}
                   showArrows={true}
                 />
               )}
               
-              {/* Updated: Featured Movies with autoplay and dot navigation */}
+              {/* Featured Movies with autoplay but no dot navigation */}
               {featuredMoviesForSlider.length > 0 && (
                 <ContentSlider
                   title="Featured Movies"
                   movies={featuredMoviesForSlider}
                   layout="backdrop"
-                  autoPlay={true}
-                  interval={8000}
-                  useDotNavigation={true}
+                  autoPlay={false}
+                  useDotNavigation={false}
                   showArrows={true}
                 />
               )}
@@ -141,7 +140,7 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Recent Releases"
                   movies={recentReleases}
-                  useDotNavigation={true}
+                  useDotNavigation={false}
                   autoPlay={false}
                   showArrows={true}
                 />

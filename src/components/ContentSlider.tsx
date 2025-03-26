@@ -22,7 +22,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   layout = "poster",
   autoPlay = false,
   interval = 8000,
-  useDotNavigation = true,
+  useDotNavigation = false, // Default changed to false
   showArrows = false,
 }) => {
   const { isMdUp, width } = useResponsive();
@@ -238,7 +238,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           )}
         </div>
         
-        {/* Dot Navigation - Fixed to always be visible when enabled */}
+        {/* Dot Navigation - Only shown when useDotNavigation is true */}
         {useDotNavigation && totalSlides > 0 && (
           <div className="flex justify-center mt-4">
             <div className="flex items-center gap-2">
