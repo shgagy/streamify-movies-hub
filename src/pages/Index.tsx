@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
@@ -65,7 +66,7 @@ const Index: React.FC = () => {
           <Hero movies={featuredMovies} />
         )}
         
-        <div className="py-4">
+        <div className="py-6">
           {/* Welcome Message (first visit) */}
           <div className="page-container">
             <Welcome />
