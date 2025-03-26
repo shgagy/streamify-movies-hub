@@ -18,7 +18,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   title,
   movies,
   layout = "poster",
-  autoPlay = false, // Changed default to false
+  autoPlay = false,
   interval = 8000,
   showArrows = false,
 }) => {
@@ -144,7 +144,19 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   };
 
   // Calculate visible dots based on screen size
-  const maxVisibleDots = isMdUp ? Math.max(0, totalSlides - 1) : totalSlides;
+  // For desktop: Show only enough dots for navigation, excluding the last slide position
+  // For mobile: Show all dots for precise navigation
+  const getVisibleDots = useCallback(() => {
+    if (isMdUp) {
+      // Desktop: Don't show the last dot to avoid lag issues
+      return Math.max(0, totalSlides - 1);
+    } else {
+      // Mobile: Show all dots
+      return totalSlides;
+    }
+  }, [isMdUp, totalSlides]);
+
+  const maxVisibleDots = getVisibleDots();
 
   return (
     <div className="my-8">
@@ -194,7 +206,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             ))}
           </div>
 
-          {/* Dot Navigation */}
+          {/* Dot Navigation - Conditionally render based on number of slides */}
           {maxVisibleDots > 1 && (
             <div className="flex justify-center mt-4">
               <div className="flex items-center gap-2">
