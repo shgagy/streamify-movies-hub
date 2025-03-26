@@ -5,6 +5,38 @@
 
 @layer base {
   :root {
+    --background: 0 0% 98%;
+    --foreground: 0 0% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+
+    --primary: 0 85% 50%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 210 100% 46%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 93%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 168 100% 36%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 89.8%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
     --background: 0 0% 3%;
     --foreground: 210 40% 98%;
 
@@ -32,8 +64,6 @@
     --border: 0 0% 20%;
     --input: 0 0% 20%;
     --ring: 212.7 26.8% 83.9%;
-
-    --radius: 0.5rem;
   }
 
   * {
@@ -41,7 +71,7 @@
   }
 
   body {
-    @apply bg-streamify-black text-foreground antialiased overflow-x-hidden;
+    @apply bg-background text-foreground antialiased overflow-x-hidden;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
   }
 
@@ -52,15 +82,15 @@
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-streamify-black;
+    @apply bg-background;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-streamify-lightgray rounded-full;
+    @apply bg-muted rounded-full;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted;
+    @apply bg-muted/90;
   }
 }
 
@@ -74,11 +104,11 @@
   }
   
   .nav-link {
-    @apply relative px-4 py-2 text-white/80 hover:text-white transition-colors after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-primary after:transition-all hover:after:w-full;
+    @apply relative px-4 py-2 text-foreground/80 hover:text-foreground transition-colors after:absolute after:bottom-0 after:left-0 after:h-[2px] after:w-0 after:bg-primary after:transition-all hover:after:w-full;
   }
   
   .shimmer {
-    @apply relative overflow-hidden bg-gradient-to-r from-streamify-gray via-streamify-lightgray to-streamify-gray bg-[length:700px_100%] animate-image-shimmer;
+    @apply relative overflow-hidden bg-gradient-to-r from-muted via-muted-foreground/10 to-muted bg-[length:700px_100%] animate-image-shimmer;
   }
   
   .page-container {
@@ -86,14 +116,56 @@
   }
   
   .button-primary {
-    @apply py-2 px-6 bg-primary text-white rounded-md font-medium transition-all hover:bg-primary/90 active:scale-95;
+    @apply py-2 px-6 bg-primary text-primary-foreground rounded-md font-medium transition-all hover:bg-primary/90 active:scale-95;
   }
   
   .button-secondary {
-    @apply py-2 px-6 bg-secondary text-white rounded-md font-medium transition-all hover:bg-secondary/90 active:scale-95;
+    @apply py-2 px-6 bg-secondary text-secondary-foreground rounded-md font-medium transition-all hover:bg-secondary/90 active:scale-95;
   }
   
   .button-ghost {
-    @apply py-2 px-6 bg-transparent text-white/90 border border-white/20 rounded-md font-medium transition-all hover:bg-white/5 active:scale-95;
+    @apply py-2 px-6 bg-transparent text-foreground/90 border border-border rounded-md font-medium transition-all hover:bg-foreground/5 active:scale-95;
+  }
+}
+
+/* Specific overrides for dark mode to match the Streamify theme */
+.dark {
+  .bg-streamify-black {
+    @apply bg-[#080808];
+  }
+  
+  .bg-streamify-darkgray {
+    @apply bg-[#121212];
+  }
+  
+  .bg-streamify-gray {
+    @apply bg-[#1a1a1a];
+  }
+  
+  .bg-streamify-lightgray {
+    @apply bg-[#2a2a2a];
+  }
+}
+
+/* Light mode Streamify theme */
+:root:not(.dark) {
+  .bg-streamify-black {
+    @apply bg-[#fafafa];
+  }
+  
+  .bg-streamify-darkgray {
+    @apply bg-[#f0f0f0];
+  }
+  
+  .bg-streamify-gray {
+    @apply bg-[#e5e5e5];
+  }
+  
+  .bg-streamify-lightgray {
+    @apply bg-[#d0d0d0];
+  }
+  
+  .text-white {
+    @apply text-[#111];
   }
 }

@@ -6,9 +6,9 @@ import { cn } from "@/lib/utils";
 import { genres } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import SearchBar from "./SearchBar";
-// Remove the useMyList import if we need to conditionally render myList features
 import ProfileButton from "./ProfileButton";
 import { useAuth } from "@/contexts/AuthContext";
+import { ThemeToggle } from "./ThemeToggle";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -104,7 +104,7 @@ const Navbar = () => {
           </div>
         </nav>
 
-        {/* Right side - Search, Notifications, User */}
+        {/* Right side - Search, Theme, Notifications, User */}
         <div className="flex items-center">
           {/* Search */}
           <button
@@ -114,6 +114,9 @@ const Navbar = () => {
           >
             <Search className="w-5 h-5" />
           </button>
+
+          {/* Theme Toggle */}
+          <ThemeToggle className="ml-1" />
 
           {/* User navigation - desktop */}
           <div className="hidden md:flex items-center ml-4">
@@ -137,7 +140,7 @@ const Navbar = () => {
               )}
             </Link>
             
-            {/* Profile Button (replaces the Sign In button) */}
+            {/* Profile Button */}
             <ProfileButton />
           </div>
 
