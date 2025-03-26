@@ -64,8 +64,16 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           <div
             ref={sliderRef}
             className="flex space-x-4 overflow-x-auto scrollbar-none py-4 px-2 -mx-2"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             onScroll={handleScroll}
           >
+            {/* Hide webkit scrollbar */}
+            <style jsx>{`
+              div::-webkit-scrollbar {
+                display: none;
+              }
+            `}</style>
+            
             {movies.map((movie) => (
               <div
                 key={movie.id}
