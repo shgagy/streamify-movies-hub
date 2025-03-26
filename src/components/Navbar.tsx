@@ -62,7 +62,7 @@ const Navbar = () => {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 py-3 transition-all duration-300",
         isScrolled
-          ? "bg-streamify-black/90 backdrop-blur shadow-md"
+          ? "bg-streamify-black shadow-md" // Removed the transparency (/90) and backdrop-blur
           : "bg-gradient-to-b from-streamify-black to-transparent"
       )}
     >
