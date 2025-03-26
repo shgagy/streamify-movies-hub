@@ -18,8 +18,7 @@ interface ContentSliderProps {
 const ContentSlider: React.FC<ContentSliderProps> = ({
   title,
   movies,
-  layout = "poster",
-  featured = true
+  layout = "poster"
 }) => {
   const { isMdUp } = useResponsive();
 
@@ -28,20 +27,17 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
       <div className="page-container">
         <h2 className="text-2xl font-bold mb-4">{title}</h2>
 
-        {/* All content now uses the featured grid layout with larger first item */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 py-4">
-          {movies.slice(0, 7).map((movie, index) => (
+        {/* Simple responsive grid layout */}
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 py-4">
+          {movies.slice(0, 8).map((movie) => (
             <div 
               key={movie.id} 
-              className={cn(
-                "animate-fade-in",
-                index === 0 && "sm:col-span-2 sm:row-span-2"
-              )}
+              className="animate-fade-in"
             >
               <MovieCard 
                 movie={movie} 
                 layout={layout} 
-                size={index === 0 ? "lg" : (isMdUp ? "md" : "sm")} 
+                size={isMdUp ? "md" : "sm"} 
               />
             </div>
           ))}
