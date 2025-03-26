@@ -57,7 +57,7 @@ class UserListService {
   async removeFromUserList(userId: string, itemId: string): Promise<boolean> {
     return this.userListDb.updateOne(
       { userId },
-      { $pull: { items: { id: itemId } } }
+      { $pull: { items: { id: itemId } as Partial<UserListItem> } }
     );
   }
 
