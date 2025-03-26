@@ -65,8 +65,12 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           {/* Content slider */}
           <div
             ref={sliderRef}
-            className="flex gap-4 overflow-x-auto scrollbar-none py-4 px-2 -mx-2"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="flex overflow-x-auto scrollbar-none py-4 px-2 -mx-2"
+            style={{ 
+              scrollbarWidth: 'none', 
+              msOverflowStyle: 'none',
+              gap: '16px' // Fixed gap between items
+            }}
             onScroll={handleScroll}
           >
             {/* Hide webkit scrollbar using regular style tag */}
@@ -81,17 +85,17 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             {movies.map((movie) => (
               <div
                 key={movie.id}
-                className={cn(
-                  "flex-none animate-fade-in",
-                  layout === "backdrop" ? "first:pl-0 last:pr-8" : ""
-                )}
+                className="flex-none animate-fade-in"
                 style={{
                   width: isMdUp 
                     ? (layout === "poster" ? "180px" : "320px") 
-                    : (layout === "poster" ? "28%" : "70%"),
+                    : (layout === "poster" ? "150px" : "260px"),
+                  minWidth: isMdUp 
+                    ? (layout === "poster" ? "180px" : "320px") 
+                    : (layout === "poster" ? "150px" : "260px"),
                   maxWidth: isMdUp
-                    ? (layout === "poster" ? "220px" : "400px")
-                    : (layout === "poster" ? "28%" : "70%")
+                    ? (layout === "poster" ? "180px" : "320px")
+                    : (layout === "poster" ? "150px" : "260px")
                 }}
               >
                 <MovieCard movie={movie} layout={layout} size={isMdUp ? "md" : "sm"} />
