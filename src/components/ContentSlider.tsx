@@ -86,12 +86,12 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   useEffect(() => {
     if (!autoPlay || totalSlides <= 1) return;
     
-    const interval = setInterval(() => {
+    const autoPlayInterval = setInterval(() => {
       const nextIndex = (activeIndex + 1) % totalSlides;
       scrollToSlide(nextIndex);
     }, interval);
     
-    return () => clearInterval(interval);
+    return () => clearInterval(autoPlayInterval);
   }, [activeIndex, autoPlay, interval, scrollToSlide, totalSlides]);
 
   return (
