@@ -117,6 +117,7 @@ const Index: React.FC = () => {
                   title="Featured Movies"
                   movies={featuredMoviesForSlider}
                   layout="backdrop"
+                  featured={true}
                 />
               )}
               
