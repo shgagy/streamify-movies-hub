@@ -39,12 +39,8 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   // Make sure we have at least one movie to display
   const totalMovies = Math.max(movies.length, 1);
   
-  // Calculate total number of slides - Ensure we always have at least 2 slides for large number of movies
-  // by using Math.max to force at least 2 slides for collections that would otherwise only have 1
-  const totalSlides = Math.max(
-    Math.ceil(totalMovies / itemsPerPage),
-    totalMovies > itemsPerPage + 1 ? 2 : 1
-  );
+  // Calculate total number of slides based on movies and items per page
+  const totalSlides = Math.max(Math.ceil(totalMovies / itemsPerPage), 1);
 
   // Scroll to a specific slide by index
   const scrollToSlide = useCallback((index: number) => {
@@ -149,8 +145,8 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
 
   // Log for debugging
   useEffect(() => {
-    console.log(`${title} slider: ${totalSlides} total slides, ${activeIndex} active index, ${itemsPerPage} items per page, width: ${width}px, totalMovies: ${totalMovies}`);
-  }, [title, totalSlides, activeIndex, itemsPerPage, width, totalMovies]);
+    console.log(`${title} slider: ${totalSlides} total slides, ${activeIndex} active index, ${itemsPerPage} items per page, width: ${width}px`);
+  }, [title, totalSlides, activeIndex, itemsPerPage, width]);
 
   return (
     <div className="my-8">
@@ -229,8 +225,8 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           )}
         </div>
         
-        {/* Dot Navigation Controls - Always show dots when there are multiple movies */}
-        {useDotNavigation && movies.length > itemsPerPage && (
+        {/* Dot Navigation Controls - now simpler and always visible when enabled */}
+        {useDotNavigation && totalSlides > 0 && (
           <div className="flex justify-center mt-4">
             <div className="flex items-center gap-2">
               {Array.from({ length: totalSlides }).map((_, index) => (
