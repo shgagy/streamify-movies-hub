@@ -71,18 +71,6 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     });
   };
 
-  // Handle manual scroll
-  const handleScroll = () => {
-    if (!sliderRef.current) return;
-    
-    const { scrollLeft, clientWidth } = sliderRef.current;
-    const newPage = Math.round(scrollLeft / clientWidth);
-    
-    if (newPage !== currentPage) {
-      setCurrentPage(newPage);
-    }
-  };
-
   return (
     <div className="my-6 relative">
       <div className="page-container">
@@ -92,13 +80,12 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           {/* Content Slider */}
           <div 
             ref={sliderRef}
-            className="flex space-x-4 overflow-x-auto scrollbar-none pb-4 pt-1 -mx-4 px-4 snap-x snap-mandatory"
-            onScroll={handleScroll}
+            className="flex space-x-4 overflow-x-auto scrollbar-none pb-4 pt-1 -mx-4 px-4 snap-x"
           >
             {movies.slice(0, 15).map((movie) => (
               <div 
                 key={movie.id} 
-                className="flex-shrink-0 transition-transform first:ml-0 snap-start"
+                className="flex-shrink-0 transition-transform first:ml-0"
                 style={{ width: layout === "poster" ? (isMdUp ? "180px" : "140px") : (isMdUp ? "320px" : "260px") }}
               >
                 <MovieCard 
@@ -110,10 +97,10 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             ))}
           </div>
           
-          {/* Dot Navigation */}
+          {/* Simple Dot Navigation - Only show if more than one page */}
           {totalPages > 1 && (
             <div className="flex justify-center mt-4 space-x-2">
-              {Array.from({ length: totalPages }).map((_, index) => (
+              {Array.from({ length: Math.min(totalPages, 5) }).map((_, index) => (
                 <button
                   key={index}
                   onClick={() => goToPage(index)}
