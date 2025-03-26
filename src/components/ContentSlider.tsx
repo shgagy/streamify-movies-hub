@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Play, Plus, Info } from "lucide-react";
@@ -6,10 +5,8 @@ import { Movie } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import { useMyList } from "@/contexts/MyListContext";
 import { Canvas } from "@react-three/fiber";
-import { useFrame, useLoader } from "@react-three/fiber";
-import { PerspectiveCamera, Environment, Float, useTexture } from "@react-three/drei";
-import * as THREE from "three";
-import { TextureLoader } from "three";
+import { Environment } from "@react-three/drei";
+import { Carousel3D } from "./3DCarousel";
 
 interface ContentSliderProps {
   title: string;
@@ -20,73 +17,6 @@ interface ContentSliderProps {
   showArrows?: boolean;
   featured?: boolean;
 }
-
-// 3D Movie Card component
-const MovieItem = ({ movie, index, active, totalItems, onClick }) => {
-  const mesh = useRef<THREE.Mesh>(null);
-  const radius = 4;
-  const theta = (index / totalItems) * Math.PI * 2;
-  const x = radius * Math.sin(theta);
-  const z = radius * Math.cos(theta);
-  
-  // Load texture for the movie poster
-  const texture = useTexture(movie.posterUrl || movie.backdropUrl);
-  
-  // Rotation for active item
-  useFrame((state) => {
-    if (mesh.current) {
-      // Slightly rotate active item
-      if (active) {
-        mesh.current.rotation.y += 0.01;
-      }
-    }
-  });
-
-  return (
-    <Float speed={2} rotationIntensity={active ? 0.4 : 0.1} floatIntensity={active ? 0.6 : 0.3}>
-      <mesh 
-        ref={mesh} 
-        position={[x, 0, z]} 
-        onClick={onClick}
-        scale={active ? 1.2 : 0.8}
-      >
-        <boxGeometry args={[1.5, 2, 0.1]} />
-        <meshStandardMaterial map={texture} />
-      </mesh>
-    </Float>
-  );
-};
-
-// 3D Carousel component
-const Carousel3D = ({ movies, activeIndex, setActiveIndex }) => {
-  const groupRef = useRef<THREE.Group>(null);
-  
-  useFrame((state) => {
-    if (groupRef.current) {
-      // Rotate the entire carousel slowly
-      groupRef.current.rotation.y += 0.002;
-    }
-  });
-
-  const handleClick = (index) => {
-    setActiveIndex(index);
-  };
-
-  return (
-    <group ref={groupRef}>
-      {movies.map((movie, index) => (
-        <MovieItem 
-          key={movie.id}
-          movie={movie} 
-          index={index} 
-          totalItems={movies.length}
-          active={index === activeIndex}
-          onClick={() => handleClick(index)}
-        />
-      ))}
-    </group>
-  );
-};
 
 const ContentSlider: React.FC<ContentSliderProps> = ({
   title,
@@ -136,14 +66,18 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     return () => clearInterval(autoPlayInterval);
   }, [activeIndex, movies.length, scrollToSlide, autoPlay, interval]);
 
-  // Render 3D carousel for trending section
   if (title === "Trending Now") {
     return (
       <div className="my-6 relative">
         <div className="page-container">
           <h2 className="text-2xl font-bold mb-4 animate-fade-in">{title}</h2>
           <div className="h-[40vh] w-full">
-            <Canvas camera={{ position: [0, 0, 8], fov: 60 }}>
+            <Canvas 
+              camera={{ position: [0, 0, 8], fov: 60 }}
+              onError={(error) => {
+                console.error("Canvas error:", error);
+              }}
+            >
               <ambientLight intensity={0.5} />
               <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
               <Carousel3D 
@@ -187,7 +121,6 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
 
   return (
     <div className="relative h-[60vh] w-full overflow-hidden my-6">
-      {/* Title - displayed outside the carousel */}
       <div className="page-container mb-2">
         <h2 className="text-2xl font-bold animate-fade-in z-50 relative">{title}</h2>
       </div>
@@ -201,11 +134,8 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             }`}
           >
             <div className="absolute inset-0 z-0">
-              {/* Top gradient - lighter */}
               <div className="absolute inset-0 bg-gradient-to-b from-streamify-black/50 via-streamify-black/10 to-transparent z-10" />
-              {/* Left gradient */}
               <div className="absolute inset-0 bg-gradient-to-r from-streamify-black/50 to-transparent z-10" />
-              {/* Bottom gradient - lighter */}
               <div className="absolute inset-0 bg-gradient-to-t from-streamify-black/50 via-streamify-black/10 to-transparent z-10" />
               <img 
                 src={movie.backdropUrl} 
