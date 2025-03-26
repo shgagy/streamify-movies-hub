@@ -87,7 +87,6 @@ const Index: React.FC = () => {
                   title="Trending Now"
                   movies={trendingMovies}
                   useDotNavigation={true}
-                  autoPlay={false}
                   showArrows={false}
                 />
               )}
@@ -97,7 +96,6 @@ const Index: React.FC = () => {
                   title="Popular on Streamify"
                   movies={popularMovies}
                   useDotNavigation={true}
-                  autoPlay={false}
                   showArrows={false}
                 />
               )}
@@ -108,7 +106,6 @@ const Index: React.FC = () => {
                   title="Recently Added Anime"
                   movies={animeMovies}
                   useDotNavigation={true}
-                  autoPlay={false}
                   showArrows={false}
                 />
               )}
@@ -119,19 +116,17 @@ const Index: React.FC = () => {
                   title="Featured Series"
                   movies={featuredSeries}
                   useDotNavigation={true}
-                  autoPlay={false}
                   showArrows={false}
                 />
               )}
               
-              {/* Updated: Featured Movies with autoplay and dot navigation */}
+              {/* Featured Movies with dot navigation but no autoplay */}
               {featuredMoviesForSlider.length > 0 && (
                 <ContentSlider
                   title="Featured Movies"
                   movies={featuredMoviesForSlider}
                   layout="backdrop"
-                  autoPlay={true}
-                  interval={8000}
+                  autoPlay={false}
                   useDotNavigation={true}
                   showArrows={false}
                 />
@@ -142,7 +137,6 @@ const Index: React.FC = () => {
                   title="Recent Releases"
                   movies={recentReleases}
                   useDotNavigation={true}
-                  autoPlay={false}
                   showArrows={false}
                 />
               )}

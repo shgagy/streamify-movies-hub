@@ -131,22 +131,13 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     };
   }, [movies.length, itemsPerPage]);
 
-  // Auto-play functionality
-  useEffect(() => {
-    if (!autoPlay || totalSlides <= 1) return;
-    
-    const autoPlayTimer = setInterval(() => {
-      const nextIndex = (activeIndex + 1) % totalSlides;
-      scrollToSlide(nextIndex);
-    }, interval);
-    
-    return () => clearInterval(autoPlayTimer);
-  }, [activeIndex, autoPlay, interval, scrollToSlide, totalSlides]);
-
   // Log for debugging
   useEffect(() => {
     console.log(`${title} slider: ${totalSlides} total slides, ${activeIndex} active index, ${itemsPerPage} items per page, width: ${width}px`);
   }, [title, totalSlides, activeIndex, itemsPerPage, width]);
+
+  // Show dot navigation only if there's more than one slide
+  const shouldShowDotNavigation = totalSlides > 1 && useDotNavigation;
 
   return (
     <div className="my-8">
@@ -225,8 +216,8 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           )}
         </div>
         
-        {/* Dot Navigation Controls - now simpler and always visible when enabled */}
-        {useDotNavigation && totalSlides > 0 && (
+        {/* Dot Navigation Controls - Hero-style, positioned at the bottom */}
+        {shouldShowDotNavigation && (
           <div className="flex justify-center mt-4">
             <div className="flex items-center gap-2">
               {Array.from({ length: totalSlides }).map((_, index) => (
