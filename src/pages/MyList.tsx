@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import MovieCard from "@/components/MovieCard";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
+import { fetchUserList } from "@/services/api";
 import { Movie } from "@/lib/mockData";
 
 const MyList: React.FC = () => {
@@ -15,9 +16,9 @@ const MyList: React.FC = () => {
   const { user, userLoading } = useAuth();
   const navigate = useNavigate();
 
-  // Fetch the user's list from localStorage when the user is logged in
+  // Fetch the user's list from MongoDB when the user is logged in
   useEffect(() => {
-    const fetchMyList = async () => {
+    const fetchList = async () => {
       if (!user) {
         setMyList([]);
         setLoading(false);
@@ -26,15 +27,8 @@ const MyList: React.FC = () => {
 
       setLoading(true);
       try {
-        const storageKey = `streamify-mylist-${user.id}`;
-        const savedList = localStorage.getItem(storageKey);
-        
-        if (savedList) {
-          const parsedList = JSON.parse(savedList);
-          setMyList(parsedList);
-        } else {
-          setMyList([]);
-        }
+        const list = await fetchUserList(user.id);
+        setMyList(list as Movie[]);
       } catch (error) {
         console.error("Error fetching my list:", error);
         setMyList([]);
@@ -43,7 +37,7 @@ const MyList: React.FC = () => {
       }
     };
 
-    fetchMyList();
+    fetchList();
   }, [user]);
 
   // Redirect to auth page if not logged in
