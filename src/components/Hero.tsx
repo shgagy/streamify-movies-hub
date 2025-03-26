@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Play, Plus, Info } from "lucide-react";
 import { Movie } from "@/lib/mockData";
@@ -10,7 +10,6 @@ import {
   CarouselContent,
   CarouselItem
 } from "@/components/ui/carousel";
-import useEmblaCarousel from "embla-carousel-react";
 
 interface HeroProps {
   movies: Movie[];
@@ -19,12 +18,8 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ movies }) => {
   const navigate = useNavigate();
   const { addToMyList, isInMyList } = useMyList();
-  const [emblaRef, emblaApi] = useEmblaCarousel({ 
-    loop: true,
-    duration: 30,
-    skipSnaps: false
-  });
   const [activeIndex, setActiveIndex] = useState(0);
+  const [carouselRef, setCarouselRef] = useState<HTMLDivElement | null>(null);
   
   const currentMovie = movies[activeIndex];
   
@@ -42,35 +37,44 @@ const Hero: React.FC<HeroProps> = ({ movies }) => {
     }
   };
 
-  const scrollToSlide = (index: number) => {
-    if (emblaApi) {
-      emblaApi.scrollTo(index);
-      setActiveIndex(index);
+  const scrollToSlide = useCallback((index: number) => {
+    if (carouselRef) {
+      // Get all the carousel items
+      const items = carouselRef.querySelectorAll(".embla__slide");
+      if (items && items[index]) {
+        // Scroll the item into view
+        items[index].scrollIntoView({ behavior: "smooth", block: "nearest" });
+        setActiveIndex(index);
+        console.log(`Scrolled to slide ${index}`);
+      }
     }
-  };
+  }, [carouselRef]);
 
-  React.useEffect(() => {
-    if (!emblaApi) return;
-    
-    const onSelect = () => {
-      const currentIndex = emblaApi.selectedScrollSnap();
-      setActiveIndex(currentIndex);
-    };
-    
-    emblaApi.on('select', onSelect);
-    emblaApi.on('reInit', onSelect);
-    
-    return () => {
-      emblaApi.off('select', onSelect);
-      emblaApi.off('reInit', onSelect);
-    };
-  }, [emblaApi]);
+  // Set up manual carousel functionality
+  useEffect(() => {
+    // Auto advance slides every 5 seconds
+    const interval = setInterval(() => {
+      const nextIndex = (activeIndex + 1) % movies.length;
+      setActiveIndex(nextIndex);
+      scrollToSlide(nextIndex);
+    }, 8000);
+
+    return () => clearInterval(interval);
+  }, [activeIndex, movies.length, scrollToSlide]);
 
   return (
-    <Carousel className="relative h-[80vh] w-full overflow-hidden">
-      <CarouselContent ref={emblaRef}>
+    <div className="relative h-[80vh] w-full overflow-hidden">
+      <div 
+        className="carousel-container w-full h-full" 
+        ref={setCarouselRef}
+      >
         {movies.map((movie, index) => (
-          <CarouselItem key={movie.id} className="w-full relative min-w-0 flex-shrink-0">
+          <div 
+            key={movie.id} 
+            className={`embla__slide absolute inset-0 w-full h-full transition-opacity duration-1000 ${
+              index === activeIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+            }`}
+          >
             {/* Background Image with Gradient Overlay */}
             <div className="absolute inset-0 z-0">
               <div className="absolute inset-0 bg-gradient-to-t from-streamify-black via-streamify-black/70 to-transparent z-10" />
@@ -79,7 +83,6 @@ const Hero: React.FC<HeroProps> = ({ movies }) => {
                 src={movie.backdropUrl}
                 alt={movie.title}
                 className="w-full h-full object-cover object-center animate-scale-in"
-                style={{ transition: "opacity 1s ease" }}
               />
             </div>
             
@@ -143,9 +146,9 @@ const Hero: React.FC<HeroProps> = ({ movies }) => {
                 </div>
               </div>
             </div>
-          </CarouselItem>
+          </div>
         ))}
-      </CarouselContent>
+      </div>
 
       {/* Dot Navigation Controls */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex items-center gap-4">
@@ -154,17 +157,17 @@ const Hero: React.FC<HeroProps> = ({ movies }) => {
             <button
               key={index}
               onClick={() => scrollToSlide(index)}
-              className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+              className={`transition-all duration-300 ${
                 index === activeIndex 
-                  ? "bg-primary w-8" 
-                  : "bg-white/30 hover:bg-white/50"
+                  ? "bg-primary w-8 h-2.5 rounded-full" 
+                  : "bg-white/30 hover:bg-white/50 w-2.5 h-2.5 rounded-full"
               }`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
         </div>
       </div>
-    </Carousel>
+    </div>
   );
 };
 
