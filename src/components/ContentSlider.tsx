@@ -76,9 +76,9 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   }
 
   return (
-    <div className="relative h-[90vh] w-full overflow-hidden my-16">
-      {/* Title - ظاهر خارج الكاروسل */}
-      <div className="page-container mb-6">
+    <div className="relative h-[70vh] w-full overflow-hidden my-12">
+      {/* Title - displayed outside the carousel */}
+      <div className="page-container mb-4">
         <h2 className="text-3xl font-bold animate-fade-in z-50 relative">{title}</h2>
       </div>
       
@@ -91,11 +91,11 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             }`}
           >
             <div className="absolute inset-0 z-0">
-              {/* تخفيف التدرج من الأعلى */}
-              <div className="absolute inset-0 bg-gradient-to-b from-streamify-black/80 via-streamify-black/30 to-transparent z-10" />
+              {/* Top gradient - softened */}
+              <div className="absolute inset-0 bg-gradient-to-b from-streamify-black/70 via-streamify-black/20 to-transparent z-10" />
               <div className="absolute inset-0 bg-gradient-to-r from-streamify-black/70 to-transparent z-10" />
-              {/* تخفيف التدرج من الأسفل */}
-              <div className="absolute inset-0 bg-gradient-to-t from-streamify-black/80 via-streamify-black/30 to-transparent z-10" />
+              {/* Bottom gradient - softened */}
+              <div className="absolute inset-0 bg-gradient-to-t from-streamify-black/70 via-streamify-black/20 to-transparent z-10" />
               <img 
                 src={movie.backdropUrl} 
                 alt={movie.title} 
@@ -104,13 +104,13 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             </div>
             
             <div className="relative z-20 flex flex-col justify-end h-full">
-              <div className="page-container pb-24 md:pb-32">
-                <div className="max-w-3xl animate-fade-in">
-                  <h1 className="font-bold mb-4 leading-tight text-4xl md:text-5xl">
+              <div className="page-container pb-16 md:pb-20">
+                <div className="max-w-2xl animate-fade-in">
+                  <h1 className="font-bold mb-3 leading-tight text-3xl md:text-4xl">
                     {movie.title}
                   </h1>
                   
-                  <div className="flex items-center text-base mb-7 text-white/90">
+                  <div className="flex items-center text-base mb-5 text-white/90">
                     <span className="mr-4">{movie.releaseYear}</span>
                     <span className="mr-4 flex items-center">
                       <span className="text-primary font-bold mr-1">{movie.rating}</span>/10
@@ -118,28 +118,28 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
                     <span>{movie.duration}</span>
                   </div>
                   
-                  <p className="text-white/90 mb-10 line-clamp-3 md:line-clamp-4 text-lg md:text-xl">
+                  <p className="text-white/90 mb-8 line-clamp-3 text-base md:text-lg">
                     {movie.description}
                   </p>
                   
-                  <div className="flex flex-wrap gap-5 items-center">
-                    <Button className="bg-primary hover:bg-primary/90 text-white px-10 py-5 h-auto rounded-md flex items-center space-x-3 text-lg" onClick={() => handlePlayClick(Number(movie.id))}>
-                      <Play className="w-6 h-6" />
+                  <div className="flex flex-wrap gap-4 items-center">
+                    <Button className="bg-primary hover:bg-primary/90 text-white px-8 py-4 h-auto rounded-md flex items-center space-x-2 text-base" onClick={() => handlePlayClick(Number(movie.id))}>
+                      <Play className="w-5 h-5" />
                       <span>Play Now</span>
                     </Button>
                     
-                    <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white px-10 py-5 h-auto rounded-md flex items-center space-x-3 text-lg" onClick={() => handleInfoClick(Number(movie.id))}>
-                      <Info className="w-6 h-6" />
+                    <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white px-8 py-4 h-auto rounded-md flex items-center space-x-2 text-base" onClick={() => handleInfoClick(Number(movie.id))}>
+                      <Info className="w-5 h-5" />
                       <span>More Info</span>
                     </Button>
                     
-                    <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white p-5 h-auto rounded-full" onClick={() => handleAddToList(movie)}>
-                      <Plus className="w-6 h-6" />
+                    <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white p-4 h-auto rounded-full" onClick={() => handleAddToList(movie)}>
+                      <Plus className="w-5 h-5" />
                     </Button>
                     
-                    <div className="flex flex-wrap gap-3 ml-2">
+                    <div className="flex flex-wrap gap-2 ml-2">
                       {movie.genres.slice(0, 3).map((genre, index) => (
-                        <span key={index} className="px-5 py-3 bg-white/10 backdrop-blur-sm rounded-full text-base md:text-lg">
+                        <span key={index} className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm md:text-base">
                           {genre}
                         </span>
                       ))}
@@ -152,7 +152,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
         ))}
       </div>
 
-      <div className="absolute bottom-14 left-1/2 transform -translate-x-1/2 z-30 flex items-center gap-4">
+      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-30 flex items-center gap-4">
         <div className="flex items-center gap-3">
           {movies.map((_, index) => (
             <button 
@@ -160,8 +160,8 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
               onClick={() => scrollToSlide(index)} 
               className={`transition-all duration-300 ${
                 index === activeIndex 
-                  ? "bg-primary w-12 h-3 rounded-full" 
-                  : "bg-white/30 hover:bg-white/50 w-3 h-3 rounded-full"
+                  ? "bg-primary w-10 h-2.5 rounded-full" 
+                  : "bg-white/30 hover:bg-white/50 w-2.5 h-2.5 rounded-full"
               }`} 
               aria-label={`Go to slide ${index + 1}`} 
             />
