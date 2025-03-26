@@ -36,7 +36,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     ? (layout === "poster" ? 5 : 3) 
     : (layout === "poster" ? 3 : 1);
 
-  const totalSlides = Math.ceil(movies.length / itemsPerPage);
+  const totalSlides = Math.ceil(movies.length / itemsPerPage) || 1;
 
   const scrollToSlide = useCallback((index: number) => {
     if (!sliderRef.current) return;
@@ -52,6 +52,8 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
       left: scrollPos,
       behavior: 'smooth'
     });
+    
+    console.log(`Scrolled to slide ${index}`);
   }, [itemsPerPage]);
 
   const scroll = (direction: "left" | "right") => {
@@ -72,17 +74,35 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     setShowRightButton(scrollLeft + clientWidth < scrollWidth - 10);
     
     // Update active index based on scroll position
-    if (!useDotNavigation) return;
-    
     const itemWidth = sliderRef.current.querySelector('.flex-none')?.clientWidth || 0;
     const gapWidth = 16;
     const slideWidth = (itemWidth + gapWidth) * itemsPerPage;
-    const newIndex = Math.round(scrollLeft / slideWidth);
     
-    if (newIndex !== activeIndex) {
-      setActiveIndex(newIndex);
+    if (slideWidth > 0) {
+      const newIndex = Math.round(scrollLeft / slideWidth);
+      if (newIndex !== activeIndex) {
+        setActiveIndex(newIndex);
+      }
     }
   };
+
+  // Initialize dot navigation and handle window resize
+  useEffect(() => {
+    if (!sliderRef.current) return;
+    
+    // Force recalculation of active index on mount and resize
+    const handleResize = () => {
+      handleScroll();
+    };
+    
+    // Initialize dot navigation by running handleScroll once
+    handleScroll();
+    
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [movies.length, itemsPerPage]); // Re-run when movies or itemsPerPage changes
 
   // Auto-play functionality
   useEffect(() => {

@@ -5,7 +5,6 @@ import { Play, Plus, Info } from "lucide-react";
 import { Movie } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import { useMyList } from "@/contexts/MyListContext";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 
 interface HeroProps {
   movies: Movie[];
@@ -43,13 +42,15 @@ const Hero: React.FC<HeroProps> = ({
     console.log(`Scrolled to slide ${index}`);
   }, []);
 
-  // Set up auto carousel functionality
+  // Set up auto carousel functionality - runs on component mount
   useEffect(() => {
     // Auto advance slides every 8 seconds
     const interval = setInterval(() => {
       const nextIndex = (activeIndex + 1) % movies.length;
       scrollToSlide(nextIndex);
     }, 8000);
+    
+    // Clear interval on component unmount
     return () => clearInterval(interval);
   }, [activeIndex, movies.length, scrollToSlide]);
 
