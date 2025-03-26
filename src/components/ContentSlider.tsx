@@ -1,10 +1,14 @@
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Play, Plus, Info } from "lucide-react";
 import { Movie } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import { useMyList } from "@/contexts/MyListContext";
+import { Canvas } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
+import { PerspectiveCamera, Environment, Float } from "@react-three/drei";
+import * as THREE from "three";
 
 interface ContentSliderProps {
   title: string;
@@ -15,6 +19,72 @@ interface ContentSliderProps {
   showArrows?: boolean;
   featured?: boolean;
 }
+
+// 3D Movie Card component
+const MovieItem = ({ movie, index, active, totalItems, onClick }) => {
+  const mesh = useRef();
+  const radius = 4;
+  const theta = (index / totalItems) * Math.PI * 2;
+  const x = radius * Math.sin(theta);
+  const z = radius * Math.cos(theta);
+  
+  // Rotation for active item
+  useFrame((state) => {
+    if (mesh.current) {
+      // Slightly rotate active item
+      if (active) {
+        mesh.current.rotation.y += 0.01;
+      }
+    }
+  });
+
+  return (
+    <Float speed={2} rotationIntensity={active ? 0.4 : 0.1} floatIntensity={active ? 0.6 : 0.3}>
+      <mesh 
+        ref={mesh} 
+        position={[x, 0, z]} 
+        onClick={onClick}
+        scale={active ? 1.2 : 0.8}
+      >
+        <boxGeometry args={[1.5, 2, 0.1]} />
+        <meshStandardMaterial>
+          <canvasTexture attach="map" image={document.createElement('img')} />
+        </meshStandardMaterial>
+      </mesh>
+    </Float>
+  );
+};
+
+// 3D Carousel component
+const Carousel3D = ({ movies, activeIndex, setActiveIndex }) => {
+  const groupRef = useRef();
+  
+  useFrame((state) => {
+    if (groupRef.current) {
+      // Rotate the entire carousel slowly
+      groupRef.current.rotation.y += 0.002;
+    }
+  });
+
+  const handleClick = (index) => {
+    setActiveIndex(index);
+  };
+
+  return (
+    <group ref={groupRef}>
+      {movies.map((movie, index) => (
+        <MovieItem 
+          key={movie.id}
+          movie={movie} 
+          index={index} 
+          totalItems={movies.length}
+          active={index === activeIndex}
+          onClick={() => handleClick(index)}
+        />
+      ))}
+    </group>
+  );
+};
 
 const ContentSlider: React.FC<ContentSliderProps> = ({
   title,
@@ -64,6 +134,44 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     return () => clearInterval(autoPlayInterval);
   }, [activeIndex, movies.length, scrollToSlide, autoPlay, interval]);
 
+  // Render 3D carousel for trending section
+  if (title === "Trending Now") {
+    return (
+      <div className="my-6 relative">
+        <div className="page-container">
+          <h2 className="text-2xl font-bold mb-4 animate-fade-in">{title}</h2>
+          <div className="h-[40vh] w-full">
+            <Canvas camera={{ position: [0, 0, 8], fov: 60 }}>
+              <ambientLight intensity={0.5} />
+              <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
+              <Carousel3D 
+                movies={movies} 
+                activeIndex={activeIndex} 
+                setActiveIndex={setActiveIndex} 
+              />
+              <Environment preset="city" />
+            </Canvas>
+          </div>
+          {movies.length > 0 && (
+            <div className="text-center pt-4">
+              <h3 className="text-xl font-semibold">{currentMovie.title}</h3>
+              <div className="flex justify-center gap-3 mt-3">
+                <Button className="bg-primary hover:bg-primary/90 text-white px-4 py-2 h-auto rounded-md flex items-center space-x-2 text-sm" onClick={() => handlePlayClick(Number(currentMovie.id))}>
+                  <Play className="w-3 h-3" />
+                  <span>Play</span>
+                </Button>
+                <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white px-4 py-2 h-auto rounded-md flex items-center space-x-2 text-sm" onClick={() => handleInfoClick(Number(currentMovie.id))}>
+                  <Info className="w-3 h-3" />
+                  <span>Info</span>
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (!featured) {
     return (
       <div className="my-6 relative">
@@ -76,7 +184,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   }
 
   return (
-    <div className="relative h-[60vh] w-full overflow-hidden my-8">
+    <div className="relative h-[60vh] w-full overflow-hidden my-6">
       {/* Title - displayed outside the carousel */}
       <div className="page-container mb-2">
         <h2 className="text-2xl font-bold animate-fade-in z-50 relative">{title}</h2>
