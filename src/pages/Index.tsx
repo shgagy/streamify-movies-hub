@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
@@ -85,6 +86,8 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Trending Now"
                   movies={trendingMovies}
+                  useDotNavigation={true}
+                  autoPlay={false}
                 />
               )}
               
@@ -92,6 +95,8 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Popular on Streamify"
                   movies={popularMovies}
+                  useDotNavigation={true}
+                  autoPlay={false}
                 />
               )}
               
@@ -100,6 +105,8 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Recently Added Anime"
                   movies={animeMovies}
+                  useDotNavigation={true}
+                  autoPlay={false}
                 />
               )}
               
@@ -108,6 +115,8 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Featured Series"
                   movies={featuredSeries}
+                  useDotNavigation={true}
+                  autoPlay={false}
                 />
               )}
               
@@ -127,6 +136,8 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Recent Releases"
                   movies={recentReleases}
+                  useDotNavigation={true}
+                  autoPlay={false}
                 />
               )}
             </>
