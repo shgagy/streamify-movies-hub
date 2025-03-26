@@ -19,10 +19,13 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ movies }) => {
   const navigate = useNavigate();
   const { addToMyList, isInMyList } = useMyList();
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 30 });
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: true,
+    duration: 30,
+    skipSnaps: false
+  });
   const [activeIndex, setActiveIndex] = useState(0);
   
-  // Get current movie based on index
   const currentMovie = movies[activeIndex];
   
   const handlePlayClick = (movieId: number) => {
@@ -42,27 +45,27 @@ const Hero: React.FC<HeroProps> = ({ movies }) => {
   const scrollToSlide = (index: number) => {
     if (emblaApi) {
       emblaApi.scrollTo(index);
+      setActiveIndex(index);
     }
   };
-  
-  // Update activeIndex when slide changes
+
   React.useEffect(() => {
     if (!emblaApi) return;
     
     const onSelect = () => {
-      setActiveIndex(emblaApi.selectedScrollSnap());
+      const currentIndex = emblaApi.selectedScrollSnap();
+      setActiveIndex(currentIndex);
     };
     
     emblaApi.on('select', onSelect);
-    
-    // Initial call to set the active index on mount
-    onSelect();
+    emblaApi.on('reInit', onSelect);
     
     return () => {
       emblaApi.off('select', onSelect);
+      emblaApi.off('reInit', onSelect);
     };
   }, [emblaApi]);
-  
+
   return (
     <Carousel className="relative h-[80vh] w-full overflow-hidden">
       <CarouselContent ref={emblaRef}>
