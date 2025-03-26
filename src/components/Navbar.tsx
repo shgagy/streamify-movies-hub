@@ -61,9 +61,11 @@ const Navbar = () => {
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 py-3 transition-all duration-300",
-        isScrolled
-          ? "bg-streamify-black shadow-md" 
-          : "bg-gradient-to-b from-streamify-black to-transparent"
+        mobileMenuOpen 
+          ? "bg-streamify-black" 
+          : isScrolled
+            ? "bg-streamify-black shadow-md" 
+            : "bg-gradient-to-b from-streamify-black to-transparent"
       )}
     >
       <div className="page-container flex items-center justify-between">
@@ -152,7 +154,7 @@ const Navbar = () => {
 
         {/* Mobile menu */}
         {mobileMenuOpen && (
-          <div className="fixed inset-0 top-16 z-40 bg-streamify-black/95 backdrop-blur-md md:hidden animate-fade-in">
+          <div className="fixed inset-0 top-16 z-40 bg-streamify-black md:hidden animate-fade-in">
             <nav className="flex flex-col p-5 space-y-4">
               <Link
                 to="/"
