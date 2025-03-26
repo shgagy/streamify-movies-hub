@@ -1,6 +1,5 @@
 
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Movie } from "@/lib/mockData";
 import MovieCard from "./MovieCard";
 import { cn } from "@/lib/utils";
@@ -19,7 +18,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   title,
   movies,
   layout = "poster",
-  autoPlay = false,
+  autoPlay = true,
   interval = 8000,
   showArrows = false,
 }) => {
@@ -29,6 +28,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   const [showRightButton, setShowRightButton] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [totalSlides, setTotalSlides] = useState(1);
+  const scrollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Calculate how many items to show at once based on layout and screen size
   const itemsPerPage = isMdUp 
@@ -74,17 +74,8 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     return Math.max(slides, 1);
   }, [movies.length, itemsPerPage]);
 
-  // Handle manual arrow navigation
-  const scroll = (direction: "left" | "right") => {
-    if (direction === "left") {
-      scrollToSlide(activeIndex - 1);
-    } else {
-      scrollToSlide(activeIndex + 1);
-    }
-  };
-
   // Update navigation button visibility based on scroll position
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     if (!sliderRef.current) return;
 
     const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
@@ -95,20 +86,27 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     // Show right button only if we're not at the end
     setShowRightButton(scrollLeft + clientWidth < scrollWidth - 5);
     
-    // Update active index based on scroll position if user manually scrolls
-    if (!sliderRef.current.querySelector('.flex-none')) return;
-    
-    const itemWidth = sliderRef.current.querySelector('.flex-none')?.clientWidth || 0;
-    const gapWidth = 16;
-    const slideWidth = (itemWidth + gapWidth) * itemsPerPage;
-    
-    if (slideWidth > 0) {
-      const newIndex = Math.round(scrollLeft / slideWidth);
-      if (newIndex !== activeIndex && newIndex < totalSlides) {
-        setActiveIndex(newIndex);
-      }
+    // Clear any pending scroll detection
+    if (scrollTimerRef.current) {
+      clearTimeout(scrollTimerRef.current);
     }
-  };
+    
+    // Detect when scrolling stops
+    scrollTimerRef.current = setTimeout(() => {
+      if (!sliderRef.current) return;
+      
+      const itemWidth = sliderRef.current.querySelector('.flex-none')?.clientWidth || 0;
+      const gapWidth = 16;
+      const slideWidth = (itemWidth + gapWidth) * itemsPerPage;
+      
+      if (slideWidth > 0) {
+        const newIndex = Math.round(scrollLeft / slideWidth);
+        if (newIndex !== activeIndex && newIndex < totalSlides) {
+          setActiveIndex(newIndex);
+        }
+      }
+    }, 100);
+  }, [activeIndex, itemsPerPage, totalSlides]);
 
   // Calculate total slides and handle component resize
   useEffect(() => {
@@ -134,9 +132,9 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [calculateTotalSlides, movies.length, itemsPerPage]);
+  }, [calculateTotalSlides, handleScroll, movies.length, itemsPerPage]);
 
-  // Auto-play functionality
+  // Auto-play functionality with improved handling
   useEffect(() => {
     if (!autoPlay || totalSlides <= 1) return;
     
@@ -148,16 +146,10 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     return () => clearInterval(autoPlayTimer);
   }, [activeIndex, autoPlay, interval, scrollToSlide, totalSlides]);
 
-  // Log for debugging
-  useEffect(() => {
-    console.log(`${title} slider: ${totalSlides} total slides, ${activeIndex} active index, ${itemsPerPage} items per page, width: ${width}px`);
-  }, [title, totalSlides, activeIndex, itemsPerPage, width]);
-
-  // Force recalculation when items per page changes
-  useEffect(() => {
-    const slides = calculateTotalSlides();
-    setTotalSlides(slides);
-  }, [calculateTotalSlides, itemsPerPage]);
+  // Handle manual dot navigation
+  const handleDotClick = (index: number) => {
+    scrollToSlide(index);
+  };
 
   return (
     <div className="my-8">
@@ -165,20 +157,6 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
         <h2 className="text-2xl font-bold mb-4">{title}</h2>
 
         <div className="relative group">
-          {/* Left navigation arrow */}
-          {showArrows && (
-            <button
-              className={cn(
-                "absolute left-0 top-1/2 -translate-y-1/2 z-30 p-1 bg-streamify-black/80 text-white rounded-full transform transition-all duration-300",
-                showLeftButton ? "opacity-80 hover:opacity-100 -translate-x-0" : "opacity-0 -translate-x-10 pointer-events-none"
-              )}
-              onClick={() => scroll("left")}
-              aria-label="Scroll left"
-            >
-              <ChevronLeft className="h-8 w-8" />
-            </button>
-          )}
-
           {/* Content slider */}
           <div
             ref={sliderRef}
@@ -221,18 +199,24 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             ))}
           </div>
 
-          {/* Right navigation arrow */}
-          {showArrows && (
-            <button
-              className={cn(
-                "absolute right-0 top-1/2 -translate-y-1/2 z-30 p-1 bg-streamify-black/80 text-white rounded-full transform transition-all duration-300",
-                showRightButton ? "opacity-80 hover:opacity-100 translate-x-0" : "opacity-0 translate-x-10 pointer-events-none"
-              )}
-              onClick={() => scroll("right")}
-              aria-label="Scroll right"
-            >
-              <ChevronRight className="h-8 w-8" />
-            </button>
+          {/* Dot Navigation */}
+          {totalSlides > 1 && (
+            <div className="flex justify-center mt-4">
+              <div className="flex items-center gap-2">
+                {Array.from({ length: totalSlides }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleDotClick(index)}
+                    className={`transition-all duration-300 ${
+                      index === activeIndex
+                        ? "bg-primary w-8 h-2.5 rounded-full"
+                        : "bg-white/30 hover:bg-white/50 w-2.5 h-2.5 rounded-full"
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </div>

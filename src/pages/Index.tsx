@@ -86,8 +86,8 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Trending Now"
                   movies={trendingMovies}
-                  autoPlay={false}
-                  showArrows={true}
+                  autoPlay={true}
+                  interval={10000}
                 />
               )}
               
@@ -95,8 +95,8 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Popular on Streamify"
                   movies={popularMovies}
-                  autoPlay={false}
-                  showArrows={true}
+                  autoPlay={true}
+                  interval={12000}
                 />
               )}
               
@@ -105,8 +105,8 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Recently Added Anime"
                   movies={animeMovies}
-                  autoPlay={false}
-                  showArrows={true}
+                  autoPlay={true}
+                  interval={15000}
                 />
               )}
               
@@ -115,19 +115,19 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Featured Series"
                   movies={featuredSeries}
-                  autoPlay={false}
-                  showArrows={true}
+                  autoPlay={true}
+                  interval={13000}
                 />
               )}
               
-              {/* Featured Movies with autoplay but no dot navigation */}
+              {/* Featured Movies with special layout */}
               {featuredMoviesForSlider.length > 0 && (
                 <ContentSlider
                   title="Featured Movies"
                   movies={featuredMoviesForSlider}
                   layout="backdrop"
-                  autoPlay={false}
-                  showArrows={true}
+                  autoPlay={true}
+                  interval={8000}
                 />
               )}
               
@@ -135,8 +135,8 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Recent Releases"
                   movies={recentReleases}
-                  autoPlay={false}
-                  showArrows={true}
+                  autoPlay={true}
+                  interval={11000}
                 />
               )}
             </>
