@@ -1,11 +1,11 @@
-
-import React, { ErrorBoundary } from "react";
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import ContentSlider from "@/components/ContentSlider";
 import Welcome from "@/components/Welcome";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { fetchTrendingMovies, fetchPopularMovies, fetchAllMovies, fetchPopularTVShows } from "@/services/api";
 import { Movie } from "@/lib/mockData";
 
@@ -116,7 +116,7 @@ const Index: React.FC = () => {
             <>
               {securedTrendingMovies.length > 0 && (
                 <React.Suspense fallback={<div>Loading Trending Now...</div>}>
-                  <ErrorBoundary FallbackComponent={ErrorFallback} onReset={() => {}}>
+                  <ErrorBoundary fallback={ErrorFallback} onReset={() => {}}>
                     <ContentSlider
                       title="Trending Now"
                       movies={securedTrendingMovies}
