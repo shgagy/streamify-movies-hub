@@ -46,17 +46,6 @@ const Hero: React.FC<HeroProps> = ({ movie }) => {
       <div className="relative z-20 flex flex-col justify-end h-full">
         <div className="page-container pb-16 md:pb-24">
           <div className="max-w-2xl animate-fade-in">
-            <div className="flex flex-wrap gap-2 mb-4">
-              {movie.genres.slice(0, 3).map((genre, index) => (
-                <span 
-                  key={index}
-                  className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-sm"
-                >
-                  {genre}
-                </span>
-              ))}
-            </div>
-            
             <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
               {movie.title}
             </h1>
@@ -73,7 +62,7 @@ const Hero: React.FC<HeroProps> = ({ movie }) => {
               {movie.description}
             </p>
             
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 items-center">
               <Button 
                 className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md flex items-center space-x-2"
                 onClick={handlePlayClick}
@@ -98,6 +87,17 @@ const Hero: React.FC<HeroProps> = ({ movie }) => {
               >
                 <Plus className="w-5 h-5" />
               </Button>
+              
+              <div className="flex flex-wrap gap-2 ml-1">
+                {movie.genres.slice(0, 3).map((genre, index) => (
+                  <span 
+                    key={index}
+                    className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-xs md:text-sm"
+                  >
+                    {genre}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
