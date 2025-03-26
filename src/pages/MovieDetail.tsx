@@ -17,20 +17,17 @@ const MovieDetail: React.FC = () => {
   const { user } = useAuth();
   const [isInMyList, setIsInMyList] = useState(false);
 
-  // Fetch movie details
   const { data: movie, isLoading: isLoadingMovie, error } = useQuery({
     queryKey: ['movie', id],
     queryFn: () => fetchMovieById(id as string),
     enabled: !!id,
   });
 
-  // Fetch all movies for similar movies feature
   const { data: allMovies = [] } = useQuery({
     queryKey: ['movies'],
     queryFn: fetchAllMovies,
   });
 
-  // Check if the movie is in the user's list
   useEffect(() => {
     if (user && movie) {
       try {
@@ -52,7 +49,6 @@ const MovieDetail: React.FC = () => {
     }
   }, [user, movie]);
 
-  // Find similar movies based on genres
   const similarMovies = movie 
     ? allMovies.filter(
         (m: Movie) => 
@@ -76,7 +72,6 @@ const MovieDetail: React.FC = () => {
         myList = JSON.parse(savedList);
       }
       
-      // Check if movie is already in the list
       if (myList.some(item => item.id === movie.id)) {
         toast("This movie is already in your list");
         return;
@@ -163,10 +158,8 @@ const MovieDetail: React.FC = () => {
     <div className="min-h-screen bg-streamify-black text-white">
       <Navbar />
 
-      <main className="pt-16">
-        {/* Hero Section with Movie Details */}
+      <main className="pt-20">
         <div className="relative h-[80vh] w-full overflow-hidden">
-          {/* Background Image with Gradient Overlay */}
           <div className="absolute inset-0 z-0">
             <div className="absolute inset-0 bg-gradient-to-t from-streamify-black via-streamify-black/80 to-transparent z-10" />
             <div className="absolute inset-0 bg-gradient-to-r from-streamify-black/80 to-transparent z-10" />
@@ -177,18 +170,15 @@ const MovieDetail: React.FC = () => {
             />
           </div>
 
-          {/* Back Button */}
           <button
             onClick={() => navigate(-1)}
-            className="absolute top-4 left-4 z-30 p-2 bg-black/50 backdrop-blur-sm rounded-full hover:bg-black/70 transition-colors"
+            className="absolute top-8 left-4 z-30 p-2 bg-black/50 backdrop-blur-sm rounded-full hover:bg-black/70 transition-colors"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
 
-          {/* Content */}
-          <div className="relative z-20 flex items-end h-full page-container pb-16">
+          <div className="relative z-20 flex items-end h-full page-container pb-16 pt-8">
             <div className="flex flex-col md:flex-row gap-8 items-start">
-              {/* Movie Poster */}
               <div className="hidden md:block w-64 overflow-hidden rounded-md shadow-lg animate-fade-in">
                 <img
                   src={movie.posterUrl}
@@ -197,7 +187,6 @@ const MovieDetail: React.FC = () => {
                 />
               </div>
 
-              {/* Movie Info */}
               <div className="max-w-2xl animate-fade-in">
                 <div className="flex flex-wrap gap-2 mb-4">
                   {movie.genres.map((genre, index) => (
@@ -278,7 +267,6 @@ const MovieDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Movie Trailer Section */}
         {movie.trailerUrl && (
           <div className="py-16 page-container">
             <h2 className="text-2xl font-bold mb-6">Trailer</h2>
@@ -297,7 +285,6 @@ const MovieDetail: React.FC = () => {
           </div>
         )}
 
-        {/* Similar Movies */}
         {similarMovies.length > 0 && (
           <ContentSlider
             title="You May Also Like"
