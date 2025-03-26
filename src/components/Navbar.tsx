@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Search, Menu, X, Film, Home, Compass, Bell, Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { genres } from "@/lib/mockData";
@@ -8,11 +8,14 @@ import { Button } from "@/components/ui/button";
 import SearchBar from "./SearchBar";
 import ProfileButton from "./ProfileButton";
 import { useAuth } from "@/contexts/AuthContext";
+import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const location = useLocation();
   
   // Create a conditional approach to handle myList count
   const { user } = useAuth();
@@ -57,6 +60,11 @@ const Navbar = () => {
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
   const toggleSearch = () => setSearchOpen(!searchOpen);
 
+  // Helper function to determine if a link is active
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
+
   return (
     <header
       className={cn(
@@ -77,32 +85,84 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1">
-          <Link to="/" className="nav-link">
-            Home
-          </Link>
-          <Link to="/movies" className="nav-link">
-            Movies
-          </Link>
-          <Link to="/tv-shows" className="nav-link">
-            TV Shows
-          </Link>
-          <Link to="/my-list" className="nav-link">
-            My List {myListCount > 0 && <span className="ml-1 px-1.5 py-0.5 bg-primary rounded-full text-xs">{myListCount}</span>}
-          </Link>
-          <div className="group relative">
-            <button className="nav-link">Genres</button>
-            <div className="absolute top-full left-0 hidden group-hover:grid grid-cols-3 gap-2 p-4 bg-streamify-darkgray rounded-md shadow-lg w-[500px] animate-fade-in">
-              {genres.map((genre) => (
-                <Link
-                  key={genre.id}
-                  to={`/genre/${genre.id}`}
-                  className="px-3 py-2 hover:bg-streamify-gray rounded-md transition-colors"
-                >
-                  {genre.name}
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <Link to="/" className={cn(
+                  "nav-link flex items-center",
+                  isActive("/") && "text-primary"
+                )}>
+                  <span>Home</span>
+                  {isActive("/") && (
+                    <span className="ml-2 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                  )}
                 </Link>
-              ))}
-            </div>
-          </div>
+              </NavigationMenuItem>
+              
+              <NavigationMenuItem>
+                <Link to="/movies" className={cn(
+                  "nav-link flex items-center",
+                  isActive("/movies") && "text-primary"
+                )}>
+                  <span>Movies</span>
+                  {isActive("/movies") && (
+                    <span className="ml-2 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                  )}
+                </Link>
+              </NavigationMenuItem>
+              
+              <NavigationMenuItem>
+                <Link to="/tv-shows" className={cn(
+                  "nav-link flex items-center",
+                  isActive("/tv-shows") && "text-primary"
+                )}>
+                  <span>TV Shows</span>
+                  {isActive("/tv-shows") && (
+                    <span className="ml-2 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                  )}
+                </Link>
+              </NavigationMenuItem>
+              
+              <NavigationMenuItem>
+                <Link to="/my-list" className={cn(
+                  "nav-link flex items-center",
+                  isActive("/my-list") && "text-primary"
+                )}>
+                  <span>My List</span>
+                  {myListCount > 0 && (
+                    <span className="ml-1 px-1.5 py-0.5 bg-primary rounded-full text-xs">{myListCount}</span>
+                  )}
+                  {isActive("/my-list") && (
+                    <span className="ml-2 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                  )}
+                </Link>
+              </NavigationMenuItem>
+              
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className={cn(
+                  "bg-transparent hover:bg-transparent focus:bg-transparent",
+                  isActive("/genre") && "text-primary"
+                )}>
+                  Genres {isActive("/genre") && (
+                    <span className="ml-2 w-2 h-2 bg-primary rounded-full animate-pulse"></span>
+                  )}
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid grid-cols-3 gap-2 p-4 w-[500px] bg-streamify-darkgray">
+                    {genres.map((genre) => (
+                      <Link
+                        key={genre.id}
+                        to={`/genre/${genre.id}`}
+                        className="px-3 py-2 hover:bg-streamify-gray rounded-md transition-colors"
+                      >
+                        {genre.name}
+                      </Link>
+                    ))}
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
         </nav>
 
         {/* Right side - Search, Notifications, User */}
@@ -120,14 +180,23 @@ const Navbar = () => {
           <div className="hidden md:flex items-center ml-4">
             <Link
               to="/notifications"
-              className="p-2 text-white/80 hover:text-white transition-colors"
+              className={cn(
+                "p-2 text-white/80 hover:text-white transition-colors relative",
+                isActive("/notifications") && "text-primary"
+              )}
               aria-label="Notifications"
             >
               <Bell className="w-5 h-5" />
+              {isActive("/notifications") && (
+                <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full"></span>
+              )}
             </Link>
             <Link
               to="/my-list"
-              className="p-2 text-white/80 hover:text-white transition-colors relative"
+              className={cn(
+                "p-2 text-white/80 hover:text-white transition-colors relative",
+                isActive("/my-list") && "text-primary"
+              )}
               aria-label="My List"
             >
               <Bookmark className="w-5 h-5" />
@@ -135,6 +204,9 @@ const Navbar = () => {
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-xs flex items-center justify-center">
                   {myListCount}
                 </span>
+              )}
+              {isActive("/my-list") && (
+                <span className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full"></span>
               )}
             </Link>
             
@@ -158,48 +230,78 @@ const Navbar = () => {
             <nav className="flex flex-col p-5 space-y-4">
               <Link
                 to="/"
-                className="flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md"
+                className={cn(
+                  "flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md",
+                  isActive("/") && "bg-streamify-gray"
+                )}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Home className="w-5 h-5" />
                 <span>Home</span>
+                {isActive("/") && (
+                  <span className="ml-auto w-2 h-2 bg-primary rounded-full"></span>
+                )}
               </Link>
               <Link
                 to="/movies"
-                className="flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md"
+                className={cn(
+                  "flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md",
+                  isActive("/movies") && "bg-streamify-gray"
+                )}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Film className="w-5 h-5" />
                 <span>Movies</span>
+                {isActive("/movies") && (
+                  <span className="ml-auto w-2 h-2 bg-primary rounded-full"></span>
+                )}
               </Link>
               <Link
                 to="/tv-shows"
-                className="flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md"
+                className={cn(
+                  "flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md",
+                  isActive("/tv-shows") && "bg-streamify-gray"
+                )}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Film className="w-5 h-5" />
                 <span>TV Shows</span>
+                {isActive("/tv-shows") && (
+                  <span className="ml-auto w-2 h-2 bg-primary rounded-full"></span>
+                )}
               </Link>
               <Link
                 to="/my-list"
-                className="flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md"
+                className={cn(
+                  "flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md",
+                  isActive("/my-list") && "bg-streamify-gray"
+                )}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Bookmark className="w-5 h-5" />
                 <span>My List</span>
                 {myListCount > 0 && (
-                  <span className="ml-auto px-1.5 py-0.5 bg-primary rounded-full text-xs">
+                  <span className="ml-1 px-1.5 py-0.5 bg-primary rounded-full text-xs">
                     {myListCount}
                   </span>
+                )}
+                {isActive("/my-list") && (
+                  <span className="ml-auto w-2 h-2 bg-primary rounded-full"></span>
                 )}
               </Link>
               <Link
                 to="/explore"
-                className="flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md"
+                className={cn(
+                  "flex items-center space-x-2 p-3 hover:bg-streamify-gray rounded-md",
+                  isActive("/explore") && "bg-streamify-gray"
+                )}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Compass className="w-5 h-5" />
                 <span>Explore</span>
+                {isActive("/explore") && (
+                  <span className="ml-auto w-2 h-2 bg-primary rounded-full"></span>
+                )}
               </Link>
               
               <div className="border-t border-streamify-gray my-2 pt-2">
@@ -209,10 +311,16 @@ const Navbar = () => {
                     <Link
                       key={genre.id}
                       to={`/genre/${genre.id}`}
-                      className="px-3 py-2 hover:bg-streamify-gray rounded-md transition-colors"
+                      className={cn(
+                        "px-3 py-2 hover:bg-streamify-gray rounded-md transition-colors flex items-center justify-between",
+                        location.pathname === `/genre/${genre.id}` && "bg-streamify-gray"
+                      )}
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      {genre.name}
+                      <span>{genre.name}</span>
+                      {location.pathname === `/genre/${genre.id}` && (
+                        <span className="w-2 h-2 bg-primary rounded-full"></span>
+                      )}
                     </Link>
                   ))}
                 </div>
