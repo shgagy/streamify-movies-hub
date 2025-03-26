@@ -4,6 +4,7 @@ import { genres } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import useResponsive from "@/hooks/useResponsive";
 
 interface GenreFilterProps {
   onSelectGenre: (genreId: string | null) => void;
@@ -17,8 +18,10 @@ const GenreFilter: React.FC<GenreFilterProps> = ({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftArrow, setShowLeftArrow] = React.useState(false);
   const [showRightArrow, setShowRightArrow] = React.useState(true);
+  const { isXs, isSm } = useResponsive();
 
-  const scrollAmount = 200;
+  // Adjust scroll amount based on screen size
+  const scrollAmount = isXs ? 120 : 200;
 
   // Handle scroll position to show/hide navigation arrows
   const handleScroll = useCallback(() => {
@@ -62,7 +65,7 @@ const GenreFilter: React.FC<GenreFilterProps> = ({
   // Memoize the button class function to improve performance
   const getButtonClass = useCallback((isSelected: boolean) => {
     return cn(
-      "whitespace-nowrap transition-colors",
+      "whitespace-nowrap transition-colors text-xs md:text-sm px-2 md:px-4",
       isSelected
         ? "bg-primary text-white hover:bg-primary/90"
         : "bg-streamify-darkgray hover:bg-streamify-gray"
@@ -78,7 +81,7 @@ const GenreFilter: React.FC<GenreFilterProps> = ({
           className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-1 bg-streamify-black/90 text-white rounded-full shadow-md hover:bg-primary/80 transition-all"
           aria-label="Scroll left"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
         </button>
       )}
       
@@ -115,7 +118,7 @@ const GenreFilter: React.FC<GenreFilterProps> = ({
           className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-1 bg-streamify-black/90 text-white rounded-full shadow-md hover:bg-primary/80 transition-all"
           aria-label="Scroll right"
         >
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
         </button>
       )}
       
