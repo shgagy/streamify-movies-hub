@@ -3,7 +3,7 @@ import React from "react";
 import { Movie } from "@/lib/mockData";
 import { useContentSlider } from "@/hooks/useContentSlider";
 import SliderContent from "./SliderContent";
-import SliderDots from "./SliderDots";
+import SliderNavigation from "./SliderNavigation";
 
 interface ContentSliderProps {
   title: string;
@@ -20,7 +20,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   layout = "poster",
   autoPlay = false,
   interval = 8000,
-  showArrows = false,
+  showArrows = true,
 }) => {
   const {
     sliderRef,
@@ -28,17 +28,18 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     totalSlides,
     handleScroll,
     scrollToSlide,
-    getVisibleDots
   } = useContentSlider({
     totalItems: movies.length,
     layout
   });
 
-  const handleDotClick = (index: number) => {
-    scrollToSlide(index);
+  const handlePrevious = () => {
+    scrollToSlide(Math.max(0, activeIndex - 1));
   };
 
-  const maxVisibleDots = getVisibleDots();
+  const handleNext = () => {
+    scrollToSlide(Math.min(totalSlides - 1, activeIndex + 1));
+  };
 
   return (
     <div className="my-8">
@@ -54,11 +55,13 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             onScroll={handleScroll}
           />
 
-          {/* Dot Navigation - Conditionally render based on number of slides */}
-          <SliderDots
-            totalDots={maxVisibleDots}
+          {/* Arrow Navigation */}
+          <SliderNavigation
+            totalSlides={totalSlides}
             activeIndex={activeIndex}
-            onDotClick={handleDotClick}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
+            showNavigation={showArrows}
           />
         </div>
       </div>
