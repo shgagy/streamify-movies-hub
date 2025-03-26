@@ -6,9 +6,10 @@ import { Movie } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import { useMyList } from "@/contexts/MyListContext";
 import { Canvas } from "@react-three/fiber";
-import { useFrame } from "@react-three/fiber";
-import { PerspectiveCamera, Environment, Float } from "@react-three/drei";
+import { useFrame, useLoader } from "@react-three/fiber";
+import { PerspectiveCamera, Environment, Float, useTexture } from "@react-three/drei";
 import * as THREE from "three";
+import { TextureLoader } from "three";
 
 interface ContentSliderProps {
   title: string;
@@ -27,6 +28,9 @@ const MovieItem = ({ movie, index, active, totalItems, onClick }) => {
   const theta = (index / totalItems) * Math.PI * 2;
   const x = radius * Math.sin(theta);
   const z = radius * Math.cos(theta);
+  
+  // Load texture for the movie poster
+  const texture = useTexture(movie.posterUrl || movie.backdropUrl);
   
   // Rotation for active item
   useFrame((state) => {
@@ -47,9 +51,7 @@ const MovieItem = ({ movie, index, active, totalItems, onClick }) => {
         scale={active ? 1.2 : 0.8}
       >
         <boxGeometry args={[1.5, 2, 0.1]} />
-        <meshStandardMaterial>
-          <canvasTexture attach="map" image={document.createElement('img')} />
-        </meshStandardMaterial>
+        <meshStandardMaterial map={texture} />
       </mesh>
     </Float>
   );
