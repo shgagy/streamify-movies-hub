@@ -91,9 +91,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             <ChevronRight className="h-8 w-8" />
           </button>
 
-          {/* Gradient fades at the edges */}
-          <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-background to-transparent pointer-events-none z-20" />
-          <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-background to-transparent pointer-events-none z-20" />
+          {/* Removed the gradient fades at the edges */}
         </div>
       </div>
     </div>
