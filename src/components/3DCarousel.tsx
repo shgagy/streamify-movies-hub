@@ -61,15 +61,19 @@ export const MovieItem = ({ movie, index, active, totalItems, onClick }) => {
     return texture;
   }, [movie.title, movie.releaseYear]);
   
+  // Use a path to local placeholder image if the image can't be loaded
+  const placeholderUrl = "/movie-placeholder.jpg";
+  const imageToLoad = movie.posterUrl || movie.backdropUrl || placeholderUrl;
+  
   // Try to load texture with fallback
   const [texture, error] = useTexture(
-    [movie.posterUrl || movie.backdropUrl], 
-    // Onload
+    imageToLoad, 
+    // On success - leave undefined to use default
     undefined, 
-    // Onerror
+    // On error - use our fallback
     () => {
       console.warn(`Failed to load texture for ${movie.title}, using fallback`);
-      return [fallbackTexture];
+      return fallbackTexture;
     }
   );
   
@@ -95,7 +99,7 @@ export const MovieItem = ({ movie, index, active, totalItems, onClick }) => {
         scale={active ? 1.2 : 0.8}
       >
         <boxGeometry args={[1.5, 2, 0.1]} />
-        <meshStandardMaterial map={Array.isArray(finalTexture) ? finalTexture[0] : finalTexture} />
+        <meshStandardMaterial map={finalTexture} />
       </mesh>
     </Float>
   );

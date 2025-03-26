@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Play, Plus, Info } from "lucide-react";
@@ -5,7 +6,7 @@ import { Movie } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import { useMyList } from "@/contexts/MyListContext";
 import { Canvas } from "@react-three/fiber";
-import { Environment } from "@react-three/drei";
+import { Environment, Suspense } from "@react-three/drei";
 import { Carousel3D } from "./3DCarousel";
 
 interface ContentSliderProps {
@@ -72,21 +73,27 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
         <div className="page-container">
           <h2 className="text-2xl font-bold mb-4 animate-fade-in">{title}</h2>
           <div className="h-[40vh] w-full">
-            <Canvas 
-              camera={{ position: [0, 0, 8], fov: 60 }}
-              onError={(error) => {
-                console.error("Canvas error:", error);
-              }}
-            >
-              <ambientLight intensity={0.5} />
-              <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
-              <Carousel3D 
-                movies={movies} 
-                activeIndex={activeIndex} 
-                setActiveIndex={setActiveIndex} 
-              />
-              <Environment preset="city" />
-            </Canvas>
+            <Suspense fallback={
+              <div className="flex items-center justify-center h-full">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+              </div>
+            }>
+              <Canvas 
+                camera={{ position: [0, 0, 8], fov: 60 }}
+                onError={(error) => {
+                  console.error("Canvas error:", error);
+                }}
+              >
+                <ambientLight intensity={0.5} />
+                <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} intensity={1} />
+                <Carousel3D 
+                  movies={movies} 
+                  activeIndex={activeIndex} 
+                  setActiveIndex={setActiveIndex} 
+                />
+                <Environment preset="city" />
+              </Canvas>
+            </Suspense>
           </div>
           {movies.length > 0 && (
             <div className="text-center pt-4">
@@ -138,9 +145,12 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
               <div className="absolute inset-0 bg-gradient-to-r from-streamify-black/50 to-transparent z-10" />
               <div className="absolute inset-0 bg-gradient-to-t from-streamify-black/50 via-streamify-black/10 to-transparent z-10" />
               <img 
-                src={movie.backdropUrl} 
+                src={movie.backdropUrl || "/movie-placeholder.jpg"} 
                 alt={movie.title} 
                 className="w-full h-full object-cover object-center animate-scale-in" 
+                onError={(e) => {
+                  e.currentTarget.src = "/movie-placeholder.jpg";
+                }}
               />
             </div>
             
