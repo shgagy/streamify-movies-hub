@@ -13,6 +13,7 @@ interface ContentSliderProps {
   autoPlay?: boolean;
   interval?: number;
   useDotNavigation?: boolean;
+  showArrows?: boolean;
 }
 
 const ContentSlider: React.FC<ContentSliderProps> = ({
@@ -21,7 +22,8 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   layout = "poster",
   autoPlay = false,
   interval = 8000,
-  useDotNavigation = true, // Changed default to true so all sections have dot navigation
+  useDotNavigation = true,
+  showArrows = false,
 }) => {
   const { isMdUp } = useResponsive();
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -86,12 +88,12 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   useEffect(() => {
     if (!autoPlay || totalSlides <= 1) return;
     
-    const autoPlayInterval = setInterval(() => {
+    const autoPlayTimer = setInterval(() => {
       const nextIndex = (activeIndex + 1) % totalSlides;
       scrollToSlide(nextIndex);
     }, interval);
     
-    return () => clearInterval(autoPlayInterval);
+    return () => clearInterval(autoPlayTimer);
   }, [activeIndex, autoPlay, interval, scrollToSlide, totalSlides]);
 
   return (
@@ -100,17 +102,19 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
         <h2 className="text-2xl font-bold mb-4">{title}</h2>
 
         <div className="relative group">
-          {/* Left navigation button */}
-          <button
-            className={cn(
-              "absolute left-0 top-1/2 -translate-y-1/2 z-30 p-1 bg-streamify-black/80 text-white rounded-full transform transition-all duration-300",
-              showLeftButton ? "opacity-80 hover:opacity-100 -translate-x-0" : "opacity-0 -translate-x-10 pointer-events-none"
-            )}
-            onClick={() => scroll("left")}
-            aria-label="Scroll left"
-          >
-            <ChevronLeft className="h-8 w-8" />
-          </button>
+          {/* Left navigation button - only shown if showArrows is true */}
+          {showArrows && (
+            <button
+              className={cn(
+                "absolute left-0 top-1/2 -translate-y-1/2 z-30 p-1 bg-streamify-black/80 text-white rounded-full transform transition-all duration-300",
+                showLeftButton ? "opacity-80 hover:opacity-100 -translate-x-0" : "opacity-0 -translate-x-10 pointer-events-none"
+              )}
+              onClick={() => scroll("left")}
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="h-8 w-8" />
+            </button>
+          )}
 
           {/* Content slider */}
           <div
@@ -153,20 +157,22 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             ))}
           </div>
 
-          {/* Right navigation button */}
-          <button
-            className={cn(
-              "absolute right-0 top-1/2 -translate-y-1/2 z-30 p-1 bg-streamify-black/80 text-white rounded-full transform transition-all duration-300",
-              showRightButton ? "opacity-80 hover:opacity-100 translate-x-0" : "opacity-0 translate-x-10 pointer-events-none"
-            )}
-            onClick={() => scroll("right")}
-            aria-label="Scroll right"
-          >
-            <ChevronRight className="h-8 w-8" />
-          </button>
+          {/* Right navigation button - only shown if showArrows is true */}
+          {showArrows && (
+            <button
+              className={cn(
+                "absolute right-0 top-1/2 -translate-y-1/2 z-30 p-1 bg-streamify-black/80 text-white rounded-full transform transition-all duration-300",
+                showRightButton ? "opacity-80 hover:opacity-100 translate-x-0" : "opacity-0 translate-x-10 pointer-events-none"
+              )}
+              onClick={() => scroll("right")}
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="h-8 w-8" />
+            </button>
+          )}
         </div>
         
-        {/* Dot Navigation Controls */}
+        {/* Dot Navigation Controls - only shown if useDotNavigation is true */}
         {useDotNavigation && totalSlides > 1 && (
           <div className="flex justify-center mt-4">
             <div className="flex items-center gap-2">

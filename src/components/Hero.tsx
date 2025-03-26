@@ -43,7 +43,7 @@ const Hero: React.FC<HeroProps> = ({
     console.log(`Scrolled to slide ${index}`);
   }, []);
 
-  // Set up manual carousel functionality
+  // Set up auto carousel functionality
   useEffect(() => {
     // Auto advance slides every 8 seconds
     const interval = setInterval(() => {

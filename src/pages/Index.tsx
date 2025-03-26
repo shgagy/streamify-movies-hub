@@ -88,6 +88,7 @@ const Index: React.FC = () => {
                   movies={trendingMovies}
                   useDotNavigation={true}
                   autoPlay={false}
+                  showArrows={false}
                 />
               )}
               
@@ -95,8 +96,9 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Popular on Streamify"
                   movies={popularMovies}
-                  useDotNavigation={true}
+                  useDotNavigation={false}
                   autoPlay={false}
+                  showArrows={false}
                 />
               )}
               
@@ -105,8 +107,9 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Recently Added Anime"
                   movies={animeMovies}
-                  useDotNavigation={true}
+                  useDotNavigation={false}
                   autoPlay={false}
+                  showArrows={false}
                 />
               )}
               
@@ -115,8 +118,9 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Featured Series"
                   movies={featuredSeries}
-                  useDotNavigation={true}
+                  useDotNavigation={false}
                   autoPlay={false}
+                  showArrows={false}
                 />
               )}
               
@@ -129,6 +133,7 @@ const Index: React.FC = () => {
                   autoPlay={true}
                   interval={8000}
                   useDotNavigation={true}
+                  showArrows={false}
                 />
               )}
               
@@ -138,6 +143,7 @@ const Index: React.FC = () => {
                   movies={recentReleases}
                   useDotNavigation={true}
                   autoPlay={false}
+                  showArrows={false}
                 />
               )}
             </>
