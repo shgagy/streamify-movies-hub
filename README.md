@@ -1,69 +1,98 @@
-# Welcome to your Lovable project
 
-## Project info
+# Streamify - Streaming Platform Demo
 
-**URL**: https://lovable.dev/projects/2d912902-a034-4278-9f9a-d97ace78e684
+Streamify is a Netflix-inspired streaming platform demo built with modern web technologies. It features a sleek interface for browsing movies and TV shows, with functionalities like user authentication, watchlists, and content playback.
 
-## How can I edit this code?
+![Streamify Screenshot](https://i.imgur.com/placeholder.jpg)
 
-There are several ways of editing your application.
+## Features
 
-**Use Lovable**
+- 🎬 Browse movies and TV shows catalog
+- 📺 Watch content in the built-in video player
+- 🔍 Search for titles
+- 🏷️ Filter by genre
+- 👤 User authentication (demo mode)
+- 📋 Personal watchlist management
+- 🌗 Light/dark theme support
+- 📱 Fully responsive design
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/2d912902-a034-4278-9f9a-d97ace78e684) and start prompting.
+## Tech Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+This project is built with:
 
-**Use your preferred IDE**
+- **React** - Frontend library
+- **TypeScript** - Type safety
+- **Vite** - Build tool and development server
+- **React Router** - Navigation and routing
+- **Tailwind CSS** - Utility-first styling
+- **shadcn/ui** - UI component library
+- **Tanstack Query** - Data fetching and state management
+- **Lucide Icons** - SVG icon set
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
 
-Follow these steps:
+- Node.js (v16 or higher)
+- npm or yarn
 
+### Installation
+
+1. Clone the repository:
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+git clone <repository-url>
+cd streamify
 ```
 
-**Edit a file directly in GitHub**
+2. Install dependencies:
+```sh
+npm install
+# or with yarn
+yarn
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+3. Start the development server:
+```sh
+npm run dev
+# or with yarn
+yarn dev
+```
 
-**Use GitHub Codespaces**
+4. Open your browser and navigate to `http://localhost:8080`
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Project Structure
 
-## What technologies are used for this project?
+```
+src/
+├── components/     # UI components
+├── contexts/       # React contexts for state management
+├── hooks/          # Custom React hooks
+├── lib/            # Utilities and helper functions
+├── pages/          # Page components
+├── services/       # API services
+└── main.tsx        # Application entry point
+```
 
-This project is built with .
+## Authentication
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+This demo uses a simplified mock authentication system:
 
-## How can I deploy this project?
+- Default demo account: demo@example.com / password123
+- You can also "sign up" with any email/password (data stored in localStorage)
 
-Simply open [Lovable](https://lovable.dev/projects/2d912902-a034-4278-9f9a-d97ace78e684) and click on Share -> Publish.
+## Development Notes
 
-## I want to use a custom domain - is that possible?
+- The application uses mock data for movies and TV shows stored in `src/lib/mockData.ts`
+- User preferences, watchlists, and authentication are stored in localStorage
 
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch: `git checkout -b feature/my-feature`
+3. Commit your changes: `git commit -m 'Add my feature'`
+4. Push to the branch: `git push origin feature/my-feature`
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
