@@ -88,7 +88,7 @@ const Index: React.FC = () => {
                   movies={trendingMovies}
                   useDotNavigation={true}
                   autoPlay={false}
-                  showArrows={false}
+                  showArrows={true}
                 />
               )}
               
@@ -98,7 +98,7 @@ const Index: React.FC = () => {
                   movies={popularMovies}
                   useDotNavigation={true}
                   autoPlay={false}
-                  showArrows={false}
+                  showArrows={true}
                 />
               )}
               
@@ -109,7 +109,7 @@ const Index: React.FC = () => {
                   movies={animeMovies}
                   useDotNavigation={true}
                   autoPlay={false}
-                  showArrows={false}
+                  showArrows={true}
                 />
               )}
               
@@ -120,7 +120,7 @@ const Index: React.FC = () => {
                   movies={featuredSeries}
                   useDotNavigation={true}
                   autoPlay={false}
-                  showArrows={false}
+                  showArrows={true}
                 />
               )}
               
@@ -133,7 +133,7 @@ const Index: React.FC = () => {
                   autoPlay={true}
                   interval={8000}
                   useDotNavigation={true}
-                  showArrows={false}
+                  showArrows={true}
                 />
               )}
               
@@ -143,7 +143,7 @@ const Index: React.FC = () => {
                   movies={recentReleases}
                   useDotNavigation={true}
                   autoPlay={false}
-                  showArrows={false}
+                  showArrows={true}
                 />
               )}
             </>
