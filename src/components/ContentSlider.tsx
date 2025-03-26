@@ -18,7 +18,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   title,
   movies,
   layout = "poster",
-  autoPlay = true,
+  autoPlay = false, // Changed default to false
   interval = 8000,
   showArrows = false,
 }) => {
@@ -138,19 +138,13 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     };
   }, [calculateTotalSlides, handleScroll, movies.length, itemsPerPage]);
 
-  // Auto-play functionality with improved handling
-  useEffect(() => {
-    if (!autoPlay || totalSlides <= 1) return;
-    
-    const autoPlayTimer = setInterval(() => {
-      // For wide screens, we want to avoid going to the last slide
-      const maxIndex = isMdUp ? totalSlides - 2 : totalSlides - 1;
-      const nextIndex = activeIndex < maxIndex ? activeIndex + 1 : 0;
-      scrollToSlide(nextIndex);
-    }, interval);
-    
-    return () => clearInterval(autoPlayTimer);
-  }, [activeIndex, autoPlay, interval, scrollToSlide, totalSlides, isMdUp]);
+  // Handle dot navigation
+  const handleDotClick = (index: number) => {
+    scrollToSlide(index);
+  };
+
+  // Calculate visible dots based on screen size
+  const maxVisibleDots = isMdUp ? Math.max(0, totalSlides - 1) : totalSlides;
 
   return (
     <div className="my-8">
@@ -199,6 +193,26 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
               </div>
             ))}
           </div>
+
+          {/* Dot Navigation */}
+          {maxVisibleDots > 1 && (
+            <div className="flex justify-center mt-4">
+              <div className="flex items-center gap-2">
+                {Array.from({ length: maxVisibleDots }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleDotClick(index)}
+                    className={`transition-all duration-300 ${
+                      index === activeIndex
+                        ? "bg-primary w-8 h-2.5 rounded-full"
+                        : "bg-white/30 hover:bg-white/50 w-2.5 h-2.5 rounded-full"
+                    }`}
+                    aria-label={`Go to slide ${index + 1}`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
