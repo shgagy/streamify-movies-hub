@@ -1,9 +1,9 @@
-
 import React, { useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Movie } from "@/lib/mockData";
 import MovieCard from "./MovieCard";
 import { cn } from "@/lib/utils";
+import useResponsive from "@/hooks/useResponsive";
 
 interface ContentSliderProps {
   title: string;
@@ -16,6 +16,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   movies,
   layout = "poster",
 }) => {
+  const { isMdUp } = useResponsive();
   const sliderRef = useRef<HTMLDivElement>(null);
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);
@@ -81,10 +82,14 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
                 key={movie.id}
                 className={cn(
                   "flex-none animate-fade-in",
-                  layout === "backdrop" ? "first:pl-0 last:pr-8" : ""
+                  layout === "backdrop" ? "first:pl-0 last:pr-8" : "",
+                  isMdUp ? "w-auto" : "w-[28.5%]"
                 )}
+                style={{
+                  minWidth: isMdUp ? (layout === "poster" ? "180px" : "320px") : (layout === "poster" ? "110px" : "200px")
+                }}
               >
-                <MovieCard movie={movie} layout={layout} />
+                <MovieCard movie={movie} layout={layout} size={isMdUp ? "md" : "sm"} />
               </div>
             ))}
           </div>
@@ -100,8 +105,6 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           >
             <ChevronRight className="h-8 w-8" />
           </button>
-
-          {/* Removed the gradient fades at the edges */}
         </div>
       </div>
     </div>
