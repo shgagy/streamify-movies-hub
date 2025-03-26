@@ -46,11 +46,6 @@ const Hero: React.FC<HeroProps> = ({ movies }) => {
         loop: true,
         duration: 50
       }}
-      onSlideChange={(slider) => {
-        if (slider) {
-          setCurrentIndex(slider.selectedScrollSnap());
-        }
-      }}
     >
       <CarouselContent>
         {movies.map((movie, index) => (
