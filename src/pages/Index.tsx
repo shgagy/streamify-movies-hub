@@ -31,8 +31,30 @@ const Index: React.FC = () => {
     queryFn: fetchPopularTVShows
   });
 
+  // Create a sample of recent releases (using all movies, sorted by releaseYear)
+  const recentReleases = [...allMovies]
+    .sort((a: Movie, b: Movie) => b.releaseYear - a.releaseYear)
+    .slice(0, 10);
+
   // Get featured movies for the hero carousel (using top 5 popular movies)
   const featuredMovies = popularMovies.slice(0, 5);
+
+  // Get 10 popular movies for the featured movies section with autoplay
+  const featuredMoviesForSlider = popularMovies.slice(0, 10);
+
+  // Create a sample of anime (filtering movies that have "Animation" or "Anime" in genres)
+  const animeMovies = allMovies
+    .filter((movie: Movie) => 
+      movie.genres.some(genre => 
+        genre.toLowerCase().includes('animation') || 
+        genre.toLowerCase().includes('anime')
+      )
+    )
+    .sort((a: Movie, b: Movie) => b.releaseYear - a.releaseYear)
+    .slice(0, 10);
+
+  // Featured series from TV shows
+  const featuredSeries = popularTVShows.slice(0, 10);
 
   return (
     <div className="min-h-screen bg-streamify-black text-white">
@@ -44,13 +66,13 @@ const Index: React.FC = () => {
           <Hero movies={featuredMovies} />
         )}
         
-        <div className="py-6">
+        <div className="py-10">
           {/* Welcome Message (first visit) */}
           <div className="page-container">
             <Welcome />
           </div>
           
-          {/* Content Sections */}
+          {/* Content Sliders */}
           {loadingTrending || loadingPopular || loadingAllMovies || loadingPopularTVShows ? (
             <div className="flex justify-center py-12">
               <div className="animate-pulse flex flex-col items-center">
@@ -62,16 +84,66 @@ const Index: React.FC = () => {
             <>
               {trendingMovies.length > 0 && (
                 <ContentSlider
-                  title="الرائج الآن"
+                  title="Trending Now"
                   movies={trendingMovies}
+                  useDotNavigation={true}
+                  autoPlay={false}
+                  showArrows={false}
                 />
               )}
               
               {popularMovies.length > 0 && (
                 <ContentSlider
-                  title="الشائع على Streamify"
+                  title="Popular on Streamify"
                   movies={popularMovies}
-                  featured={true}
+                  useDotNavigation={true}
+                  autoPlay={false}
+                  showArrows={false}
+                />
+              )}
+              
+              {/* New section: Recently Added Anime */}
+              {animeMovies.length > 0 && (
+                <ContentSlider
+                  title="Recently Added Anime"
+                  movies={animeMovies}
+                  useDotNavigation={true}
+                  autoPlay={false}
+                  showArrows={false}
+                />
+              )}
+              
+              {/* New section: Featured Series */}
+              {featuredSeries.length > 0 && (
+                <ContentSlider
+                  title="Featured Series"
+                  movies={featuredSeries}
+                  useDotNavigation={true}
+                  autoPlay={false}
+                  showArrows={false}
+                />
+              )}
+              
+              {/* Updated: Featured Movies with autoplay and dot navigation */}
+              {featuredMoviesForSlider.length > 0 && (
+                <ContentSlider
+                  title="Featured Movies"
+                  movies={featuredMoviesForSlider}
+                  layout="backdrop"
+                  autoPlay={true}
+                  interval={8000}
+                  useDotNavigation={true}
+                  showArrows={false}
+                />
+              )}
+              
+              {recentReleases.length > 0 && (
+                <ContentSlider
+                  title="Recent Releases"
+                  movies={recentReleases}
+                  useDotNavigation={true}
+                  autoPlay={false}
+                  showArrows={false}
                 />
               )}
             </>
