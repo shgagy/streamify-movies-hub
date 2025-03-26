@@ -30,18 +30,12 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [totalSlides, setTotalSlides] = useState(1);
 
   // Calculate how many items to show at once based on layout and screen size
   const itemsPerPage = isMdUp 
     ? (layout === "poster" ? 5 : 3) 
     : (layout === "poster" ? 3 : 1);
-
-  // Make sure we have at least one movie to display
-  const totalMovies = movies.length;
-  
-  // Calculate total number of slides - this is the key calculation that was incorrect
-  // We need to calculate how many full "pages" of content we have
-  const totalSlides = Math.max(Math.ceil(totalMovies / itemsPerPage), 1);
 
   // Scroll to a specific slide by index
   const scrollToSlide = useCallback((index: number) => {
@@ -51,16 +45,15 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     const boundedIndex = Math.max(0, Math.min(index, totalSlides - 1));
     setActiveIndex(boundedIndex);
     
-    // Get all item elements
-    const items = sliderRef.current.querySelectorAll('.flex-none');
-    if (items.length === 0) return;
+    // Calculate the element width including gap
+    const itemElement = sliderRef.current.querySelector('.flex-none');
+    if (!itemElement) return;
     
-    // Calculate the element width
-    const itemWidth = items[0].clientWidth;
+    const itemWidth = itemElement.clientWidth;
     const gapWidth = 16; // Our fixed gap between items
     
-    // Calculate scroll position - we need to scroll by itemsPerPage items at a time
-    const scrollPos = boundedIndex * itemsPerPage * (itemWidth + gapWidth);
+    // Calculate scroll position based on index
+    const scrollPos = boundedIndex * (itemWidth + gapWidth) * itemsPerPage;
     
     // Perform the smooth scroll
     sliderRef.current.scrollTo({
@@ -68,8 +61,20 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
       behavior: 'smooth'
     });
     
-    console.log(`Scrolled to slide ${boundedIndex} for "${title}" slider`);
+    console.log(`Scrolled to slide ${boundedIndex} for "${title}" slider, total slides: ${totalSlides}`);
   }, [itemsPerPage, title, totalSlides]);
+
+  // Calculate the total number of slides
+  const calculateTotalSlides = useCallback(() => {
+    if (!sliderRef.current) return 1;
+    
+    const totalItems = movies.length;
+    if (totalItems === 0) return 1;
+    
+    // Calculate total slides based on items per page
+    const slides = Math.ceil(totalItems / itemsPerPage);
+    return Math.max(slides, 1);
+  }, [movies.length, itemsPerPage]);
 
   // Handle manual arrow navigation
   const scroll = (direction: "left" | "right") => {
@@ -92,40 +97,38 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     // Show right button only if we're not at the end
     setShowRightButton(scrollLeft + clientWidth < scrollWidth - 5);
     
-    // Update active index based on scroll position
-    const items = sliderRef.current.querySelectorAll('.flex-none');
-    if (items.length === 0) return;
+    // Update active index based on scroll position if user manually scrolls
+    if (!sliderRef.current.querySelector('.flex-none')) return;
     
-    const itemWidth = items[0].clientWidth;
+    const itemWidth = sliderRef.current.querySelector('.flex-none')?.clientWidth || 0;
     const gapWidth = 16;
-    const pageWidth = (itemWidth + gapWidth) * itemsPerPage;
+    const slideWidth = (itemWidth + gapWidth) * itemsPerPage;
     
-    if (pageWidth > 0) {
-      // Calculate which page we're on based on scroll position
-      const newIndex = Math.round(scrollLeft / pageWidth);
+    if (slideWidth > 0) {
+      const newIndex = Math.round(scrollLeft / slideWidth);
       if (newIndex !== activeIndex && newIndex < totalSlides) {
         setActiveIndex(newIndex);
       }
     }
   };
 
-  // Initialize and handle component resize
+  // Calculate total slides and handle component resize
   useEffect(() => {
     if (!sliderRef.current) return;
     
     const handleResize = () => {
+      // Calculate total slides
+      const slides = calculateTotalSlides();
+      setTotalSlides(slides);
+      
       // Reset to the first slide when resizing to avoid out-of-bounds issues
-      setActiveIndex(0);
-      if (sliderRef.current) {
-        sliderRef.current.scrollLeft = 0;
-      }
+      setActiveIndex(prev => (prev >= slides ? 0 : prev));
       
       // Update navigation state
       handleScroll();
     };
     
     // Initial setup
-    handleScroll();
     handleResize();
     
     // Add resize listener
@@ -133,15 +136,30 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [movies.length, itemsPerPage]);
+  }, [calculateTotalSlides, movies.length, itemsPerPage]);
+
+  // Auto-play functionality
+  useEffect(() => {
+    if (!autoPlay || totalSlides <= 1) return;
+    
+    const autoPlayTimer = setInterval(() => {
+      const nextIndex = (activeIndex + 1) % totalSlides;
+      scrollToSlide(nextIndex);
+    }, interval);
+    
+    return () => clearInterval(autoPlayTimer);
+  }, [activeIndex, autoPlay, interval, scrollToSlide, totalSlides]);
 
   // Log for debugging
   useEffect(() => {
-    console.log(`${title} slider: ${totalSlides} total slides, ${activeIndex} active index, ${itemsPerPage} items per page, ${totalMovies} total movies, width: ${width}px`);
-  }, [title, totalSlides, activeIndex, itemsPerPage, width, totalMovies]);
+    console.log(`${title} slider: ${totalSlides} total slides, ${activeIndex} active index, ${itemsPerPage} items per page, width: ${width}px`);
+  }, [title, totalSlides, activeIndex, itemsPerPage, width]);
 
-  // Show dot navigation only if there's more than one slide
-  const shouldShowDotNavigation = totalSlides > 1 && useDotNavigation;
+  // Force recalculation when items per page changes
+  useEffect(() => {
+    const slides = calculateTotalSlides();
+    setTotalSlides(slides);
+  }, [calculateTotalSlides, itemsPerPage]);
 
   return (
     <div className="my-8">
@@ -220,8 +238,8 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           )}
         </div>
         
-        {/* Dot Navigation Controls - Hero-style, positioned at the bottom */}
-        {shouldShowDotNavigation && (
+        {/* Dot Navigation - Fixed to always be visible when enabled */}
+        {useDotNavigation && totalSlides > 0 && (
           <div className="flex justify-center mt-4">
             <div className="flex items-center gap-2">
               {Array.from({ length: totalSlides }).map((_, index) => (

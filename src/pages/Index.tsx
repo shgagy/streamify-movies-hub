@@ -87,7 +87,8 @@ const Index: React.FC = () => {
                   title="Trending Now"
                   movies={trendingMovies}
                   useDotNavigation={true}
-                  showArrows={false}
+                  autoPlay={false}
+                  showArrows={true}
                 />
               )}
               
@@ -96,7 +97,8 @@ const Index: React.FC = () => {
                   title="Popular on Streamify"
                   movies={popularMovies}
                   useDotNavigation={true}
-                  showArrows={false}
+                  autoPlay={false}
+                  showArrows={true}
                 />
               )}
               
@@ -106,7 +108,8 @@ const Index: React.FC = () => {
                   title="Recently Added Anime"
                   movies={animeMovies}
                   useDotNavigation={true}
-                  showArrows={false}
+                  autoPlay={false}
+                  showArrows={true}
                 />
               )}
               
@@ -116,19 +119,21 @@ const Index: React.FC = () => {
                   title="Featured Series"
                   movies={featuredSeries}
                   useDotNavigation={true}
-                  showArrows={false}
+                  autoPlay={false}
+                  showArrows={true}
                 />
               )}
               
-              {/* Featured Movies with dot navigation but no autoplay */}
+              {/* Updated: Featured Movies with autoplay and dot navigation */}
               {featuredMoviesForSlider.length > 0 && (
                 <ContentSlider
                   title="Featured Movies"
                   movies={featuredMoviesForSlider}
                   layout="backdrop"
-                  autoPlay={false}
+                  autoPlay={true}
+                  interval={8000}
                   useDotNavigation={true}
-                  showArrows={false}
+                  showArrows={true}
                 />
               )}
               
@@ -137,7 +142,8 @@ const Index: React.FC = () => {
                   title="Recent Releases"
                   movies={recentReleases}
                   useDotNavigation={true}
-                  showArrows={false}
+                  autoPlay={false}
+                  showArrows={true}
                 />
               )}
             </>
