@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
@@ -65,7 +66,7 @@ const Index: React.FC = () => {
           <Hero movies={featuredMovies} />
         )}
         
-        <div className="py-10">
+        <div className="py-4">
           {/* Welcome Message (first visit) */}
           <div className="page-container">
             <Welcome />
@@ -95,6 +96,15 @@ const Index: React.FC = () => {
                 />
               )}
               
+              {/* Featured Movies with backdrop layout */}
+              {featuredMoviesForSlider.length > 0 && (
+                <ContentSlider
+                  title="Featured Movies"
+                  movies={featuredMoviesForSlider}
+                  layout="backdrop"
+                />
+              )}
+              
               {/* Recently Added Anime */}
               {animeMovies.length > 0 && (
                 <ContentSlider
@@ -108,15 +118,6 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Featured Series"
                   movies={featuredSeries}
-                />
-              )}
-              
-              {/* Featured Movies */}
-              {featuredMoviesForSlider.length > 0 && (
-                <ContentSlider
-                  title="Featured Movies"
-                  movies={featuredMoviesForSlider}
-                  layout="backdrop"
                 />
               )}
               
