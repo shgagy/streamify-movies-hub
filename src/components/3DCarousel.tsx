@@ -65,20 +65,16 @@ export const MovieItem = ({ movie, index, active, totalItems, onClick }) => {
   const placeholderUrl = "/movie-placeholder.jpg";
   const imageToLoad = movie.posterUrl || movie.backdropUrl || placeholderUrl;
   
-  // Try to load texture with fallback
-  const [texture, error] = useTexture(
-    imageToLoad, 
-    // On success - leave undefined to use default
-    undefined, 
-    // On error - use our fallback
-    () => {
+  // Fix: Use useTexture correctly - it can accept an onError callback but as options
+  const texture = useTexture(imageToLoad, {
+    onError: () => {
       console.warn(`Failed to load texture for ${movie.title}, using fallback`);
       return fallbackTexture;
     }
-  );
+  });
   
-  // Use fallback if there was an error
-  const finalTexture = error ? fallbackTexture : texture;
+  // Use fallback if there was an error loading the texture
+  const finalTexture = texture || fallbackTexture;
   
   // Rotation for active item
   useFrame(() => {

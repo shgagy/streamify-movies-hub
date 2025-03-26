@@ -1,12 +1,12 @@
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { Play, Plus, Info } from "lucide-react";
 import { Movie } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
 import { useMyList } from "@/contexts/MyListContext";
 import { Canvas } from "@react-three/fiber";
-import { Environment, Suspense } from "@react-three/drei";
+import { Environment } from "@react-three/drei";
 import { Carousel3D } from "./3DCarousel";
 
 interface ContentSliderProps {
