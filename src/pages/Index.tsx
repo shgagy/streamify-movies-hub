@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
@@ -66,7 +65,7 @@ const Index: React.FC = () => {
           <Hero movies={featuredMovies} />
         )}
         
-        <div className="py-6">
+        <div className="py-4">
           {/* Welcome Message (first visit) */}
           <div className="page-container">
             <Welcome />
@@ -74,7 +73,7 @@ const Index: React.FC = () => {
           
           {/* Content Sections */}
           {loadingTrending || loadingPopular || loadingAllMovies || loadingPopularTVShows ? (
-            <div className="flex justify-center py-12">
+            <div className="flex justify-center py-10">
               <div className="animate-pulse flex flex-col items-center">
                 <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                 <p className="mt-4 text-white/60">Loading content...</p>
