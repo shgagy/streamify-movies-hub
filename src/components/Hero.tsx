@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Play, Plus, Info } from "lucide-react";
 import { Movie } from "@/lib/mockData";
@@ -10,6 +10,7 @@ import {
   CarouselContent,
   CarouselItem
 } from "@/components/ui/carousel";
+import useEmblaCarousel from "embla-carousel-react";
 
 interface HeroProps {
   movies: Movie[];
@@ -18,10 +19,11 @@ interface HeroProps {
 const Hero: React.FC<HeroProps> = ({ movies }) => {
   const navigate = useNavigate();
   const { addToMyList, isInMyList } = useMyList();
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true, duration: 50 });
+  const [activeIndex, setActiveIndex] = useState(0);
   
   // Get current movie based on index
-  const currentMovie = movies[currentIndex];
+  const currentMovie = movies[activeIndex];
   
   const handlePlayClick = (movieId: number) => {
     navigate(`/movie/${movieId}`);
@@ -36,16 +38,35 @@ const Hero: React.FC<HeroProps> = ({ movies }) => {
       addToMyList(movie);
     }
   };
+
+  const scrollToSlide = (index: number) => {
+    if (emblaApi) {
+      emblaApi.scrollTo(index);
+      setActiveIndex(index);
+    }
+  };
+  
+  // Update activeIndex when slide changes
+  React.useEffect(() => {
+    if (!emblaApi) return;
+    
+    const onSelect = () => {
+      setActiveIndex(emblaApi.selectedScrollSnap());
+    };
+    
+    emblaApi.on('select', onSelect);
+    
+    // Initial call to set the active index on mount
+    onSelect();
+    
+    return () => {
+      emblaApi.off('select', onSelect);
+    };
+  }, [emblaApi]);
   
   return (
-    <Carousel 
-      className="relative h-[80vh] w-full overflow-hidden"
-      opts={{
-        loop: true,
-        duration: 50
-      }}
-    >
-      <CarouselContent>
+    <Carousel className="relative h-[80vh] w-full overflow-hidden">
+      <CarouselContent ref={emblaRef}>
         {movies.map((movie, index) => (
           <CarouselItem key={movie.id} className="w-full relative min-w-0 flex-shrink-0">
             {/* Background Image with Gradient Overlay */}
@@ -130,9 +151,9 @@ const Hero: React.FC<HeroProps> = ({ movies }) => {
           {movies.map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrentIndex(index)}
+              onClick={() => scrollToSlide(index)}
               className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                index === currentIndex 
+                index === activeIndex 
                   ? "bg-primary w-8" 
                   : "bg-white/30 hover:bg-white/50"
               }`}
