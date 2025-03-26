@@ -77,7 +77,8 @@
 
   /* Force dark mode on the body */
   body {
-    @apply dark:bg-streamify-black dark:text-white bg-streamify-black text-white;
+    background-color: #080808;
+    color: white;
   }
 
   /* Custom scrollbar */
@@ -133,44 +134,40 @@
   }
 }
 
-/* Specific overrides for dark mode to match the Streamify theme */
-.dark {
-  .bg-streamify-black {
-    @apply bg-[#080808];
-  }
-  
-  .bg-streamify-darkgray {
-    @apply bg-[#121212];
-  }
-  
-  .bg-streamify-gray {
-    @apply bg-[#1a1a1a];
-  }
-  
-  .bg-streamify-lightgray {
-    @apply bg-[#2a2a2a];
-  }
+/* Streamify theme colors - non-nested versions */
+.bg-streamify-black {
+  background-color: #080808;
 }
 
-/* Light mode Streamify theme */
-:root:not(.dark) {
-  .bg-streamify-black {
-    @apply bg-[#080808]; /* Force dark background even in light mode */
-  }
-  
-  .bg-streamify-darkgray {
-    @apply bg-[#121212]; /* Force dark elements even in light mode */
-  }
-  
-  .bg-streamify-gray {
-    @apply bg-[#1a1a1a]; /* Force dark elements even in light mode */
-  }
-  
-  .bg-streamify-lightgray {
-    @apply bg-[#2a2a2a]; /* Force dark elements even in light mode */
-  }
-  
-  .text-white {
-    @apply text-white; /* Force white text even in light mode */
-  }
+.bg-streamify-darkgray {
+  background-color: #121212;
+}
+
+.bg-streamify-gray {
+  background-color: #1a1a1a;
+}
+
+.bg-streamify-lightgray {
+  background-color: #2a2a2a;
+}
+
+.dark .bg-streamify-black {
+  background-color: #080808;
+}
+
+.dark .bg-streamify-darkgray {
+  background-color: #121212;
+}
+
+.dark .bg-streamify-gray {
+  background-color: #1a1a1a;
+}
+
+.dark .bg-streamify-lightgray {
+  background-color: #2a2a2a;
+}
+
+/* Force text color */
+:root:not(.dark) .text-white {
+  color: white;
 }

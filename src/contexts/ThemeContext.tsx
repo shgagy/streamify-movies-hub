@@ -19,7 +19,7 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Always apply dark mode by default
     document.documentElement.classList.add("dark");
-  }, [isDarkMode]);
+  }, []);
 
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleDarkMode }}>
