@@ -131,11 +131,7 @@ const Navbar = () => {
               aria-label="My List"
             >
               <Bookmark className="w-5 h-5" />
-              {myListCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full text-xs flex items-center justify-center">
-                  {myListCount}
-                </span>
-              )}
+              {/* Removed the notification indicator badge */}
             </Link>
             
             {/* Profile Button */}
