@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Search, Menu, X, Film, Home, Compass, Bell, Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { genres } from "@/lib/mockData";
@@ -8,11 +8,20 @@ import { Button } from "@/components/ui/button";
 import SearchBar from "./SearchBar";
 import ProfileButton from "./ProfileButton";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const location = useLocation();
   
   // Create a conditional approach to handle myList count
   const { user } = useAuth();
@@ -57,6 +66,32 @@ const Navbar = () => {
   const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
   const toggleSearch = () => setSearchOpen(!searchOpen);
 
+  // Check if path is active
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
+  // Custom nav link with animation
+  const NavLink = ({ to, children }) => (
+    <Link 
+      to={to} 
+      className={cn(
+        "nav-link flex flex-col items-center justify-center transition-all duration-300 px-4 py-1 mx-1 relative",
+        isActive(to) && "font-medium text-white"
+      )}
+    >
+      {children}
+      <span 
+        className={cn(
+          "absolute bottom-0 left-1/2 transform -translate-x-1/2 h-1.5 w-1.5 rounded-full transition-all duration-300",
+          isActive(to) 
+            ? "bg-primary scale-100" 
+            : "bg-transparent scale-0"
+        )}
+      />
+    </Link>
+  );
+
   return (
     <header
       className={cn(
@@ -77,32 +112,39 @@ const Navbar = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1">
-          <Link to="/" className="nav-link">
-            Home
-          </Link>
-          <Link to="/movies" className="nav-link">
-            Movies
-          </Link>
-          <Link to="/tv-shows" className="nav-link">
-            TV Shows
-          </Link>
-          <Link to="/my-list" className="nav-link">
-            My List {myListCount > 0 && <span className="ml-1 px-1.5 py-0.5 bg-primary rounded-full text-xs">{myListCount}</span>}
-          </Link>
-          <div className="group relative">
-            <button className="nav-link">Genres</button>
-            <div className="absolute top-full left-0 hidden group-hover:grid grid-cols-3 gap-2 p-4 bg-streamify-darkgray rounded-md shadow-lg w-[500px] animate-fade-in">
-              {genres.map((genre) => (
-                <Link
-                  key={genre.id}
-                  to={`/genre/${genre.id}`}
-                  className="px-3 py-2 hover:bg-streamify-gray rounded-md transition-colors"
-                >
-                  {genre.name}
-                </Link>
-              ))}
-            </div>
+          <div className="relative px-2 py-1 bg-streamify-darkgray/60 backdrop-blur-sm rounded-full flex items-center">
+            <NavLink to="/">Home</NavLink>
+            <NavLink to="/movies">Movies</NavLink>
+            <NavLink to="/tv-shows">TV Shows</NavLink>
+            <NavLink to="/my-list">
+              My List {myListCount > 0 && (
+                <span className="ml-1 px-1.5 py-0.5 bg-primary rounded-full text-xs absolute -top-1 -right-1">
+                  {myListCount}
+                </span>
+              )}
+            </NavLink>
           </div>
+
+          <NavigationMenu className="ml-2">
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-streamify-darkgray/60 text-white/80">Genres</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid grid-cols-3 gap-2 p-4 w-[500px] bg-streamify-darkgray rounded-md animate-fade-in">
+                    {genres.map((genre) => (
+                      <Link
+                        key={genre.id}
+                        to={`/genre/${genre.id}`}
+                        className="px-3 py-2 hover:bg-streamify-gray rounded-md transition-colors"
+                      >
+                        {genre.name}
+                      </Link>
+                    ))}
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
         </nav>
 
         {/* Right side - Search, Notifications, User */}
