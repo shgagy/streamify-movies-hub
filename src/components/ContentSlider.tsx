@@ -25,6 +25,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   const sliderRef = useRef<HTMLDivElement>(null);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // Calculate visible items and total pages based on screen width
   useEffect(() => {
@@ -56,10 +57,11 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     };
   }, [isMdUp, movies.length, layout, currentPage]);
 
-  // Handle page navigation
+  // Handle page navigation with animation lock
   const goToPage = (pageIndex: number) => {
-    if (!sliderRef.current) return;
+    if (!sliderRef.current || isAnimating) return;
     
+    setIsAnimating(true);
     setCurrentPage(pageIndex);
     
     const containerWidth = sliderRef.current.clientWidth;
@@ -69,24 +71,36 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
       left: scrollAmount,
       behavior: 'smooth'
     });
+    
+    // Reset animation lock after transition
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 500); // Match this with the CSS transition duration
   };
 
   return (
     <div className="my-6 relative">
       <div className="page-container">
-        <h2 className="text-2xl font-bold mb-4">{title}</h2>
+        <h2 className="text-2xl font-bold mb-4 animate-fade-in">{title}</h2>
         
         <div className="relative">
           {/* Content Slider */}
           <div 
             ref={sliderRef}
-            className="flex space-x-4 overflow-x-auto scrollbar-none pb-4 pt-1 -mx-4 px-4 snap-x"
+            className="flex space-x-4 overflow-x-auto scrollbar-none pb-4 pt-1 -mx-4 px-4 snap-x transition-all duration-500"
+            style={{ scrollBehavior: 'smooth' }}
           >
-            {movies.slice(0, 15).map((movie) => (
+            {movies.slice(0, 15).map((movie, index) => (
               <div 
                 key={movie.id} 
-                className="flex-shrink-0 transition-transform first:ml-0"
-                style={{ width: layout === "poster" ? (isMdUp ? "180px" : "140px") : (isMdUp ? "320px" : "260px") }}
+                className={cn(
+                  "flex-shrink-0 transition-all duration-300 transform",
+                  "hover:scale-[1.02] hover:z-10"
+                )}
+                style={{ 
+                  width: layout === "poster" ? (isMdUp ? "180px" : "140px") : (isMdUp ? "320px" : "260px"),
+                  transitionDelay: `${index * 50}ms`
+                }}
               >
                 <MovieCard 
                   movie={movie} 
@@ -99,18 +113,22 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           
           {/* Simple Dot Navigation - Only show if more than one page */}
           {totalPages > 1 && (
-            <div className="flex justify-center mt-4 space-x-2">
+            <div className="flex justify-center mt-4 space-x-2 animate-fade-in">
               {Array.from({ length: Math.min(totalPages, 5) }).map((_, index) => (
                 <button
                   key={index}
                   onClick={() => goToPage(index)}
-                  className="focus:outline-none transition-colors"
+                  className={cn(
+                    "focus:outline-none transition-all duration-300",
+                    isAnimating ? "pointer-events-none" : "pointer-events-auto"
+                  )}
+                  disabled={isAnimating}
                   aria-label={`Go to page ${index + 1}`}
                 >
                   {index === currentPage ? (
-                    <CircleDot className="w-4 h-4 text-primary" />
+                    <CircleDot className="w-4 h-4 text-primary transform scale-110 transition-all" />
                   ) : (
-                    <Circle className="w-4 h-4 text-white/50 hover:text-white/80" />
+                    <Circle className="w-4 h-4 text-white/50 hover:text-white/80 transition-all hover:scale-110" />
                   )}
                 </button>
               ))}
