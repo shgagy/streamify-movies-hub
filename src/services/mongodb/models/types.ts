@@ -64,7 +64,7 @@ export interface UserListItem {
 export interface UserListDocument extends Document {
   _id?: ObjectId;
   userId: string;
-  items: UserListItem[];
+  items: UserListItem[];  // This explicitly defines items as an array of UserListItem objects
 }
 
 export interface UserDocument extends Document {
