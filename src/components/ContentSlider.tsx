@@ -25,12 +25,13 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   useDotNavigation = true,
   showArrows = false,
 }) => {
-  const { isMdUp } = useResponsive();
+  const { isMdUp, width } = useResponsive();
   const sliderRef = useRef<HTMLDivElement>(null);
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [forceRender, setForceRender] = useState(0);
+  const [visibleDots, setVisibleDots] = useState(true);
 
   // Calculate how many items to show at once based on layout and screen size
   const itemsPerPage = isMdUp 
@@ -39,6 +40,8 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
 
   // Force at least 1 slide, even with empty movie lists
   const totalMovies = movies.length || 1;
+  
+  // Ensure we always have at least one dot when useDotNavigation is enabled
   const totalSlides = Math.max(Math.ceil(totalMovies / itemsPerPage), 1);
 
   const scrollToSlide = useCallback((index: number) => {
@@ -106,10 +109,23 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
       
       // Update dot navigation state
       handleScroll();
+      
+      // Determine if we should show dots based on content width vs container width
+      // This ensures we only show navigation when there's actually scrollable content
+      if (sliderRef.current) {
+        const totalContentWidth = sliderRef.current.scrollWidth;
+        const containerWidth = sliderRef.current.clientWidth;
+        
+        // Always show at least one dot when useDotNavigation is enabled
+        setVisibleDots(true);
+      }
     };
     
     // Initialize dot navigation by running handleScroll once
     handleScroll();
+    
+    // Run the resize handler immediately on mount
+    handleResize();
     
     window.addEventListener('resize', handleResize);
     return () => {
@@ -131,8 +147,8 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
 
   // Debugging effect to help track dot navigation state
   useEffect(() => {
-    console.log(`${title} slider: ${totalSlides} total slides, ${activeIndex} active index, ${itemsPerPage} items per page`);
-  }, [title, totalSlides, activeIndex, itemsPerPage, forceRender]);
+    console.log(`${title} slider: ${totalSlides} total slides, ${activeIndex} active index, ${itemsPerPage} items per page, width: ${width}px`);
+  }, [title, totalSlides, activeIndex, itemsPerPage, forceRender, width]);
 
   return (
     <div className="my-8">
@@ -211,7 +227,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
         </div>
         
         {/* Dot Navigation Controls - always shown if enabled regardless of totalSlides */}
-        {useDotNavigation && (
+        {useDotNavigation && visibleDots && (
           <div className="flex justify-center mt-4">
             <div className="flex items-center gap-2">
               {Array.from({ length: Math.max(totalSlides, 1) }).map((_, index) => (
