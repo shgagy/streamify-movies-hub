@@ -67,12 +67,14 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             onScroll={handleScroll}
           >
-            {/* Hide webkit scrollbar */}
-            <style jsx>{`
-              div::-webkit-scrollbar {
-                display: none;
-              }
-            `}</style>
+            {/* Hide webkit scrollbar using regular style tag */}
+            <style>
+              {`
+                div::-webkit-scrollbar {
+                  display: none;
+                }
+              `}
+            </style>
             
             {movies.map((movie) => (
               <div
