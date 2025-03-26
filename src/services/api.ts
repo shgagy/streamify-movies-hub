@@ -148,9 +148,9 @@ export const fetchUserList = async (userId: string) => {
     // Map each item appropriately
     return items.map(item => {
       if ('firstAirDate' in item) {
-        return mapTVShowDocument(item);
+        return mapTVShowDocument(item as TVShowDocument);
       } else {
-        return mapMovieDocument(item);
+        return mapMovieDocument(item as MovieDocument);
       }
     });
   } catch (error) {

@@ -20,6 +20,12 @@ class UserService {
 
   async createUser(user: Omit<UserDocument, '_id'>): Promise<string | null> {
     const now = new Date();
+    
+    // Make sure we have all required fields
+    if (!user.id || !user.email) {
+      throw new Error('User id and email are required');
+    }
+    
     // Ensure all required properties are present
     const newUser: UserDocument = {
       ...user,

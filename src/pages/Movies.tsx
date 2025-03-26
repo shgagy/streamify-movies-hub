@@ -7,6 +7,7 @@ import MovieCard from "@/components/MovieCard";
 import GenreFilter from "@/components/GenreFilter";
 import { fetchAllMovies, fetchMoviesByGenre, fetchAllGenres } from "@/services/api";
 import { Movie } from "@/lib/mockData";
+import { MovieDocument } from "@/services/mongodb/models/types";
 
 const Movies: React.FC = () => {
   const [selectedGenreId, setSelectedGenreId] = useState<string | null>(null);
@@ -66,9 +67,9 @@ const Movies: React.FC = () => {
               </div>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
-                {movies.map((movie: Movie) => (
+                {movies.map((movie: MovieDocument) => (
                   <div key={movie.id} className="animate-fade-in">
-                    <MovieCard movie={movie} layout="poster" />
+                    <MovieCard movie={movie as unknown as Movie} layout="poster" />
                   </div>
                 ))}
               </div>
