@@ -1,5 +1,5 @@
 
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Movie } from "@/lib/mockData";
 import MovieCard from "./MovieCard";
@@ -10,30 +10,56 @@ interface ContentSliderProps {
   title: string;
   movies: Movie[];
   layout?: "poster" | "backdrop";
+  autoPlay?: boolean;
+  interval?: number;
+  useDotNavigation?: boolean;
 }
 
 const ContentSlider: React.FC<ContentSliderProps> = ({
   title,
   movies,
   layout = "poster",
+  autoPlay = false,
+  interval = 8000,
+  useDotNavigation = false,
 }) => {
   const { isMdUp } = useResponsive();
   const sliderRef = useRef<HTMLDivElement>(null);
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  // Calculate how many items to show at once based on layout and screen size
+  const itemsPerPage = isMdUp 
+    ? (layout === "poster" ? 5 : 3) 
+    : (layout === "poster" ? 3 : 1);
+
+  const totalSlides = Math.ceil(movies.length / itemsPerPage);
+
+  const scrollToSlide = useCallback((index: number) => {
+    if (!sliderRef.current) return;
+    
+    setActiveIndex(index);
+    
+    // Calculate scroll position based on index
+    const itemWidth = sliderRef.current.querySelector('.flex-none')?.clientWidth || 0;
+    const gapWidth = 16; // Our fixed gap between items
+    const scrollPos = index * (itemWidth + gapWidth) * itemsPerPage;
+    
+    sliderRef.current.scrollTo({
+      left: scrollPos,
+      behavior: 'smooth'
+    });
+  }, [itemsPerPage]);
 
   const scroll = (direction: "left" | "right") => {
-    if (!sliderRef.current) return;
-
-    const { scrollLeft, clientWidth } = sliderRef.current;
-    const scrollAmount = clientWidth * 0.8;
-    const newScrollLeft =
-      direction === "left" ? scrollLeft - scrollAmount : scrollLeft + scrollAmount;
-
-    sliderRef.current.scrollTo({
-      left: newScrollLeft,
-      behavior: "smooth",
-    });
+    if (direction === "left") {
+      const newIndex = Math.max(0, activeIndex - 1);
+      scrollToSlide(newIndex);
+    } else {
+      const newIndex = Math.min(totalSlides - 1, activeIndex + 1);
+      scrollToSlide(newIndex);
+    }
   };
 
   const handleScroll = () => {
@@ -42,7 +68,31 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
     setShowLeftButton(scrollLeft > 0);
     setShowRightButton(scrollLeft + clientWidth < scrollWidth - 10);
+    
+    // Update active index based on scroll position
+    if (!useDotNavigation) return;
+    
+    const itemWidth = sliderRef.current.querySelector('.flex-none')?.clientWidth || 0;
+    const gapWidth = 16;
+    const slideWidth = (itemWidth + gapWidth) * itemsPerPage;
+    const newIndex = Math.round(scrollLeft / slideWidth);
+    
+    if (newIndex !== activeIndex) {
+      setActiveIndex(newIndex);
+    }
   };
+
+  // Auto-play functionality
+  useEffect(() => {
+    if (!autoPlay || totalSlides <= 1) return;
+    
+    const interval = setInterval(() => {
+      const nextIndex = (activeIndex + 1) % totalSlides;
+      scrollToSlide(nextIndex);
+    }, interval);
+    
+    return () => clearInterval(interval);
+  }, [activeIndex, autoPlay, interval, scrollToSlide, totalSlides]);
 
   return (
     <div className="my-8">
@@ -115,6 +165,26 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             <ChevronRight className="h-8 w-8" />
           </button>
         </div>
+        
+        {/* Dot Navigation Controls */}
+        {useDotNavigation && totalSlides > 1 && (
+          <div className="flex justify-center mt-4">
+            <div className="flex items-center gap-2">
+              {Array.from({ length: totalSlides }).map((_, index) => (
+                <button 
+                  key={index} 
+                  onClick={() => scrollToSlide(index)} 
+                  className={`transition-all duration-300 ${
+                    index === activeIndex 
+                      ? "bg-primary w-8 h-2.5 rounded-full" 
+                      : "bg-white/30 hover:bg-white/50 w-2.5 h-2.5 rounded-full"
+                  }`} 
+                  aria-label={`Go to slide ${index + 1}`} 
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

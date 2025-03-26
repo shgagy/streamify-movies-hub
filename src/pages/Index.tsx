@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
@@ -38,6 +37,9 @@ const Index: React.FC = () => {
 
   // Get featured movies for the hero carousel (using top 5 popular movies)
   const featuredMovies = popularMovies.slice(0, 5);
+
+  // Get 10 popular movies for the featured movies section with autoplay
+  const featuredMoviesForSlider = popularMovies.slice(0, 10);
 
   // Create a sample of anime (filtering movies that have "Animation" or "Anime" in genres)
   const animeMovies = allMovies
@@ -109,12 +111,15 @@ const Index: React.FC = () => {
                 />
               )}
               
-              {/* New section: Featured Movies (using popular movies with different layout) */}
-              {popularMovies.length > 0 && (
+              {/* Updated: Featured Movies with autoplay and dot navigation */}
+              {featuredMoviesForSlider.length > 0 && (
                 <ContentSlider
                   title="Featured Movies"
-                  movies={popularMovies}
+                  movies={featuredMoviesForSlider}
                   layout="backdrop"
+                  autoPlay={true}
+                  interval={8000}
+                  useDotNavigation={true}
                 />
               )}
               
