@@ -87,7 +87,6 @@ const Index: React.FC = () => {
                   title="Trending Now"
                   movies={trendingMovies}
                   autoPlay={false}
-                  showArrows={true}
                 />
               )}
               
@@ -96,7 +95,6 @@ const Index: React.FC = () => {
                   title="Popular on Streamify"
                   movies={popularMovies}
                   autoPlay={false}
-                  showArrows={true}
                 />
               )}
               
@@ -106,7 +104,6 @@ const Index: React.FC = () => {
                   title="Recently Added Anime"
                   movies={animeMovies}
                   autoPlay={false}
-                  showArrows={true}
                 />
               )}
               
@@ -116,18 +113,16 @@ const Index: React.FC = () => {
                   title="Featured Series"
                   movies={featuredSeries}
                   autoPlay={false}
-                  showArrows={true}
                 />
               )}
               
-              {/* Featured Movies with autoplay but no dot navigation */}
+              {/* Featured Movies with autoplay */}
               {featuredMoviesForSlider.length > 0 && (
                 <ContentSlider
                   title="Featured Movies"
                   movies={featuredMoviesForSlider}
                   layout="backdrop"
-                  autoPlay={false}
-                  showArrows={true}
+                  autoPlay={true}
                 />
               )}
               
@@ -136,7 +131,6 @@ const Index: React.FC = () => {
                   title="Recent Releases"
                   movies={recentReleases}
                   autoPlay={false}
-                  showArrows={true}
                 />
               )}
             </>
