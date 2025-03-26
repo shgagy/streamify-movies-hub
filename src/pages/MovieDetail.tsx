@@ -177,8 +177,8 @@ const MovieDetail: React.FC = () => {
             <ArrowLeft className="w-6 h-6" />
           </button>
 
-          <div className="relative z-20 flex items-end h-full page-container pb-16 pt-8">
-            <div className="flex flex-col md:flex-row gap-8 items-start">
+          <div className="relative z-20 flex items-end h-full page-container pb-16">
+            <div className="flex flex-col md:flex-row gap-8 items-start mt-10">
               <div className="hidden md:block w-64 overflow-hidden rounded-md shadow-lg animate-fade-in">
                 <img
                   src={movie.posterUrl}
