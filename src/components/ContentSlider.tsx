@@ -95,8 +95,12 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           >
             {/* Background Image with Gradient Overlay */}
             <div className="absolute inset-0 z-0">
+              {/* Top gradient */}
               <div className="absolute inset-0 bg-gradient-to-b from-streamify-black via-streamify-black/70 to-transparent z-10" />
+              {/* Side gradient */}
               <div className="absolute inset-0 bg-gradient-to-r from-streamify-black/80 to-transparent z-10" />
+              {/* Bottom gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-streamify-black via-streamify-black/70 to-transparent z-10" />
               <img 
                 src={movie.backdropUrl} 
                 alt={movie.title} 
