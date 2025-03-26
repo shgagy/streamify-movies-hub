@@ -22,7 +22,7 @@ interface ContentSliderProps {
 
 // 3D Movie Card component
 const MovieItem = ({ movie, index, active, totalItems, onClick }) => {
-  const mesh = useRef();
+  const mesh = useRef<THREE.Mesh>(null);
   const radius = 4;
   const theta = (index / totalItems) * Math.PI * 2;
   const x = radius * Math.sin(theta);
@@ -57,7 +57,7 @@ const MovieItem = ({ movie, index, active, totalItems, onClick }) => {
 
 // 3D Carousel component
 const Carousel3D = ({ movies, activeIndex, setActiveIndex }) => {
-  const groupRef = useRef();
+  const groupRef = useRef<THREE.Group>(null);
   
   useFrame((state) => {
     if (groupRef.current) {
