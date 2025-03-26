@@ -1,5 +1,6 @@
 
-import React, { useRef, useState, useEffect, useCallback, memo } from "react";
+import React, { useRef, useState, useEffect, useCallback } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Movie } from "@/lib/mockData";
 import MovieCard from "./MovieCard";
 import { cn } from "@/lib/utils";
@@ -11,38 +12,36 @@ interface ContentSliderProps {
   layout?: "poster" | "backdrop";
   autoPlay?: boolean;
   interval?: number;
+  showArrows?: boolean;
 }
 
-// Using memo to prevent unnecessary re-renders of the entire component
-const ContentSlider: React.FC<ContentSliderProps> = memo(({
+const ContentSlider: React.FC<ContentSliderProps> = ({
   title,
   movies,
   layout = "poster",
   autoPlay = false,
   interval = 8000,
+  showArrows = false,
 }) => {
   const { isMdUp, width } = useResponsive();
   const sliderRef = useRef<HTMLDivElement>(null);
+  const [showLeftButton, setShowLeftButton] = useState(false);
+  const [showRightButton, setShowRightButton] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const [totalSlides, setTotalSlides] = useState(1);
-  const autoPlayTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Calculate how many items to show at once based on layout and screen size
   const itemsPerPage = isMdUp 
     ? (layout === "poster" ? 5 : 3) 
     : (layout === "poster" ? 3 : 1);
 
-  // Memoize the scroll to slide function to prevent recreating it on each render
+  // Scroll to a specific slide by index
   const scrollToSlide = useCallback((index: number) => {
     if (!sliderRef.current) return;
     
     // Ensure index is within bounds
     const boundedIndex = Math.max(0, Math.min(index, totalSlides - 1));
-    
-    // Only update state if the index actually changed
-    if (boundedIndex !== activeIndex) {
-      setActiveIndex(boundedIndex);
-    }
+    setActiveIndex(boundedIndex);
     
     // Calculate the element width including gap
     const itemElement = sliderRef.current.querySelector('.flex-none');
@@ -61,9 +60,9 @@ const ContentSlider: React.FC<ContentSliderProps> = memo(({
     });
     
     console.log(`Scrolled to slide ${boundedIndex} for "${title}" slider, total slides: ${totalSlides}`);
-  }, [itemsPerPage, title, totalSlides, activeIndex]);
+  }, [itemsPerPage, title, totalSlides]);
 
-  // Memoize the calculation function for total slides
+  // Calculate the total number of slides
   const calculateTotalSlides = useCallback(() => {
     if (!sliderRef.current) return 1;
     
@@ -75,13 +74,28 @@ const ContentSlider: React.FC<ContentSliderProps> = memo(({
     return Math.max(slides, 1);
   }, [movies.length, itemsPerPage]);
 
-  // Debounced scroll handler to reduce number of state updates
-  const handleScroll = useCallback(() => {
+  // Handle manual arrow navigation
+  const scroll = (direction: "left" | "right") => {
+    if (direction === "left") {
+      scrollToSlide(activeIndex - 1);
+    } else {
+      scrollToSlide(activeIndex + 1);
+    }
+  };
+
+  // Update navigation button visibility based on scroll position
+  const handleScroll = () => {
     if (!sliderRef.current) return;
 
     const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
     
-    // Check if scrollable element exists
+    // Show left button only if we're not at the start
+    setShowLeftButton(scrollLeft > 5);
+    
+    // Show right button only if we're not at the end
+    setShowRightButton(scrollLeft + clientWidth < scrollWidth - 5);
+    
+    // Update active index based on scroll position if user manually scrolls
     if (!sliderRef.current.querySelector('.flex-none')) return;
     
     const itemWidth = sliderRef.current.querySelector('.flex-none')?.clientWidth || 0;
@@ -94,7 +108,7 @@ const ContentSlider: React.FC<ContentSliderProps> = memo(({
         setActiveIndex(newIndex);
       }
     }
-  }, [activeIndex, itemsPerPage, totalSlides]);
+  };
 
   // Calculate total slides and handle component resize
   useEffect(() => {
@@ -107,70 +121,43 @@ const ContentSlider: React.FC<ContentSliderProps> = memo(({
       
       // Reset to the first slide when resizing to avoid out-of-bounds issues
       setActiveIndex(prev => (prev >= slides ? 0 : prev));
+      
+      // Update navigation state
+      handleScroll();
     };
     
     // Initial setup
     handleResize();
     
-    // Use a more efficient resize observer instead of window resize event
-    const resizeObserver = new ResizeObserver(handleResize);
-    resizeObserver.observe(sliderRef.current);
-    
+    // Add resize listener
+    window.addEventListener('resize', handleResize);
     return () => {
-      resizeObserver.disconnect();
+      window.removeEventListener('resize', handleResize);
     };
   }, [calculateTotalSlides, movies.length, itemsPerPage]);
 
-  // Optimized auto-play functionality with cleanup
+  // Auto-play functionality
   useEffect(() => {
     if (!autoPlay || totalSlides <= 1) return;
     
-    // Clear any existing timer
-    if (autoPlayTimerRef.current) {
-      clearInterval(autoPlayTimerRef.current);
-    }
-    
-    autoPlayTimerRef.current = setInterval(() => {
+    const autoPlayTimer = setInterval(() => {
       const nextIndex = (activeIndex + 1) % totalSlides;
       scrollToSlide(nextIndex);
     }, interval);
     
-    return () => {
-      if (autoPlayTimerRef.current) {
-        clearInterval(autoPlayTimerRef.current);
-        autoPlayTimerRef.current = null;
-      }
-    };
+    return () => clearInterval(autoPlayTimer);
   }, [activeIndex, autoPlay, interval, scrollToSlide, totalSlides]);
 
-  // Debug logging - reduced to only log when values actually change
+  // Log for debugging
   useEffect(() => {
     console.log(`${title} slider: ${totalSlides} total slides, ${activeIndex} active index, ${itemsPerPage} items per page, width: ${width}px`);
   }, [title, totalSlides, activeIndex, itemsPerPage, width]);
 
-  // Memoized dot navigation component to prevent unnecessary re-renders
-  const DotNavigation = useCallback(() => {
-    if (totalSlides <= 1) return null;
-    
-    return (
-      <div className="flex justify-center mt-4">
-        <div className="flex items-center gap-2">
-          {Array.from({ length: totalSlides }).map((_, index) => (
-            <button 
-              key={index} 
-              onClick={() => scrollToSlide(index)} 
-              className={`transition-all duration-300 ${
-                index === activeIndex 
-                  ? "bg-primary w-8 h-2.5 rounded-full" 
-                  : "bg-white/30 hover:bg-white/50 w-2.5 h-2.5 rounded-full"
-              }`} 
-              aria-label={`Go to slide ${index + 1}`} 
-            />
-          ))}
-        </div>
-      </div>
-    );
-  }, [activeIndex, scrollToSlide, totalSlides]);
+  // Force recalculation when items per page changes
+  useEffect(() => {
+    const slides = calculateTotalSlides();
+    setTotalSlides(slides);
+  }, [calculateTotalSlides, itemsPerPage]);
 
   return (
     <div className="my-8">
@@ -178,6 +165,20 @@ const ContentSlider: React.FC<ContentSliderProps> = memo(({
         <h2 className="text-2xl font-bold mb-4">{title}</h2>
 
         <div className="relative group">
+          {/* Left navigation arrow */}
+          {showArrows && (
+            <button
+              className={cn(
+                "absolute left-0 top-1/2 -translate-y-1/2 z-30 p-1 bg-streamify-black/80 text-white rounded-full transform transition-all duration-300",
+                showLeftButton ? "opacity-80 hover:opacity-100 -translate-x-0" : "opacity-0 -translate-x-10 pointer-events-none"
+              )}
+              onClick={() => scroll("left")}
+              aria-label="Scroll left"
+            >
+              <ChevronLeft className="h-8 w-8" />
+            </button>
+          )}
+
           {/* Content slider */}
           <div
             ref={sliderRef}
@@ -219,15 +220,24 @@ const ContentSlider: React.FC<ContentSliderProps> = memo(({
               </div>
             ))}
           </div>
+
+          {/* Right navigation arrow */}
+          {showArrows && (
+            <button
+              className={cn(
+                "absolute right-0 top-1/2 -translate-y-1/2 z-30 p-1 bg-streamify-black/80 text-white rounded-full transform transition-all duration-300",
+                showRightButton ? "opacity-80 hover:opacity-100 translate-x-0" : "opacity-0 translate-x-10 pointer-events-none"
+              )}
+              onClick={() => scroll("right")}
+              aria-label="Scroll right"
+            >
+              <ChevronRight className="h-8 w-8" />
+            </button>
+          )}
         </div>
-        
-        {/* Dot Navigation - using memoized component */}
-        <DotNavigation />
       </div>
     </div>
   );
-});
-
-ContentSlider.displayName = "ContentSlider";
+};
 
 export default ContentSlider;
