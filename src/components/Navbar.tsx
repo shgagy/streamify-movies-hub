@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import SearchBar from "./SearchBar";
 import ProfileButton from "./ProfileButton";
 import { useAuth } from "@/contexts/AuthContext";
-import { ThemeToggle } from "./ThemeToggle";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -104,7 +103,7 @@ const Navbar = () => {
           </div>
         </nav>
 
-        {/* Right side - Search, Theme, Notifications, User */}
+        {/* Right side - Search, Notifications, User */}
         <div className="flex items-center">
           {/* Search */}
           <button
@@ -114,9 +113,6 @@ const Navbar = () => {
           >
             <Search className="w-5 h-5" />
           </button>
-
-          {/* Theme Toggle */}
-          <ThemeToggle className="ml-1" />
 
           {/* User navigation - desktop */}
           <div className="hidden md:flex items-center ml-4">
