@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Play, Plus, Info } from "lucide-react";
+import { Play, Info } from "lucide-react";
 import { Movie } from "@/lib/mockData";
 import { Button } from "@/components/ui/button";
-import { useMyList } from "@/contexts/MyListContext";
 
 interface HeroProps {
   movies: Movie[];
@@ -14,12 +13,7 @@ const Hero: React.FC<HeroProps> = ({
   movies
 }) => {
   const navigate = useNavigate();
-  const {
-    addToMyList,
-    isInMyList
-  } = useMyList();
   const [activeIndex, setActiveIndex] = useState(0);
-  const [carouselRef, setCarouselRef] = useState<HTMLDivElement | null>(null);
   const currentMovie = movies[activeIndex];
 
   const handlePlayClick = (movieId: number) => {
@@ -30,99 +24,63 @@ const Hero: React.FC<HeroProps> = ({
     navigate(`/movie/${movieId}`);
   };
 
-  const handleAddToList = (movie: Movie) => {
-    if (!isInMyList(movie.id)) {
-      addToMyList(movie);
-    }
-  };
-
-  const scrollToSlide = useCallback((index: number) => {
-    // Update the active index without scrolling the viewport
-    setActiveIndex(index);
-    console.log(`Scrolled to slide ${index}`);
-  }, []);
-
-  // Set up auto carousel functionality - runs on component mount
-  useEffect(() => {
-    // Auto advance slides every 8 seconds
-    const interval = setInterval(() => {
-      const nextIndex = (activeIndex + 1) % movies.length;
-      scrollToSlide(nextIndex);
-    }, 8000);
-    
-    // Clear interval on component unmount
-    return () => clearInterval(interval);
-  }, [activeIndex, movies.length, scrollToSlide]);
-
   return (
-    <div className="relative h-[80vh] w-full overflow-hidden">
-      <div className="carousel-container w-full h-full" ref={setCarouselRef}>
-        {movies.map((movie, index) => (
-          <div 
-            key={movie.id} 
-            className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ${
-              index === activeIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
-            }`}
-          >
-            {/* Background Image with Gradient Overlay */}
-            <div className="absolute inset-0 z-0">
-              <div className="absolute inset-0 bg-gradient-to-t from-streamify-black via-streamify-black/70 to-transparent z-10" />
-              <div className="absolute inset-0 bg-gradient-to-r from-streamify-black/80 to-transparent z-10" />
+    <div className="relative h-[60vh] w-full overflow-hidden">
+      <div className="carousel-container w-full h-full">
+        <div className="absolute inset-0 w-full h-full">
+          {/* Background Image with Gradient Overlay */}
+          <div className="absolute inset-0 z-0">
+            <div className="absolute inset-0 bg-gradient-to-t from-streamify-black via-streamify-black/70 to-transparent z-10" />
+            <div className="absolute inset-0 bg-gradient-to-r from-streamify-black/80 to-transparent z-10" />
+            {currentMovie && (
               <img 
-                src={movie.backdropUrl} 
-                alt={movie.title} 
-                className="w-full h-full object-cover object-center animate-scale-in" 
+                src={currentMovie.backdropUrl} 
+                alt={currentMovie.title} 
+                className="w-full h-full object-cover object-center" 
+                onError={(e) => {
+                  e.currentTarget.src = "/placeholder.svg";
+                }}
               />
-            </div>
-            
-            {/* Content */}
+            )}
+          </div>
+          
+          {/* Content */}
+          {currentMovie && (
             <div className="relative z-20 flex flex-col justify-end h-full">
-              <div className="page-container pb-16 md:pb-24">
-                <div className="max-w-2xl animate-fade-in">
-                  <h1 className="font-bold mb-4 leading-tight text-2xl md:text-2xl">
-                    {movie.title}
+              <div className="page-container pb-16">
+                <div className="max-w-2xl">
+                  <h1 className="font-bold mb-4 leading-tight text-2xl md:text-3xl">
+                    {currentMovie.title}
                   </h1>
                   
                   <div className="flex items-center text-sm mb-6 text-white/80">
-                    <span className="mr-3">{movie.releaseYear}</span>
+                    <span className="mr-3">{currentMovie.releaseYear}</span>
                     <span className="mr-3 flex items-center">
-                      <span className="text-primary font-bold mr-1">{movie.rating}</span>/10
+                      <span className="text-primary font-bold mr-1">{currentMovie.rating}</span>/10
                     </span>
-                    <span>{movie.duration}</span>
+                    <span>{currentMovie.duration}</span>
                   </div>
                   
-                  <p className="text-white/90 mb-8 line-clamp-3 md:line-clamp-none">
-                    {movie.description}
+                  <p className="text-white/90 mb-8 line-clamp-3">
+                    {currentMovie.description}
                   </p>
                   
                   <div className="flex flex-wrap gap-4 items-center">
-                    <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md flex items-center space-x-2" onClick={() => handlePlayClick(Number(movie.id))}>
+                    <Button className="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-md flex items-center space-x-2" onClick={() => handlePlayClick(Number(currentMovie.id))}>
                       <Play className="w-5 h-5" />
-                      <span>Play Now</span>
+                      <span>مشاهدة الآن</span>
                     </Button>
                     
-                    <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white px-6 py-3 rounded-md flex items-center space-x-2" onClick={() => handleInfoClick(Number(movie.id))}>
+                    <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white px-6 py-3 rounded-md flex items-center space-x-2" onClick={() => handleInfoClick(Number(currentMovie.id))}>
                       <Info className="w-5 h-5" />
-                      <span>More Info</span>
+                      <span>مزيد من المعلومات</span>
                     </Button>
-                    
-                    <Button variant="outline" className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white p-3 rounded-full" onClick={() => handleAddToList(movie)}>
-                      <Plus className="w-5 h-5" />
-                    </Button>
-                    
-                    <div className="flex flex-wrap gap-2 ml-1">
-                      {movie.genres.slice(0, 3).map((genre, index) => (
-                        <span key={index} className="px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-xs md:text-sm">
-                          {genre}
-                        </span>
-                      ))}
-                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          )}
+        </div>
       </div>
 
       {/* Dot Navigation Controls */}
@@ -131,7 +89,7 @@ const Hero: React.FC<HeroProps> = ({
           {movies.map((_, index) => (
             <button 
               key={index} 
-              onClick={() => scrollToSlide(index)} 
+              onClick={() => setActiveIndex(index)} 
               className={`transition-all duration-300 ${
                 index === activeIndex 
                   ? "bg-primary w-8 h-2.5 rounded-full" 

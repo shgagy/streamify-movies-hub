@@ -31,30 +31,8 @@ const Index: React.FC = () => {
     queryFn: fetchPopularTVShows
   });
 
-  // Create a sample of recent releases (using all movies, sorted by releaseYear)
-  const recentReleases = [...allMovies]
-    .sort((a: Movie, b: Movie) => b.releaseYear - a.releaseYear)
-    .slice(0, 10);
-
   // Get featured movies for the hero carousel (using top 5 popular movies)
   const featuredMovies = popularMovies.slice(0, 5);
-
-  // Get 10 popular movies for the featured movies section with autoplay
-  const featuredMoviesForSlider = popularMovies.slice(0, 10);
-
-  // Create a sample of anime (filtering movies that have "Animation" or "Anime" in genres)
-  const animeMovies = allMovies
-    .filter((movie: Movie) => 
-      movie.genres.some(genre => 
-        genre.toLowerCase().includes('animation') || 
-        genre.toLowerCase().includes('anime')
-      )
-    )
-    .sort((a: Movie, b: Movie) => b.releaseYear - a.releaseYear)
-    .slice(0, 10);
-
-  // Featured series from TV shows
-  const featuredSeries = popularTVShows.slice(0, 10);
 
   return (
     <div className="min-h-screen bg-streamify-black text-white">
@@ -84,44 +62,16 @@ const Index: React.FC = () => {
             <>
               {trendingMovies.length > 0 && (
                 <ContentSlider
-                  title="Trending Now"
+                  title="الرائج الآن"
                   movies={trendingMovies}
                 />
               )}
               
               {popularMovies.length > 0 && (
                 <ContentSlider
-                  title="Popular on Streamify"
+                  title="الشائع على Streamify"
                   movies={popularMovies}
                   featured={true}
-                />
-              )}
-              
-              {featuredMoviesForSlider.length > 0 && (
-                <ContentSlider
-                  title="Featured Movies"
-                  movies={featuredMoviesForSlider}
-                />
-              )}
-              
-              {animeMovies.length > 0 && (
-                <ContentSlider
-                  title="Recently Added Anime"
-                  movies={animeMovies}
-                />
-              )}
-              
-              {featuredSeries.length > 0 && (
-                <ContentSlider
-                  title="Featured Series"
-                  movies={featuredSeries}
-                />
-              )}
-              
-              {recentReleases.length > 0 && (
-                <ContentSlider
-                  title="Recent Releases"
-                  movies={recentReleases}
                 />
               )}
             </>
