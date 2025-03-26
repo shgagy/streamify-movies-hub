@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -20,20 +19,17 @@ const MovieDetail: React.FC = () => {
   const [isInMyList, setIsInMyList] = useState(false);
   const { isMdUp } = useResponsive();
 
-  // Fetch movie details
   const { data: movie, isLoading: isLoadingMovie, error } = useQuery({
     queryKey: ['movie', id],
     queryFn: () => fetchMovieById(id as string),
     enabled: !!id,
   });
 
-  // Fetch all movies for similar movies feature
   const { data: allMovies = [] } = useQuery({
     queryKey: ['movies'],
     queryFn: fetchAllMovies,
   });
 
-  // Check if the movie is in the user's list
   useEffect(() => {
     if (user && movie) {
       try {
@@ -55,7 +51,6 @@ const MovieDetail: React.FC = () => {
     }
   }, [user, movie]);
 
-  // Find similar movies based on genres
   const similarMovies = movie 
     ? allMovies.filter(
         (m: Movie) => 
@@ -79,7 +74,6 @@ const MovieDetail: React.FC = () => {
         myList = JSON.parse(savedList);
       }
       
-      // Check if movie is already in the list
       if (myList.some(item => item.id === movie.id)) {
         toast("This movie is already in your list");
         return;
@@ -166,13 +160,12 @@ const MovieDetail: React.FC = () => {
     <div className="min-h-screen bg-streamify-black text-white">
       <Navbar />
 
-      <main className="pt-20">
-        {/* Hero Section with Movie Details */}
-        <div className="relative h-[80vh] w-full overflow-hidden">
-          {/* Background Image with Gradient Overlay */}
+      <main className="pt-0">
+        <div className="relative h-[85vh] w-full overflow-hidden">
           <div className="absolute inset-0 z-0">
-            <div className="absolute inset-0 bg-gradient-to-t from-streamify-black via-streamify-black/80 to-transparent z-10" />
-            <div className="absolute inset-0 bg-gradient-to-r from-streamify-black/80 to-transparent z-10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-streamify-black via-streamify-black/90 to-transparent z-10" />
+            <div className="absolute inset-0 bg-gradient-to-r from-streamify-black/90 to-transparent z-10" />
+            <div className="absolute inset-0 bg-gradient-to-b from-streamify-black to-transparent/0 z-20 h-24" />
             <img
               src={movie.backdropUrl}
               alt={movie.title}
@@ -180,18 +173,15 @@ const MovieDetail: React.FC = () => {
             />
           </div>
 
-          {/* Back Button */}
           <button
             onClick={() => navigate(-1)}
-            className="absolute top-8 left-4 z-30 p-2 bg-black/50 backdrop-blur-sm rounded-full hover:bg-black/70 transition-colors"
+            className="absolute top-16 left-4 z-30 p-2 bg-black/50 backdrop-blur-sm rounded-full hover:bg-black/70 transition-colors"
           >
             <ArrowLeft className="w-6 h-6" />
           </button>
 
-          {/* Content */}
-          <div className="relative z-20 flex items-end h-full page-container pb-16 pt-8">
+          <div className="relative z-20 flex items-end h-full page-container pb-16 pt-16">
             <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center md:items-start w-full max-w-full overflow-hidden">
-              {/* Movie Poster - Only show on medium screens and up */}
               {isMdUp && (
                 <div className="w-48 md:w-64 overflow-hidden rounded-md shadow-lg animate-fade-in shrink-0">
                   <img
@@ -202,7 +192,6 @@ const MovieDetail: React.FC = () => {
                 </div>
               )}
 
-              {/* Movie Info - More compact on mobile */}
               <div className="max-w-2xl md:max-w-[60%] animate-fade-in overflow-hidden">
                 <div className="flex flex-wrap gap-2 mb-3 md:mb-4 justify-center md:justify-start">
                   {movie.genres.slice(0, isMdUp ? 3 : 2).map((genre, index) => (
@@ -287,7 +276,6 @@ const MovieDetail: React.FC = () => {
           </div>
         </div>
 
-        {/* Movie Trailer Section */}
         {movie.trailerUrl && (
           <div className="py-10 md:py-16 page-container">
             <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">Trailer</h2>
@@ -306,7 +294,6 @@ const MovieDetail: React.FC = () => {
           </div>
         )}
 
-        {/* Similar Movies */}
         {similarMovies.length > 0 && (
           <ContentSlider
             title="You May Also Like"
