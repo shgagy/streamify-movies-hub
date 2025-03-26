@@ -86,6 +86,8 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Trending Now"
                   movies={trendingMovies}
+                  autoPlay={true}
+                  interval={8000}
                 />
               )}
               
@@ -102,6 +104,8 @@ const Index: React.FC = () => {
                   title="Featured Movies"
                   movies={featuredMoviesForSlider}
                   layout="backdrop"
+                  autoPlay={true}
+                  interval={10000}
                 />
               )}
               
@@ -118,6 +122,8 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Featured Series"
                   movies={featuredSeries}
+                  autoPlay={true}
+                  interval={9000}
                 />
               )}
               
