@@ -30,108 +30,106 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   const [showLeftButton, setShowLeftButton] = useState(false);
   const [showRightButton, setShowRightButton] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [forceRender, setForceRender] = useState(0);
-  const [visibleDots, setVisibleDots] = useState(true);
 
   // Calculate how many items to show at once based on layout and screen size
   const itemsPerPage = isMdUp 
     ? (layout === "poster" ? 5 : 3) 
     : (layout === "poster" ? 3 : 1);
 
-  // Force at least 1 slide, even with empty movie lists
-  const totalMovies = movies.length || 1;
+  // Make sure we have at least one movie to display
+  const totalMovies = Math.max(movies.length, 1);
   
-  // Ensure we always have at least one dot when useDotNavigation is enabled
+  // Calculate total number of slides based on movies and items per page
   const totalSlides = Math.max(Math.ceil(totalMovies / itemsPerPage), 1);
 
+  // Scroll to a specific slide by index
   const scrollToSlide = useCallback((index: number) => {
     if (!sliderRef.current) return;
     
-    setActiveIndex(index);
+    // Ensure index is within bounds
+    const boundedIndex = Math.max(0, Math.min(index, totalSlides - 1));
+    setActiveIndex(boundedIndex);
     
-    // Calculate scroll position based on index
-    const itemWidth = sliderRef.current.querySelector('.flex-none')?.clientWidth || 0;
+    // Calculate the element width including gap
+    const itemElement = sliderRef.current.querySelector('.flex-none');
+    if (!itemElement) return;
+    
+    const itemWidth = itemElement.clientWidth;
     const gapWidth = 16; // Our fixed gap between items
-    const scrollPos = index * (itemWidth + gapWidth) * itemsPerPage;
     
+    // Calculate scroll position based on index and items per page
+    const scrollPos = boundedIndex * (itemWidth + gapWidth) * itemsPerPage;
+    
+    // Perform the smooth scroll
     sliderRef.current.scrollTo({
       left: scrollPos,
       behavior: 'smooth'
     });
     
-    console.log(`Scrolled to slide ${index} for ${title}`);
-  }, [itemsPerPage, title]);
+    console.log(`Scrolled to slide ${boundedIndex} for "${title}" slider`);
+  }, [itemsPerPage, title, totalSlides]);
 
+  // Handle manual arrow navigation
   const scroll = (direction: "left" | "right") => {
     if (direction === "left") {
-      const newIndex = Math.max(0, activeIndex - 1);
-      scrollToSlide(newIndex);
+      scrollToSlide(activeIndex - 1);
     } else {
-      const newIndex = Math.min(totalSlides - 1, activeIndex + 1);
-      scrollToSlide(newIndex);
+      scrollToSlide(activeIndex + 1);
     }
   };
 
+  // Update navigation button visibility based on scroll position
   const handleScroll = () => {
     if (!sliderRef.current) return;
 
     const { scrollLeft, scrollWidth, clientWidth } = sliderRef.current;
-    setShowLeftButton(scrollLeft > 0);
-    setShowRightButton(scrollLeft + clientWidth < scrollWidth - 10);
     
-    // Update active index based on scroll position
+    // Show left button only if we're not at the start
+    setShowLeftButton(scrollLeft > 5);
+    
+    // Show right button only if we're not at the end
+    setShowRightButton(scrollLeft + clientWidth < scrollWidth - 5);
+    
+    // Update active index based on scroll position if user manually scrolls
+    if (!sliderRef.current.querySelector('.flex-none')) return;
+    
     const itemWidth = sliderRef.current.querySelector('.flex-none')?.clientWidth || 0;
     const gapWidth = 16;
     const slideWidth = (itemWidth + gapWidth) * itemsPerPage;
     
     if (slideWidth > 0) {
       const newIndex = Math.round(scrollLeft / slideWidth);
-      if (newIndex !== activeIndex) {
+      if (newIndex !== activeIndex && newIndex < totalSlides) {
         setActiveIndex(newIndex);
       }
     }
   };
 
-  // Initialize dot navigation and handle window resize
+  // Initialize and handle component resize
   useEffect(() => {
     if (!sliderRef.current) return;
     
-    // Force recalculation of active index on mount and resize
     const handleResize = () => {
-      // Force component to re-render on resize to correctly calculate itemsPerPage
-      setForceRender(prev => prev + 1);
-      
       // Reset to the first slide when resizing to avoid out-of-bounds issues
       setActiveIndex(0);
       if (sliderRef.current) {
         sliderRef.current.scrollLeft = 0;
       }
       
-      // Update dot navigation state
+      // Update navigation state
       handleScroll();
-      
-      // Determine if we should show dots based on content width vs container width
-      // This ensures we only show navigation when there's actually scrollable content
-      if (sliderRef.current) {
-        const totalContentWidth = sliderRef.current.scrollWidth;
-        const containerWidth = sliderRef.current.clientWidth;
-        
-        // Always show at least one dot when useDotNavigation is enabled
-        setVisibleDots(true);
-      }
     };
     
-    // Initialize dot navigation by running handleScroll once
+    // Initial setup
     handleScroll();
-    
-    // Run the resize handler immediately on mount
     handleResize();
     
+    // Add resize listener
     window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, [movies.length, itemsPerPage, forceRender]); // Re-run when movies, itemsPerPage, or forceRender changes
+  }, [movies.length, itemsPerPage]);
 
   // Auto-play functionality
   useEffect(() => {
@@ -145,10 +143,10 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     return () => clearInterval(autoPlayTimer);
   }, [activeIndex, autoPlay, interval, scrollToSlide, totalSlides]);
 
-  // Debugging effect to help track dot navigation state
+  // Log for debugging
   useEffect(() => {
     console.log(`${title} slider: ${totalSlides} total slides, ${activeIndex} active index, ${itemsPerPage} items per page, width: ${width}px`);
-  }, [title, totalSlides, activeIndex, itemsPerPage, forceRender, width]);
+  }, [title, totalSlides, activeIndex, itemsPerPage, width]);
 
   return (
     <div className="my-8">
@@ -156,7 +154,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
         <h2 className="text-2xl font-bold mb-4">{title}</h2>
 
         <div className="relative group">
-          {/* Left navigation button - only shown if showArrows is true */}
+          {/* Left navigation arrow */}
           {showArrows && (
             <button
               className={cn(
@@ -181,7 +179,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             }}
             onScroll={handleScroll}
           >
-            {/* Hide webkit scrollbar using regular style tag */}
+            {/* Hide webkit scrollbar */}
             <style>
               {`
                 div::-webkit-scrollbar {
@@ -190,6 +188,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
               `}
             </style>
             
+            {/* Movie cards */}
             {movies.map((movie) => (
               <div
                 key={movie.id}
@@ -211,7 +210,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
             ))}
           </div>
 
-          {/* Right navigation button - only shown if showArrows is true */}
+          {/* Right navigation arrow */}
           {showArrows && (
             <button
               className={cn(
@@ -226,11 +225,11 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           )}
         </div>
         
-        {/* Dot Navigation Controls - always shown if enabled regardless of totalSlides */}
-        {useDotNavigation && visibleDots && (
+        {/* Dot Navigation Controls - now simpler and always visible when enabled */}
+        {useDotNavigation && totalSlides > 0 && (
           <div className="flex justify-center mt-4">
             <div className="flex items-center gap-2">
-              {Array.from({ length: Math.max(totalSlides, 1) }).map((_, index) => (
+              {Array.from({ length: totalSlides }).map((_, index) => (
                 <button 
                   key={index} 
                   onClick={() => scrollToSlide(index)} 
