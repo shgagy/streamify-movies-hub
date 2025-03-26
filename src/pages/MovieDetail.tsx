@@ -180,10 +180,10 @@ const MovieDetail: React.FC = () => {
             <ArrowLeft className="w-6 h-6" />
           </button>
 
-          <div className="relative z-20 flex items-end h-full page-container pb-16 pt-16">
-            <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center md:items-start w-full max-w-full overflow-hidden">
+          <div className="relative z-20 flex items-end h-full page-container pb-16 pt-20">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-6 items-center md:items-start w-full max-w-full overflow-hidden mt-4 md:mt-8">
               {isMdUp && (
-                <div className="w-48 md:w-64 overflow-hidden rounded-md shadow-lg animate-fade-in shrink-0">
+                <div className="w-40 md:w-56 overflow-hidden rounded-md shadow-lg animate-fade-in shrink-0">
                   <img
                     src={movie.posterUrl}
                     alt={movie.title}
@@ -192,83 +192,83 @@ const MovieDetail: React.FC = () => {
                 </div>
               )}
 
-              <div className="max-w-2xl md:max-w-[60%] animate-fade-in overflow-hidden">
-                <div className="flex flex-wrap gap-2 mb-3 md:mb-4 justify-center md:justify-start">
+              <div className="max-w-xl md:max-w-[55%] animate-fade-in overflow-hidden">
+                <div className="flex flex-wrap gap-1.5 md:gap-2 mb-2 md:mb-3 justify-center md:justify-start">
                   {movie.genres.slice(0, isMdUp ? 3 : 2).map((genre, index) => (
                     <span
                       key={index}
-                      className="px-2 md:px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-xs md:text-sm whitespace-nowrap"
+                      className="px-2 md:px-2.5 py-0.5 bg-white/10 backdrop-blur-sm rounded-full text-xs whitespace-nowrap"
                     >
                       {genre}
                     </span>
                   ))}
                 </div>
 
-                <h1 className="text-3xl md:text-4xl font-bold mb-3 md:mb-4 text-center md:text-left truncate">
+                <h1 className="text-2xl md:text-3xl font-bold mb-2 md:mb-3 text-center md:text-left truncate">
                   {movie.title}
                 </h1>
 
-                <div className="flex items-center text-sm mb-4 md:mb-6 text-white/80 justify-center md:justify-start">
+                <div className="flex items-center text-xs mb-3 md:mb-4 text-white/80 justify-center md:justify-start">
                   <span className="mr-4">{movie.releaseYear}</span>
                   <span className="mr-4 flex items-center">
-                    <Star className="w-4 h-4 text-yellow-500 mr-1" fill="currentColor" />
+                    <Star className="w-3.5 h-3.5 text-yellow-500 mr-1" fill="currentColor" />
                     <span className="font-bold mr-1">{movie.rating.toFixed(1)}</span>/10
                   </span>
                   <span className="flex items-center">
-                    <Clock className="w-4 h-4 mr-1" />
+                    <Clock className="w-3.5 h-3.5 mr-1" />
                     {movie.duration}
                   </span>
                 </div>
 
-                <p className="text-white/90 mb-6 text-center md:text-left line-clamp-3 md:line-clamp-2">
+                <p className="text-white/90 mb-4 md:mb-5 text-center md:text-left text-sm line-clamp-3 md:line-clamp-2">
                   {movie.description}
                 </p>
 
                 {isMdUp && (
                   <>
-                    <div className="mb-3 md:mb-4">
-                      <p className="text-white/60 mb-1">Director:</p>
-                      <p className="font-medium truncate">{movie.director}</p>
+                    <div className="mb-2 md:mb-3">
+                      <p className="text-white/60 mb-0.5 text-xs">Director:</p>
+                      <p className="font-medium truncate text-sm">{movie.director}</p>
                     </div>
 
-                    <div className="mb-6 md:mb-8">
-                      <p className="text-white/60 mb-1">Cast:</p>
-                      <p className="font-medium line-clamp-1">{movie.cast.join(", ")}</p>
+                    <div className="mb-4 md:mb-6">
+                      <p className="text-white/60 mb-0.5 text-xs">Cast:</p>
+                      <p className="font-medium line-clamp-1 text-sm">{movie.cast.join(", ")}</p>
                     </div>
                   </>
                 )}
 
-                <div className="flex flex-wrap gap-3 md:gap-4 justify-center md:justify-start">
+                <div className="flex flex-wrap gap-2 md:gap-3 justify-center md:justify-start">
                   <Button
-                    className="bg-primary hover:bg-primary/90 text-white px-4 md:px-6 py-2 md:py-3 rounded-md flex items-center space-x-2"
+                    className="bg-primary hover:bg-primary/90 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-md flex items-center space-x-1.5"
                   >
-                    <Play className="w-4 h-4 md:w-5 md:h-5" />
-                    <span>Play</span>
+                    <Play className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                    <span className="text-sm">Play</span>
                   </Button>
 
                   <Button
                     variant="outline"
-                    className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white px-4 md:px-6 py-2 md:py-3 rounded-md flex items-center space-x-2"
+                    className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white px-3 md:px-4 py-1.5 md:py-2 rounded-md flex items-center space-x-1.5"
                     onClick={handleMyListToggle}
                   >
                     {isInMyList ? (
                       <>
-                        <Check className="w-4 h-4 md:w-5 md:h-5" />
-                        <span>In My List</span>
+                        <Check className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                        <span className="text-sm">In My List</span>
                       </>
                     ) : (
                       <>
-                        <Plus className="w-4 h-4 md:w-5 md:h-5" />
-                        <span>My List</span>
+                        <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                        <span className="text-sm">My List</span>
                       </>
                     )}
                   </Button>
 
                   <Button
                     variant="outline"
-                    className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white p-2 md:p-3 rounded-full"
+                    className="bg-white/10 backdrop-blur-sm border-0 hover:bg-white/20 text-white p-1.5 md:p-2 rounded-full"
                   >
-                    <Share className="w-4 h-4 md:w-5 md:h-5" />
+                    <Share className="w-3.5 h-3.5 md:w-4 md:h-4" />
                   </Button>
                 </div>
               </div>
