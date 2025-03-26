@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
@@ -86,8 +85,6 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Trending Now"
                   movies={trendingMovies}
-                  autoPlay={true}
-                  interval={8000}
                 />
               )}
               
@@ -98,18 +95,13 @@ const Index: React.FC = () => {
                 />
               )}
               
-              {/* Featured Movies with backdrop layout */}
               {featuredMoviesForSlider.length > 0 && (
                 <ContentSlider
                   title="Featured Movies"
                   movies={featuredMoviesForSlider}
-                  layout="backdrop"
-                  autoPlay={true}
-                  interval={10000}
                 />
               )}
               
-              {/* Recently Added Anime */}
               {animeMovies.length > 0 && (
                 <ContentSlider
                   title="Recently Added Anime"
@@ -117,13 +109,10 @@ const Index: React.FC = () => {
                 />
               )}
               
-              {/* Featured Series */}
               {featuredSeries.length > 0 && (
                 <ContentSlider
                   title="Featured Series"
                   movies={featuredSeries}
-                  autoPlay={true}
-                  interval={9000}
                 />
               )}
               
