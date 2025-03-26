@@ -75,6 +75,11 @@
     font-feature-settings: "ss01", "ss02", "cv01", "cv02", "cv03";
   }
 
+  /* Force dark mode on the body */
+  body {
+    @apply dark:bg-streamify-black dark:text-white bg-streamify-black text-white;
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
@@ -150,22 +155,22 @@
 /* Light mode Streamify theme */
 :root:not(.dark) {
   .bg-streamify-black {
-    @apply bg-[#fafafa];
+    @apply bg-[#080808]; /* Force dark background even in light mode */
   }
   
   .bg-streamify-darkgray {
-    @apply bg-[#f0f0f0];
+    @apply bg-[#121212]; /* Force dark elements even in light mode */
   }
   
   .bg-streamify-gray {
-    @apply bg-[#e5e5e5];
+    @apply bg-[#1a1a1a]; /* Force dark elements even in light mode */
   }
   
   .bg-streamify-lightgray {
-    @apply bg-[#d0d0d0];
+    @apply bg-[#2a2a2a]; /* Force dark elements even in light mode */
   }
   
   .text-white {
-    @apply text-[#111];
+    @apply text-white; /* Force white text even in light mode */
   }
 }
