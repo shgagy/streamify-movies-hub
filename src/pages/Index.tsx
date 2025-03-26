@@ -31,14 +31,17 @@ const Index: React.FC = () => {
     .sort((a: Movie, b: Movie) => b.releaseYear - a.releaseYear)
     .slice(0, 10);
 
+  // Get featured movies for the hero carousel (using top 5 popular movies)
+  const featuredMovies = popularMovies.slice(0, 5);
+
   return (
     <div className="min-h-screen bg-streamify-black text-white">
       <Navbar />
       
       <main>
         {/* Hero Section */}
-        {!loadingAllMovies && allMovies.length > 0 && (
-          <Hero movie={allMovies[0]} />
+        {!loadingAllMovies && featuredMovies.length > 0 && (
+          <Hero movies={featuredMovies} />
         )}
         
         <div className="py-10">
