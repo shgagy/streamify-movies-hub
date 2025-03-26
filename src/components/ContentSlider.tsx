@@ -103,12 +103,12 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
   useEffect(() => {
     if (!autoPlay || totalPages <= 1 || isPaused) return;
     
-    const interval = setInterval(() => {
+    const autoPlayInterval = setInterval(() => {
       const nextPage = (currentPage + 1) % totalPages;
       goToPage(nextPage);
     }, interval);
     
-    return () => clearInterval(interval);
+    return () => clearInterval(autoPlayInterval);
   }, [autoPlay, currentPage, totalPages, goToPage, interval, isPaused]);
 
   // Handle pause on hover
