@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -189,7 +190,7 @@ const MovieDetail: React.FC = () => {
 
           {/* Content */}
           <div className="relative z-20 flex items-end h-full page-container pb-16 pt-8">
-            <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center md:items-start w-full">
+            <div className="flex flex-col md:flex-row gap-4 md:gap-8 items-center md:items-start w-full max-w-full overflow-hidden">
               {/* Movie Poster - Only show on medium screens and up */}
               {isMdUp && (
                 <div className="w-48 md:w-64 overflow-hidden rounded-md shadow-lg animate-fade-in shrink-0">
@@ -202,19 +203,19 @@ const MovieDetail: React.FC = () => {
               )}
 
               {/* Movie Info - More compact on mobile */}
-              <div className="max-w-2xl animate-fade-in">
+              <div className="max-w-2xl md:max-w-[60%] animate-fade-in overflow-hidden">
                 <div className="flex flex-wrap gap-2 mb-3 md:mb-4 justify-center md:justify-start">
-                  {movie.genres.slice(0, isMdUp ? 5 : 3).map((genre, index) => (
+                  {movie.genres.slice(0, isMdUp ? 3 : 2).map((genre, index) => (
                     <span
                       key={index}
-                      className="px-2 md:px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-xs md:text-sm"
+                      className="px-2 md:px-3 py-1 bg-white/10 backdrop-blur-sm rounded-full text-xs md:text-sm whitespace-nowrap"
                     >
                       {genre}
                     </span>
                   ))}
                 </div>
 
-                <h1 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4 text-center md:text-left">
+                <h1 className="text-3xl md:text-4xl font-bold mb-3 md:mb-4 text-center md:text-left truncate">
                   {movie.title}
                 </h1>
 
@@ -230,7 +231,7 @@ const MovieDetail: React.FC = () => {
                   </span>
                 </div>
 
-                <p className="text-white/90 mb-6 text-center md:text-left line-clamp-3 md:line-clamp-none">
+                <p className="text-white/90 mb-6 text-center md:text-left line-clamp-3 md:line-clamp-2">
                   {movie.description}
                 </p>
 
@@ -238,12 +239,12 @@ const MovieDetail: React.FC = () => {
                   <>
                     <div className="mb-3 md:mb-4">
                       <p className="text-white/60 mb-1">Director:</p>
-                      <p className="font-medium">{movie.director}</p>
+                      <p className="font-medium truncate">{movie.director}</p>
                     </div>
 
                     <div className="mb-6 md:mb-8">
                       <p className="text-white/60 mb-1">Cast:</p>
-                      <p className="font-medium">{movie.cast.join(", ")}</p>
+                      <p className="font-medium line-clamp-1">{movie.cast.join(", ")}</p>
                     </div>
                   </>
                 )}
