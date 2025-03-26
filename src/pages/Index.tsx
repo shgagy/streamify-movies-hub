@@ -92,6 +92,7 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Popular on Streamify"
                   movies={popularMovies}
+                  featured={true}
                 />
               )}
               
