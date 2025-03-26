@@ -65,7 +65,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
           {/* Content slider */}
           <div
             ref={sliderRef}
-            className="flex space-x-4 overflow-x-auto scrollbar-none py-4 px-2 -mx-2"
+            className="flex gap-4 overflow-x-auto scrollbar-none py-4 px-2 -mx-2"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             onScroll={handleScroll}
           >
@@ -83,16 +83,15 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
                 key={movie.id}
                 className={cn(
                   "flex-none animate-fade-in",
-                  layout === "backdrop" ? "first:pl-0 last:pr-8" : "",
-                  isMdUp ? "w-auto" : ""
+                  layout === "backdrop" ? "first:pl-0 last:pr-8" : ""
                 )}
                 style={{
-                  minWidth: isMdUp 
+                  width: isMdUp 
                     ? (layout === "poster" ? "180px" : "320px") 
-                    : (layout === "poster" ? "24%" : "65%"),
+                    : (layout === "poster" ? "28%" : "70%"),
                   maxWidth: isMdUp
                     ? (layout === "poster" ? "220px" : "400px")
-                    : (layout === "poster" ? "24%" : "65%")
+                    : (layout === "poster" ? "28%" : "70%")
                 }}
               >
                 <MovieCard movie={movie} layout={layout} size={isMdUp ? "md" : "sm"} />
