@@ -9,7 +9,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import Index from "./pages/Index";
 import MovieDetail from "./pages/MovieDetail";
-import SeriesDetail from "./pages/SeriesDetail";
 import MyList from "./pages/MyList";
 import SearchResults from "./pages/SearchResults";
 import Movies from "./pages/Movies";
@@ -33,8 +32,6 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/movie/:id" element={<MovieDetail />} />
-                <Route path="/tv/:id" element={<SeriesDetail />} />
-                <Route path="/series/:id" element={<SeriesDetail />} />
                 <Route path="/watch/:type/:id" element={<Watch />} />
                 <Route path="/my-list" element={<MyList />} />
                 <Route path="/search" element={<SearchResults />} />
