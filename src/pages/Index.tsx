@@ -102,7 +102,7 @@ const Index: React.FC = () => {
                 />
               )}
               
-              {/* New section: Recently Added Anime */}
+              {/* Recently Added Anime */}
               {animeMovies.length > 0 && (
                 <ContentSlider
                   title="Recently Added Anime"
@@ -113,7 +113,7 @@ const Index: React.FC = () => {
                 />
               )}
               
-              {/* New section: Featured Series */}
+              {/* Featured Series */}
               {featuredSeries.length > 0 && (
                 <ContentSlider
                   title="Featured Series"

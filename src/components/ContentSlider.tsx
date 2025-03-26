@@ -36,7 +36,7 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
     ? (layout === "poster" ? 5 : 3) 
     : (layout === "poster" ? 3 : 1);
 
-  const totalSlides = Math.ceil(movies.length / itemsPerPage) || 1;
+  const totalSlides = Math.max(Math.ceil(movies.length / itemsPerPage) || 1, 1);
 
   const scrollToSlide = useCallback((index: number) => {
     if (!sliderRef.current) return;
@@ -53,8 +53,8 @@ const ContentSlider: React.FC<ContentSliderProps> = ({
       behavior: 'smooth'
     });
     
-    console.log(`Scrolled to slide ${index}`);
-  }, [itemsPerPage]);
+    console.log(`Scrolled to slide ${index} for ${title}`);
+  }, [itemsPerPage, title]);
 
   const scroll = (direction: "left" | "right") => {
     if (direction === "left") {
