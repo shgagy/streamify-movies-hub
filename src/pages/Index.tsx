@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
@@ -72,7 +71,7 @@ const Index: React.FC = () => {
             <Welcome />
           </div>
           
-          {/* Content Sliders */}
+          {/* Content Sections */}
           {loadingTrending || loadingPopular || loadingAllMovies || loadingPopularTVShows ? (
             <div className="flex justify-center py-12">
               <div className="animate-pulse flex flex-col items-center">
@@ -86,8 +85,6 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Trending Now"
                   movies={trendingMovies}
-                  autoPlay={true}
-                  interval={10000}
                 />
               )}
               
@@ -95,8 +92,6 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Popular on Streamify"
                   movies={popularMovies}
-                  autoPlay={true}
-                  interval={12000}
                 />
               )}
               
@@ -105,8 +100,6 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Recently Added Anime"
                   movies={animeMovies}
-                  autoPlay={true}
-                  interval={15000}
                 />
               )}
               
@@ -115,8 +108,6 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Featured Series"
                   movies={featuredSeries}
-                  autoPlay={true}
-                  interval={13000}
                 />
               )}
               
@@ -126,8 +117,6 @@ const Index: React.FC = () => {
                   title="Featured Movies"
                   movies={featuredMoviesForSlider}
                   layout="backdrop"
-                  autoPlay={true}
-                  interval={8000}
                 />
               )}
               
@@ -135,8 +124,6 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Recent Releases"
                   movies={recentReleases}
-                  autoPlay={true}
-                  interval={11000}
                 />
               )}
             </>
