@@ -1,8 +1,7 @@
-
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { toast } from "sonner";
 
-// Mock types to replace Supabase types
+// Simplified user types without Supabase references
 export type User = {
   id: string;
   email: string;
