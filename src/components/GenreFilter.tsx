@@ -1,132 +1,159 @@
 
-import React, { useRef, useEffect, useCallback } from "react";
-import { genres } from "@/lib/mockData";
+import React, { useRef, useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { fetchAllGenres } from "@/services/api";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import useResponsive from "@/hooks/useResponsive";
 
 interface GenreFilterProps {
-  onSelectGenre: (genreId: string | null) => void;
   selectedGenreId: string | null;
+  onSelectGenre: (genreId: string | null) => void;
 }
 
-const GenreFilter: React.FC<GenreFilterProps> = ({ 
-  onSelectGenre, 
-  selectedGenreId 
+const GenreFilter: React.FC<GenreFilterProps> = ({
+  selectedGenreId,
+  onSelectGenre,
 }) => {
+  const { data: genres = [] } = useQuery({
+    queryKey: ['genres'],
+    queryFn: fetchAllGenres
+  });
+  
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [showLeftArrow, setShowLeftArrow] = React.useState(false);
-  const [showRightArrow, setShowRightArrow] = React.useState(true);
-  const { isXs, isSm } = useResponsive();
-
-  // Adjust scroll amount based on screen size
-  const scrollAmount = isXs ? 120 : 200;
-
-  // Handle scroll position to show/hide navigation arrows
-  const handleScroll = useCallback(() => {
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  
+  // Calculate how many genres fit in the visible area
+  const calculatePages = () => {
     if (!scrollContainerRef.current) return;
     
-    const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+    const containerWidth = scrollContainerRef.current.clientWidth;
+    const firstButton = scrollContainerRef.current.querySelector('button');
+    if (!firstButton) return;
     
-    setShowLeftArrow(scrollLeft > 0);
-    setShowRightArrow(scrollLeft + clientWidth < scrollWidth - 10);
-  }, []);
+    // Include margin/padding in the calculation
+    const buttonWidth = firstButton.offsetWidth + 8; // 8px for margin/gap
+    const genresPerPage = Math.floor(containerWidth / buttonWidth);
+    const pages = Math.ceil(genres.length / genresPerPage);
+    
+    setTotalPages(Math.max(1, pages));
+  };
 
-  // Add scroll event listener
-  useEffect(() => {
-    const scrollContainer = scrollContainerRef.current;
-    if (scrollContainer) {
-      scrollContainer.addEventListener('scroll', handleScroll);
-      // Check initial scroll position
-      handleScroll();
-      
-      return () => {
-        scrollContainer.removeEventListener('scroll', handleScroll);
-      };
-    }
-  }, [handleScroll]);
-
-  // Scroll left/right
-  const handleScrollClick = useCallback((direction: 'left' | 'right') => {
+  // Handle page navigation
+  const goToPage = (pageIndex: number) => {
     if (!scrollContainerRef.current) return;
     
-    const { scrollLeft } = scrollContainerRef.current;
-    const newScrollLeft = direction === 'left' 
-      ? scrollLeft - scrollAmount 
-      : scrollLeft + scrollAmount;
+    // Ensure index is in bounds
+    const boundedIndex = Math.max(0, Math.min(pageIndex, totalPages - 1));
+    setCurrentPage(boundedIndex);
     
+    const firstButton = scrollContainerRef.current.querySelector('button');
+    if (!firstButton) return;
+    
+    // Calculate scroll position
+    const buttonWidth = firstButton.offsetWidth + 8; // 8px for margin/gap
+    const containerWidth = scrollContainerRef.current.clientWidth;
+    const genresPerPage = Math.floor(containerWidth / buttonWidth);
+    const scrollPos = boundedIndex * genresPerPage * buttonWidth;
+    
+    // Smooth scroll to position
     scrollContainerRef.current.scrollTo({
-      left: newScrollLeft,
+      left: scrollPos,
       behavior: 'smooth'
     });
-  }, [scrollAmount]);
+  };
 
-  // Memoize the button class function to improve performance
-  const getButtonClass = useCallback((isSelected: boolean) => {
-    return cn(
-      "whitespace-nowrap transition-colors text-xs md:text-sm px-2 md:px-4",
-      isSelected
-        ? "bg-primary text-white hover:bg-primary/90"
-        : "bg-streamify-darkgray hover:bg-streamify-gray"
-    );
-  }, []);
+  // Initialize and handle window resize
+  useEffect(() => {
+    calculatePages();
+    
+    const handleResize = () => {
+      calculatePages();
+      goToPage(0); // Reset to first page on resize
+    };
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [genres.length]);
+  
+  // Update current page when scrolling manually
+  const handleScroll = () => {
+    if (!scrollContainerRef.current) return;
+    
+    const firstButton = scrollContainerRef.current.querySelector('button');
+    if (!firstButton) return;
+    
+    const buttonWidth = firstButton.offsetWidth + 8;
+    const containerWidth = scrollContainerRef.current.clientWidth;
+    const genresPerPage = Math.floor(containerWidth / buttonWidth);
+    const scrollPos = scrollContainerRef.current.scrollLeft;
+    
+    const newPage = Math.round(scrollPos / (genresPerPage * buttonWidth));
+    if (newPage !== currentPage && newPage < totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
 
   return (
-    <div className="relative">
-      {/* Left scroll button */}
-      {showLeftArrow && (
-        <button 
-          onClick={() => handleScrollClick('left')}
-          className="absolute left-0 top-1/2 -translate-y-1/2 z-10 p-1 bg-streamify-black/90 text-white rounded-full shadow-md hover:bg-primary/80 transition-all"
-          aria-label="Scroll left"
+    <div className="space-y-4">
+      {/* Genre buttons */}
+      <div className="relative">
+        <div 
+          ref={scrollContainerRef}
+          className="overflow-x-auto scrollbar-none py-3 px-2 -mx-2 flex space-x-2"
+          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          onScroll={handleScroll}
         >
-          <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
-        </button>
-      )}
-      
-      <div 
-        ref={scrollContainerRef}
-        className="overflow-x-auto scrollbar-none py-3 px-2 -mx-2 flex space-x-2 relative"
-      >
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onSelectGenre(null)}
-          className={getButtonClass(selectedGenreId === null)}
-        >
-          All Genres
-        </Button>
-        
-        {genres.map((genre) => (
+          {/* Style to hide webkit scrollbar */}
+          <style>
+            {`
+              div::-webkit-scrollbar {
+                display: none;
+              }
+            `}
+          </style>
+          
           <Button
-            key={genre.id}
-            variant="outline"
-            size="sm"
-            onClick={() => onSelectGenre(genre.id)}
-            className={getButtonClass(selectedGenreId === genre.id)}
+            variant={selectedGenreId === null ? "default" : "outline"}
+            onClick={() => onSelectGenre(null)}
+            className="whitespace-nowrap min-w-max"
           >
-            {genre.name}
+            All
           </Button>
-        ))}
+          
+          {genres.map((genre: any) => (
+            <Button
+              key={genre.id}
+              variant={selectedGenreId === genre.id ? "default" : "outline"}
+              onClick={() => onSelectGenre(genre.id)}
+              className="whitespace-nowrap min-w-max"
+            >
+              {genre.name}
+            </Button>
+          ))}
+        </div>
       </div>
       
-      {/* Right scroll button */}
-      {showRightArrow && (
-        <button 
-          onClick={() => handleScrollClick('right')}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 p-1 bg-streamify-black/90 text-white rounded-full shadow-md hover:bg-primary/80 transition-all"
-          aria-label="Scroll right"
-        >
-          <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
-        </button>
+      {/* Dot Navigation */}
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-2">
+          <div className="flex items-center gap-2">
+            {Array.from({ length: totalPages }).map((_, index) => (
+              <button 
+                key={index} 
+                onClick={() => goToPage(index)} 
+                className={`transition-all duration-300 ${
+                  index === currentPage 
+                    ? "bg-primary w-8 h-2.5 rounded-full" 
+                    : "bg-white/30 hover:bg-white/50 w-2.5 h-2.5 rounded-full"
+                }`} 
+                aria-label={`Go to page ${index + 1}`} 
+              />
+            ))}
+          </div>
+        </div>
       )}
-      
-      {/* Gradient fades for better scrolling indication */}
-      <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-streamify-black to-transparent pointer-events-none z-[1]" 
-           style={{ opacity: showLeftArrow ? 1 : 0, transition: 'opacity 0.3s ease' }} />
-      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-streamify-black to-transparent pointer-events-none z-[1]" 
-           style={{ opacity: showRightArrow ? 1 : 0, transition: 'opacity 0.3s ease' }} />
     </div>
   );
 };
