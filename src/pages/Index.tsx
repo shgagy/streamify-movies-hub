@@ -96,7 +96,7 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Popular on Streamify"
                   movies={popularMovies}
-                  useDotNavigation={false}
+                  useDotNavigation={true}
                   autoPlay={false}
                   showArrows={false}
                 />
@@ -107,7 +107,7 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Recently Added Anime"
                   movies={animeMovies}
-                  useDotNavigation={false}
+                  useDotNavigation={true}
                   autoPlay={false}
                   showArrows={false}
                 />
@@ -118,7 +118,7 @@ const Index: React.FC = () => {
                 <ContentSlider
                   title="Featured Series"
                   movies={featuredSeries}
-                  useDotNavigation={false}
+                  useDotNavigation={true}
                   autoPlay={false}
                   showArrows={false}
                 />
