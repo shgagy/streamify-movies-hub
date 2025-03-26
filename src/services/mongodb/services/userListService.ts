@@ -28,15 +28,25 @@ class UserListService {
       }
       
       // Add to existing list
+      const newItem = { 
+        id: itemId, 
+        type: itemType, 
+        addedAt: new Date() 
+      };
+      
       return this.userListDb.updateOne(
         { userId },
-        { $push: { items: { id: itemId, type: itemType, addedAt: new Date() } } }
+        { $push: { items: newItem } }
       );
     } else {
       // Create new list
       const newList: UserListDocument = {
         userId,
-        items: [{ id: itemId, type: itemType, addedAt: new Date() }]
+        items: [{ 
+          id: itemId, 
+          type: itemType, 
+          addedAt: new Date() 
+        }]
       };
       
       const insertId = await this.userListDb.insertOne(newList);

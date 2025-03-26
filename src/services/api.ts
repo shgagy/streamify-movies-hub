@@ -4,11 +4,13 @@ import { tvShowService } from './mongodb/services/tvShowService';
 import { userService } from './mongodb/services/userService';
 import { userListService } from './mongodb/services/userListService';
 import { genres } from '@/lib/mockData';
+import { mapMovieDocument, mapMovieDocuments, mapTVShowDocument, mapTVShowDocuments } from './mongodb/utils/documentMappers';
 
 // Movies API
 export const fetchAllMovies = async () => {
   try {
-    return await movieService.getAllMovies();
+    const movies = await movieService.getAllMovies();
+    return mapMovieDocuments(movies);
   } catch (error) {
     console.error('Error fetching all movies:', error);
     throw error;
@@ -21,7 +23,7 @@ export const fetchMovieById = async (id: string) => {
     if (!movie) {
       throw new Error('Movie not found');
     }
-    return movie;
+    return mapMovieDocument(movie);
   } catch (error) {
     console.error(`Error fetching movie with id ${id}:`, error);
     throw error;
@@ -30,7 +32,8 @@ export const fetchMovieById = async (id: string) => {
 
 export const fetchMoviesByGenre = async (genreId: string) => {
   try {
-    return await movieService.getMoviesByGenre(genreId);
+    const movies = await movieService.getMoviesByGenre(genreId);
+    return mapMovieDocuments(movies);
   } catch (error) {
     console.error(`Error fetching movies by genre ${genreId}:`, error);
     throw error;
@@ -39,7 +42,8 @@ export const fetchMoviesByGenre = async (genreId: string) => {
 
 export const fetchTrendingMovies = async () => {
   try {
-    return await movieService.getTrendingMovies();
+    const movies = await movieService.getTrendingMovies();
+    return mapMovieDocuments(movies);
   } catch (error) {
     console.error('Error fetching trending movies:', error);
     throw error;
@@ -48,7 +52,8 @@ export const fetchTrendingMovies = async () => {
 
 export const fetchPopularMovies = async () => {
   try {
-    return await movieService.getPopularMovies();
+    const movies = await movieService.getPopularMovies();
+    return mapMovieDocuments(movies);
   } catch (error) {
     console.error('Error fetching popular movies:', error);
     throw error;
@@ -57,7 +62,8 @@ export const fetchPopularMovies = async () => {
 
 export const searchMovies = async (query: string) => {
   try {
-    return await movieService.searchMovies(query);
+    const movies = await movieService.searchMovies(query);
+    return mapMovieDocuments(movies);
   } catch (error) {
     console.error(`Error searching movies with query "${query}":`, error);
     throw error;
@@ -67,7 +73,8 @@ export const searchMovies = async (query: string) => {
 // TV Shows API
 export const fetchAllTVShows = async () => {
   try {
-    return await tvShowService.getAllTVShows();
+    const tvShows = await tvShowService.getAllTVShows();
+    return mapTVShowDocuments(tvShows);
   } catch (error) {
     console.error('Error fetching all TV shows:', error);
     throw error;
@@ -80,7 +87,7 @@ export const fetchTVShowById = async (id: string) => {
     if (!tvShow) {
       throw new Error('TV Show not found');
     }
-    return tvShow;
+    return mapTVShowDocument(tvShow);
   } catch (error) {
     console.error(`Error fetching TV show with id ${id}:`, error);
     throw error;
@@ -89,7 +96,8 @@ export const fetchTVShowById = async (id: string) => {
 
 export const fetchTVShowsByGenre = async (genreId: string) => {
   try {
-    return await tvShowService.getTVShowsByGenre(genreId);
+    const tvShows = await tvShowService.getTVShowsByGenre(genreId);
+    return mapTVShowDocuments(tvShows);
   } catch (error) {
     console.error(`Error fetching TV shows by genre ${genreId}:`, error);
     throw error;
@@ -98,7 +106,8 @@ export const fetchTVShowsByGenre = async (genreId: string) => {
 
 export const fetchTrendingTVShows = async () => {
   try {
-    return await tvShowService.getTrendingTVShows();
+    const tvShows = await tvShowService.getTrendingTVShows();
+    return mapTVShowDocuments(tvShows);
   } catch (error) {
     console.error('Error fetching trending TV shows:', error);
     throw error;
@@ -107,7 +116,8 @@ export const fetchTrendingTVShows = async () => {
 
 export const fetchPopularTVShows = async () => {
   try {
-    return await tvShowService.getPopularTVShows();
+    const tvShows = await tvShowService.getPopularTVShows();
+    return mapTVShowDocuments(tvShows);
   } catch (error) {
     console.error('Error fetching popular TV shows:', error);
     throw error;
@@ -116,7 +126,8 @@ export const fetchPopularTVShows = async () => {
 
 export const searchTVShows = async (query: string) => {
   try {
-    return await tvShowService.searchTVShows(query);
+    const tvShows = await tvShowService.searchTVShows(query);
+    return mapTVShowDocuments(tvShows);
   } catch (error) {
     console.error(`Error searching TV shows with query "${query}":`, error);
     throw error;
@@ -133,7 +144,15 @@ export const fetchAllGenres = async () => {
 // User List API
 export const fetchUserList = async (userId: string) => {
   try {
-    return await userListService.getUserListItems(userId);
+    const items = await userListService.getUserListItems(userId);
+    // Map each item appropriately
+    return items.map(item => {
+      if ('firstAirDate' in item) {
+        return mapTVShowDocument(item);
+      } else {
+        return mapMovieDocument(item);
+      }
+    });
   } catch (error) {
     console.error(`Error fetching user list for user ${userId}:`, error);
     throw error;

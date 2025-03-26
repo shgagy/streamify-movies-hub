@@ -20,6 +20,7 @@ class UserService {
 
   async createUser(user: Omit<UserDocument, '_id'>): Promise<string | null> {
     const now = new Date();
+    // Ensure all required properties are present
     const newUser: UserDocument = {
       ...user,
       createdAt: now,

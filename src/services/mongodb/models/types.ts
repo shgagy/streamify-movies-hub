@@ -5,16 +5,24 @@ export interface MovieDocument extends Document {
   _id?: ObjectId;
   id: string;
   title: string;
-  overview: string;
-  posterPath: string;
-  backdropPath: string;
-  releaseDate: string;
-  runtime: number;
+  overview: string;  // Maps to description in UI
+  posterPath: string;  // Maps to posterUrl in UI
+  backdropPath: string;  // Maps to backdropUrl in UI
+  releaseDate: string;  // Used to derive releaseYear
+  runtime: number;  // Maps to duration in UI
   rating: number;
   genres: string[];
   director: string;
   cast: string[];
   trailerUrl?: string;
+  
+  // UI-specific fields
+  description: string;  // Same as overview
+  posterUrl: string;  // Same as posterPath
+  backdropUrl: string;  // Same as backdropPath
+  releaseYear: number;  // Derived from releaseDate
+  duration: string;  // Formatted runtime
+  featured?: boolean;
 }
 
 export interface TVShowDocument extends Document {
@@ -34,6 +42,16 @@ export interface TVShowDocument extends Document {
   creator: string;
   cast: string[];
   trailerUrl?: string;
+  
+  // UI-specific fields
+  description: string;  // Same as overview
+  posterUrl: string;  // Same as posterPath
+  backdropUrl: string;  // Same as backdropPath
+  releaseYear: number;  // Derived from firstAirDate
+  duration: string;  // Formatted episodeRuntime
+  seasons: number;  // Same as numberOfSeasons
+  episodes: number;  // Same as numberOfEpisodes
+  featured?: boolean;
 }
 
 export interface UserListDocument extends Document {
